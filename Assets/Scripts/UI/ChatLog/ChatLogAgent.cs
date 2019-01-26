@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
+using System.Timers;
 using UnityEngine;
 
 namespace UI.ChatLog {
@@ -56,18 +57,13 @@ namespace UI.ChatLog {
 //				}
 				var visualOffset = 0.00f;
 				for (var i = messageList.Count - 1; i >= 0; i--) {
-					visualOffset += 0.50f;
+					visualOffset += 0.02f;
 					messageList[i].Degalvanize(visualOffset);
 				}
 			}
 
 			foreach (var message in messageList) {
 				message.Update();
-				/*if (!messageList[i].IsAlive())
-			{
-				messageList.RemoveAt(i);
-				i -= 1;
-			}*/
 			}
 		}
 

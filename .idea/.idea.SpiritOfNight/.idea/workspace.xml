@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5d639798-0ae7-408c-b2d8-dc0410ac7575" name="Default Changelist" comment="" />
+    <list default="true" id="5d639798-0ae7-408c-b2d8-dc0410ac7575" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.SpiritOfNight/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.SpiritOfNight/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogAgent.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogAgent.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogMessage.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogMessage.cs" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -10,7 +14,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Assets/Scripts/Test/TombCoverAnimation.cs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="44">
@@ -26,13 +30,206 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogAgent.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="704">
+              <caret line="60" column="46" lean-forward="true" selection-start-line="60" selection-start-column="46" selection-end-line="60" selection-end-column="46" />
+              <folding>
+                <marker date="1548460147662" expanded="false" signature="6:97" ph="..." />
+                <marker date="1548460147662" expanded="true" signature="120:3404" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="165:3402" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="726:925" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="951:2280" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="987:1036" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1075:1110" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1150:1275" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1306:1422" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1514:1755" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1670:1750" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1849:2206" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="1953:2035" ph="/* foreach (var message in messageList) { ... */" />
+                <marker date="1548460147662" expanded="true" signature="2119:2201" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2248:2276" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2305:2658" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2370:2457" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2400:2422" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2475:2493" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2604:2635" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2720:3255" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2866:2905" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="2970:3157" ph="{...}" />
+                <marker date="1548460147662" expanded="true" signature="3321:3399" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogMessage.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="396">
+              <caret line="92" column="26" selection-start-line="92" selection-start-column="26" selection-end-line="92" selection-end-column="26" />
+              <folding>
+                <marker date="1548460250038" expanded="false" signature="6:48" ph="..." />
+                <marker date="1548460250038" expanded="true" signature="71:6185" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="102:6183" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="982:1276" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="1244:1272" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="1313:1427" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="1457:2092" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="1533:1588" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="1611:1663" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="2155:2727" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="2190:2213" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="2359:2707" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="2773:3046" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="2856:2874" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="2896:2937" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3093:3248" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3116:3159" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3273:5401" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3306:3420" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3379:3415" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3458:3578" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3535:3573" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3638:3808" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3727:3759" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3856:4011" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="3936:4006" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="4030:4187" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="4112:4182" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="4237:4554" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="4577:4907" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="4957:5320" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="5489:5908" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="5934:5984" ph="{...}" />
+                <marker date="1548460250038" expanded="true" signature="6072:6180" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Assets/Scripts/Environment/ShowMessageOnInteract.cs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="176">
+              <caret line="10" column="42" selection-start-line="10" selection-start-column="42" selection-end-line="10" selection-end-column="42" />
+              <folding>
+                <marker date="1548460477488" expanded="false" signature="6:48" ph="..." />
+                <marker date="1548460477488" expanded="true" signature="72:873" ph="{...}" />
+                <marker date="1548460477488" expanded="true" signature="123:871" ph="{...}" />
+                <marker date="1548460477488" expanded="true" signature="428:514" ph="{...}" />
+                <marker date="1548460477488" expanded="true" signature="566:865" ph="{...}" />
+                <marker date="1548460477488" expanded="true" signature="611:650" ph="{...}" />
+                <marker date="1548460477488" expanded="true" signature="771:855" ph="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Test/TombCoverAnimation.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogAgent.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogMessage.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Environment/ShowMessageOnInteract.cs" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogAgent.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogMessage.cs" />
+        <option value="$PROJECT_DIR$/Assets/Scripts/Environment/ShowMessageOnInteract.cs" />
+      </list>
+    </option>
+  </component>
+  <component name="InvalidFacetManager">
+    <ignored-facets>
+      <facet id="riderModule/invalid/Default Android Facet" />
+    </ignored-facets>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="580" />
     <option name="y" value="200" />
     <option name="width" value="1400" />
     <option name="height" value="1000" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="UnityExplorer" proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="SolutionExplorer">
+        <option name="show-all-files" value="false" />
+      </pane>
+      <pane id="FileSystemExplorer" />
+      <pane id="UnityExplorer">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="Environment" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="Settings" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="Spring" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="Test" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="UI" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="UI" type="1045f7f1:UnityExplorerNode" />
+              <item name="ChatLog" type="1045f7f1:UnityExplorerNode" />
+            </path>
+            <path>
+              <item name="Project" type="e068e287:UnityExplorerRootNode" />
+              <item name="Assets" type="48f920db:UnityExplorerNode$AssetsRoot" />
+              <item name="Scripts" type="1045f7f1:UnityExplorerNode" />
+              <item name="Units" type="1045f7f1:UnityExplorerNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+        <option name="show-hidden-items" value="false" />
+      </pane>
+      <pane id="AssemblyExplorer" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="Rider.DefaultBreakpoints.AreToggled" value="true" />
@@ -67,6 +264,9 @@
       <method v="2" />
     </configuration>
   </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="5d639798-0ae7-408c-b2d8-dc0410ac7575" name="Default Changelist" comment="" />
@@ -74,12 +274,21 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1548458953489</updated>
-      <workItem from="1548458956219" duration="240000" />
+      <workItem from="1548458956219" duration="2120000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="240000" />
+    <option name="totallyTimeSpent" value="2120000" />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1416" extended-state="6" />
@@ -145,6 +354,98 @@
             <marker date="1467210247614" expanded="true" signature="109:120" ph="{...}" />
             <marker date="1467210247614" expanded="true" signature="137:278" ph="{...}" />
             <marker date="1467210247614" expanded="true" signature="192:275" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogAgent.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="704">
+          <caret line="60" column="46" lean-forward="true" selection-start-line="60" selection-start-column="46" selection-end-line="60" selection-end-column="46" />
+          <folding>
+            <marker date="1548460147662" expanded="false" signature="6:97" ph="..." />
+            <marker date="1548460147662" expanded="true" signature="120:3404" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="165:3402" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="726:925" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="951:2280" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="987:1036" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1075:1110" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1150:1275" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1306:1422" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1514:1755" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1670:1750" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1849:2206" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="1953:2035" ph="/* foreach (var message in messageList) { ... */" />
+            <marker date="1548460147662" expanded="true" signature="2119:2201" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2248:2276" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2305:2658" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2370:2457" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2400:2422" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2475:2493" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2604:2635" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2720:3255" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2866:2905" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="2970:3157" ph="{...}" />
+            <marker date="1548460147662" expanded="true" signature="3321:3399" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/UI/ChatLog/ChatLogMessage.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="92" column="26" selection-start-line="92" selection-start-column="26" selection-end-line="92" selection-end-column="26" />
+          <folding>
+            <marker date="1548460250038" expanded="false" signature="6:48" ph="..." />
+            <marker date="1548460250038" expanded="true" signature="71:6185" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="102:6183" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="982:1276" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="1244:1272" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="1313:1427" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="1457:2092" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="1533:1588" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="1611:1663" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="2155:2727" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="2190:2213" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="2359:2707" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="2773:3046" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="2856:2874" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="2896:2937" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3093:3248" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3116:3159" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3273:5401" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3306:3420" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3379:3415" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3458:3578" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3535:3573" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3638:3808" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3727:3759" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3856:4011" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="3936:4006" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="4030:4187" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="4112:4182" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="4237:4554" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="4577:4907" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="4957:5320" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="5489:5908" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="5934:5984" ph="{...}" />
+            <marker date="1548460250038" expanded="true" signature="6072:6180" ph="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Assets/Scripts/Environment/ShowMessageOnInteract.cs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="176">
+          <caret line="10" column="42" selection-start-line="10" selection-start-column="42" selection-end-line="10" selection-end-column="42" />
+          <folding>
+            <marker date="1548460477488" expanded="false" signature="6:48" ph="..." />
+            <marker date="1548460477488" expanded="true" signature="72:873" ph="{...}" />
+            <marker date="1548460477488" expanded="true" signature="123:871" ph="{...}" />
+            <marker date="1548460477488" expanded="true" signature="428:514" ph="{...}" />
+            <marker date="1548460477488" expanded="true" signature="566:865" ph="{...}" />
+            <marker date="1548460477488" expanded="true" signature="611:650" ph="{...}" />
+            <marker date="1548460477488" expanded="true" signature="771:855" ph="{...}" />
           </folding>
         </state>
       </provider>
