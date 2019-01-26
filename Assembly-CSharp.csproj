@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\UI\ChatLog\ChatLog.cs" />
     <Compile Include="Assets\Scripts\UI\ChatLog\ChatLogAgent.cs" />
     <Compile Include="Assets\Scripts\UI\ChatLog\ChatLogMessage.cs" />
+    <Compile Include="Assets\Scripts\UI\ChatLog\ChatLogMessageMovement.cs" />
     <Compile Include="Assets\Scripts\UI\ChatLog\ChatLogMessageQueueEntry.cs" />
     <Compile Include="Assets\Scripts\UI\HeroStatsUI.cs" />
     <Compile Include="Assets\Scripts\UI\KeyStatus.cs" />

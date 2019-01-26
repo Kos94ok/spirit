@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Settings;
 using UnityEngine;
 
@@ -6,48 +7,45 @@ namespace UI.ChatLog {
 	public class ChatLogMessage {
 		private readonly KeyStatus keyStatus = AutowireFactory.GetInstanceOf<KeyStatus>();
 		
-		private bool isGalvanized;
-		private bool isFadingIn = true;
-		private bool isFadingOut;
-		private bool isMoving;
-		private const float fadeInThreshold = 0.50f;
-		private const float fadeOutThreshold = 0.50f;
-		private const float movementThreshold = 0.50f;
+		private bool IsGalvanized;
+		private bool IsFadingIn = true;
+		private bool IsFadingOut;
+		private const float FadeInTime = 0.50f;
+		private const float FadeOutTime = 0.50f;
+		private const float MovementTime = 0.50f;
 
-		private float fadeInCounter;
-		private float lifeTimer = 5.00f;
-		private float galvanizeDelay;
-		private float degalvanizeDelay;
-		private float movementTimer;
-		private float movementDistance;
+		private float FadeInCounter;
+		private float LifeTimer = 5.00f;
+		private float GalvanizeDelay;
+		private float DegalvanizeDelay;
+		private List<ChatLogMessageMovement> Movements = new List<ChatLogMessageMovement>();
 		
-		private const float spawnOffset = 30.00f;
+		private const float SpawnOffset = 30.00f;
 
-		private readonly string text;
-		private readonly Rect windowRect;
-		private readonly Color color;
+		private readonly string Text;
+		private readonly Rect WindowRect;
+		private readonly Color Color;
 
-		private readonly float labelHeight;
-		private float position;
-		private float anchorPosition;
+		private readonly float LabelHeight;
+		private float Position;
+		private float AnchorPosition;
 
 		public ChatLogMessage(string text, float labelHeight, Rect windowRect, Color color) {
-			this.text = Utility.ConvertColorStrings(text);
-			this.labelHeight = labelHeight;
-			this.color = color;
-			this.windowRect = windowRect;
-			position = -spawnOffset;
-			anchorPosition = 0.00f;
+			Text = Utility.ConvertColorStrings(text);
+			LabelHeight = labelHeight;
+			Color = color;
+			WindowRect = windowRect;
+			Position = -SpawnOffset;
+			AnchorPosition = 0.00f;
 			if (keyStatus.IsPressed(KeyBinding.Action.GalvanizeChatLog)) {
 				Galvanize(0.00f);
 			}
 		}
 
 		public void Move(float distance) {
-			anchorPosition += distance;
-			isMoving = true;
-			movementTimer = 0.00f;
-			movementDistance = distance;
+			AnchorPosition += distance;
+			var movement = new ChatLogMessageMovement(distance, MovementTime);
+			Movements.Add(movement);
 		}
 		
 		public void DrawLabel() {
@@ -55,18 +53,18 @@ namespace UI.ChatLog {
 				return;
 
 			var fadeValue = 1f;
-			if (isFadingIn) {
-				fadeValue = fadeInCounter / fadeInThreshold;
-			} else if (isFadingOut) {
-				fadeValue = lifeTimer / fadeOutThreshold;
+			if (IsFadingIn) {
+				fadeValue = FadeInCounter / FadeInTime;
+			} else if (IsFadingOut) {
+				fadeValue = LifeTimer / FadeOutTime;
 			}
 
 			/* No idea what that is, but it's probably here for a reason */
-			var displayText = FixColorCodes(text, fadeValue);
+			var displayText = FixColorCodes(Text, fadeValue);
 
 			var oldColor = GUI.skin.label.normal.textColor;
-			GUI.skin.label.normal.textColor = new Color(color.r, color.g, color.b, fadeValue);
-			GUI.Label(new Rect(0.00f, windowRect.height - labelHeight - position, windowRect.width, labelHeight), displayText);
+			GUI.skin.label.normal.textColor = new Color(Color.r, Color.g, Color.b, fadeValue);
+			GUI.Label(new Rect(0.00f, WindowRect.height - LabelHeight - Position, WindowRect.width, LabelHeight), displayText);
 			GUI.skin.label.normal.textColor = oldColor;
 		}
 
@@ -88,99 +86,102 @@ namespace UI.ChatLog {
 		}
 
 		public void Galvanize(float visualOffset) {
-			isGalvanized = true;
-			lifeTimer = -1.00f;
-			if (IsAlive() && !isFadingOut) {
+			IsGalvanized = true;
+			LifeTimer = -1.00f;
+			if (IsAlive() && !IsFadingOut) {
 				return;
 			}
 
-			if (!isFadingIn) {
-				galvanizeDelay = visualOffset;
+			if (!IsFadingIn) {
+				GalvanizeDelay = visualOffset;
 			}
 			
-			isFadingIn = true;
-			isFadingOut = false;
-			fadeInCounter = 0.00f;
+			IsFadingIn = true;
+			IsFadingOut = false;
+			FadeInCounter = 0.00f;
 
-			position = -spawnOffset;
+			Position = -SpawnOffset;
 		}
 		public void Degalvanize(float visualOffset) {
-			if (!isFadingOut) {
-				degalvanizeDelay = visualOffset;
+			if (!IsFadingOut) {
+				DegalvanizeDelay = visualOffset;
 			}
 			
-			isGalvanized = false;
-			isFadingOut = true;
-			lifeTimer = fadeOutThreshold;
+			IsGalvanized = false;
+			IsFadingOut = true;
+			LifeTimer = FadeOutTime;
 		}
 
 		public void Update() {
-			if (galvanizeDelay > 0.00f) {
-				galvanizeDelay -= Time.deltaTime;
-				if (galvanizeDelay <= 0.00f) {
-					galvanizeDelay = 0.00f;
+			if (GalvanizeDelay > 0.00f) {
+				GalvanizeDelay -= Time.deltaTime;
+				if (GalvanizeDelay <= 0.00f) {
+					GalvanizeDelay = 0.00f;
 				}
 			}
 			
-			if (degalvanizeDelay > 0.00f) {
-				degalvanizeDelay -= Time.deltaTime;
-				if (degalvanizeDelay <= 0.00f) {
-					degalvanizeDelay = 0.00f;
+			if (DegalvanizeDelay > 0.00f) {
+				DegalvanizeDelay -= Time.deltaTime;
+				if (DegalvanizeDelay <= 0.00f) {
+					DegalvanizeDelay = 0.00f;
 				}
 			}
 			
-			if (lifeTimer > 0.00f && degalvanizeDelay == 0.00f) {
-				lifeTimer -= Time.deltaTime;
-				if (!isFadingOut && lifeTimer < fadeOutThreshold) {
-					isFadingOut = true;
+			if (LifeTimer > 0.00f && DegalvanizeDelay == 0.00f) {
+				LifeTimer -= Time.deltaTime;
+				if (!IsFadingOut && LifeTimer < FadeOutTime) {
+					IsFadingOut = true;
 				}
-				if (lifeTimer < 0f) { lifeTimer = 0f; }
+				if (LifeTimer < 0f) { LifeTimer = 0f; }
 			}
 
-			if (isFadingIn && galvanizeDelay == 0.00f) {
-				fadeInCounter += Time.deltaTime;
-				if (fadeInCounter > fadeInThreshold) {
-					isFadingIn = false;
-					fadeInCounter = fadeInThreshold;
+			if (IsFadingIn && GalvanizeDelay == 0.00f) {
+				FadeInCounter += Time.deltaTime;
+				if (FadeInCounter > FadeInTime) {
+					IsFadingIn = false;
+					FadeInCounter = FadeInTime;
 				}
 			}
 
-			if (isMoving) {
-				movementTimer += Time.deltaTime;
-				if (movementTimer > movementThreshold) {
-					isMoving = false;
-					movementTimer = movementThreshold;
+			var movementOffset = 0.00f;
+			if (Movements.Count > 0) {
+				for (var i = 0; i < Movements.Count; i++) {
+					var movement = Movements[i];
+
+					var movementDistance = movement.GetDistance();
+					var p0 = new Vector2(movementDistance, 0);
+					var p1 = new Vector2(movementDistance, 0.8f * movementDistance);
+					var p2 = new Vector2(0.8f * movementDistance, movementDistance);
+					var p3 = new Vector2(0, movementDistance);
+					var time = movement.GetFraction();
+					movementOffset += GetBezier(time, p0, p1, p2, p3).y - movementDistance;
+					
+					movement.Update();
+					if (movement.IsDone()) {
+						Movements.Remove(movement);
+						i -= 1;
+					}
 				}
 			}
 
 			var fadingOffset = 0.00f;
-			if (isFadingIn) {
-				var p0 = new Vector2(spawnOffset, spawnOffset);
-				var p1 = new Vector2(0, spawnOffset);
-				var p2 = new Vector2(0, 0.6f * spawnOffset);
-				var p3 = new Vector2(0, 0);
-				var time = (fadeInThreshold - fadeInCounter) / fadeInThreshold;
-				fadingOffset = GetBezier(time, p0, p1, p2, p3).y - spawnOffset;
-			} else if (isFadingOut) {
-				var p0 = new Vector2(spawnOffset, 0);
-				var p1 = new Vector2(spawnOffset, 0.6f * spawnOffset);
-				var p2 = new Vector2(0.775f * spawnOffset, spawnOffset);
-				var p3 = new Vector2(0, spawnOffset);
-				var time = (fadeOutThreshold - lifeTimer) / fadeOutThreshold;
+			if (IsFadingIn) {
+				var p0 = new Vector2(SpawnOffset, 0);
+				var p1 = new Vector2(0, 0.05f * SpawnOffset);
+				var p2 = new Vector2(0.2f * SpawnOffset, 0);
+				var p3 = new Vector2(0, SpawnOffset);
+				var time = (FadeInTime - FadeInCounter) / FadeInTime;
+				fadingOffset = -GetBezier(time, p0, p1, p2, p3).y;
+			} else if (IsFadingOut) {
+				var p0 = new Vector2(SpawnOffset, 0);
+				var p1 = new Vector2(SpawnOffset, 0.05f * SpawnOffset);
+				var p2 = new Vector2(0.5f * SpawnOffset, SpawnOffset);
+				var p3 = new Vector2(0, SpawnOffset);
+				var time = (FadeOutTime - LifeTimer) / FadeOutTime;
 				fadingOffset = GetBezier(time, p0, p1, p2, p3).y;
 			}
 
-			var movementOffset = 0.00f;
-			if (isMoving) {
-				var p0 = new Vector2(movementDistance, 0);
-				var p1 = new Vector2(movementDistance, 0.8f * movementDistance);
-				var p2 = new Vector2(0.8f * movementDistance, movementDistance);
-				var p3 = new Vector2(0, movementDistance);
-				var time = movementTimer / movementThreshold;
-				movementOffset = GetBezier(time, p0, p1, p2, p3).y - movementDistance;
-			}
-
-			position = spawnOffset + anchorPosition + fadingOffset + movementOffset;
+			Position = SpawnOffset + AnchorPosition + fadingOffset + movementOffset;
 		}
 		
 		private Vector2 GetBezier(float t, Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3)
@@ -201,7 +202,7 @@ namespace UI.ChatLog {
 		}
 
 		public bool IsAlive() {
-			return lifeTimer > 0.00f || isGalvanized;
+			return LifeTimer > 0.00f || IsGalvanized;
 		}
 
 		public static float GetLabelHeight(string text, float labelWidth, GUISkin withSkin) {

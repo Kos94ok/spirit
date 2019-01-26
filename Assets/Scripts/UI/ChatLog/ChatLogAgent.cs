@@ -1,75 +1,59 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
-using System.Timers;
+using Settings;
 using UnityEngine;
+using Timer = Misc.Timer;
 
 namespace UI.ChatLog {
 	public class ChatLogAgent : MonoBehaviour {
-		private readonly Vector2 windowPosition = new Vector2(50f, 50f);
-		private readonly Vector2 windowSize = new Vector2(500f, 600f);
+		private readonly KeyStatus KeyStatus = AutowireFactory.GetInstanceOf<KeyStatus>();
 		
-		private float galvanizationTimer;
-		private float galvanizationCooldown;
-		private static bool isGalvanizationActive;
+		private const int HistoryLength = 32;
+		private const float GalvanizationCooldown = 1.00f;
+		private const float DegalvanizationCooldown = 0.5f;
+		
+		private readonly Vector2 WindowPosition = new Vector2(50f, 50f);
+		private readonly Vector2 WindowSize = new Vector2(500f, 600f);
+		
+		private readonly Timer GalvanizationCooldownTimer = new Timer();
+		private readonly Timer DegalvanizationCooldownTimer = new Timer();
+		private static bool IsGalvanized;
 
-		private static Rect windowRect;
-		private static GUISkin chatLogMessageSkin;
-		private static readonly List<ChatLogMessage> messageList = new List<ChatLogMessage>();
-		private static readonly Queue<ChatLogMessageQueueEntry> messageQueue = new Queue<ChatLogMessageQueueEntry>();
+		private static Rect WindowRect;
+		private static GUISkin ChatLogMessageSkin;
+		private static readonly List<ChatLogMessage> MessageList = new List<ChatLogMessage>();
+		private static readonly Queue<ChatLogMessageQueueEntry> MessageQueue = new Queue<ChatLogMessageQueueEntry>();
 		private void Start() {
-			windowRect = new Rect(windowPosition.x, Screen.height - windowSize.y - windowPosition.y, windowSize.x, windowSize.y);
-			chatLogMessageSkin = Resources.Load("ChatLogMessageSkin") as GUISkin;
+			WindowRect = new Rect(WindowPosition.x, Screen.height - WindowSize.y - WindowPosition.y, WindowSize.x, WindowSize.y);
+			ChatLogMessageSkin = Resources.Load("ChatLogMessageSkin") as GUISkin;
 		}
 
 		private void Update() {
-			while (messageQueue.Count > 0) {
-				CreateMessage(messageQueue.Dequeue());
+			while (MessageQueue.Count > 0) {
+				CreateMessage(MessageQueue.Dequeue());
 			}
 			
-			while (messageList.Count > 32) {
-				messageList.RemoveAt(0);
+			while (MessageList.Count > HistoryLength) {
+				MessageList.RemoveAt(0);
+			}
+			
+			GalvanizationCooldownTimer.TickIf(!IsGalvanized);
+			if (!IsGalvanized && GalvanizationCooldownTimer.IsDone() && KeyStatus.IsPressed(KeyBinding.Action.GalvanizeChatLog)) {
+				Galvanize();
 			}
 
-			if (galvanizationCooldown > 0.00f) {
-				galvanizationCooldown -= Time.deltaTime;
-				if (galvanizationCooldown < 0.00f) { galvanizationCooldown = 0.00f; }
-			}
-			if (isGalvanizationActive) {
-				galvanizationTimer -= Time.deltaTime;
-				if (galvanizationTimer < 0.00f) { galvanizationTimer = 0.00f; }
-			}
-			if (!isGalvanizationActive && Input.GetKey(KeyCode.Z) && galvanizationCooldown < 0.01f) {
-				isGalvanizationActive = true;
-				galvanizationTimer = 0.50f;
-				
-				var visualOffset = 0.00f;
-				for (var i = messageList.Count - 1; i >= 0; i--) {
-					visualOffset += 0.02f;
-					messageList[i].Galvanize(visualOffset);
-				}
-			}
-			else if (isGalvanizationActive && galvanizationTimer < 0.01f && !Input.GetKey(KeyCode.Z)) {
-				isGalvanizationActive = false;
-				galvanizationTimer = 0.00f;
-				galvanizationCooldown = 0.50f;
-//				foreach (var message in messageList) {
-//					message.Degalvanize();
-//				}
-				var visualOffset = 0.00f;
-				for (var i = messageList.Count - 1; i >= 0; i--) {
-					visualOffset += 0.02f;
-					messageList[i].Degalvanize(visualOffset);
-				}
+			DegalvanizationCooldownTimer.TickIf(IsGalvanized);
+			if (IsGalvanized && DegalvanizationCooldownTimer.IsDone() && KeyStatus.IsReleased(KeyBinding.Action.GalvanizeChatLog)) {
+				Degalvanize();
 			}
 
-			foreach (var message in messageList) {
+			foreach (var message in MessageList) {
 				message.Update();
 			}
 		}
 
 		private void OnGUI() {
 			var toDraw = false;
-			foreach (var message in messageList) {
+			foreach (var message in MessageList) {
 				if (!message.IsAlive()) {
 					continue;
 				}
@@ -81,18 +65,40 @@ namespace UI.ChatLog {
 				return;
 			}
 			
-			GUI.BeginGroup(windowRect);
-			GUI.skin = chatLogMessageSkin;
+			GUI.BeginGroup(WindowRect);
+			GUI.skin = ChatLogMessageSkin;
 
-			foreach (var message in messageList) {
+			foreach (var message in MessageList) {
 				message.DrawLabel();
 			}
 			GUI.EndGroup();
 		}
 
+		private void Galvanize() {
+			IsGalvanized = true;
+			DegalvanizationCooldownTimer.Start(DegalvanizationCooldown);
+				
+			var visualOffset = 0.00f;
+			for (var i = MessageList.Count - 1; i >= 0; i--) {
+				visualOffset += 0.02f;
+				MessageList[i].Galvanize(visualOffset);
+			}
+		}
+
+		private void Degalvanize() {
+			IsGalvanized = false;
+			GalvanizationCooldownTimer.Start(GalvanizationCooldown);
+			
+			var visualOffset = 0.00f;
+			for (var i = MessageList.Count - 1; i >= 0; i--) {
+				visualOffset += 0.02f;
+				MessageList[i].Degalvanize(visualOffset);
+			}
+		}
+
 		public void CreateMessage(ChatLogMessageQueueEntry entry) {
-			var messageHeight = ChatLogMessage.GetLabelHeight(entry.Text, windowRect.width, chatLogMessageSkin);
-			foreach (var message in messageList) {
+			var messageHeight = ChatLogMessage.GetLabelHeight(entry.Text, WindowRect.width, ChatLogMessageSkin);
+			foreach (var message in MessageList) {
 				message.Move(messageHeight);
 			}
 			var messageColor = Color.white;
@@ -105,11 +111,11 @@ namespace UI.ChatLog {
 					break;
 			}
 
-			messageList.Add(new ChatLogMessage(entry.Text, messageHeight, windowRect, messageColor));
+			MessageList.Add(new ChatLogMessage(entry.Text, messageHeight, WindowRect, messageColor));
 		}
 		
 		public void PostMessage(string text, ChatWindow chatWindow) {
-			messageQueue.Enqueue(new ChatLogMessageQueueEntry(text, chatWindow));
+			MessageQueue.Enqueue(new ChatLogMessageQueueEntry(text, chatWindow));
 		}
 	}
 }

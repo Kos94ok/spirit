@@ -14,5 +14,9 @@ namespace UI {
 			}
 			return Input.GetKey(keyCode.Value);
 		}
+
+		public bool IsReleased(KeyBinding.Action action) {
+			return !IsPressed(action);
+		}
 	}
 }

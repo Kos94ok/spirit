@@ -8,14 +8,14 @@ namespace Environment {
         public string messageLink;
         public bool oneShot;
 
-        private const float cooldown = 0.5f;
+        private const float cooldown = 0.0f;
 
         private readonly ChatLog chatLog = AutowireFactory.GetInstanceOf<ChatLog>();
         private readonly Timer cooldownTimer = new Timer();
 
         protected override void Update() {
             base.Update();
-            cooldownTimer.Tick(Time.deltaTime);
+            cooldownTimer.Tick();
         }
         
         public override void OnInteract() {

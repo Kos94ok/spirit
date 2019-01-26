@@ -1,4 +1,6 @@
 
+using UnityEngine;
+
 namespace Misc {
 	public class Timer {
 		private float counter;
@@ -19,18 +21,25 @@ namespace Misc {
 			isTicking = false;
 		}
 		
-		public bool Tick(float delta) {
+		public void Tick() {
 			if (!isTicking) {
-				return false;
+				return;
 			}
 			
-			counter += delta;
+			counter += Time.deltaTime;
 			if (counter < maxTime) {
-				return false;
+				return;
 			}
 			
 			isTicking = false;
-			return true;
+		}
+
+		public void TickIf(bool condition) {
+			if (!condition) {
+				return;
+			}
+
+			Tick();
 		}
 
 		public bool IsDone() {
@@ -39,6 +48,10 @@ namespace Misc {
 
 		public bool IsTicking() {
 			return isTicking;
+		}
+
+		public bool IsStopped() {
+			return !isTicking;
 		}
 
 		public float GetFraction() {

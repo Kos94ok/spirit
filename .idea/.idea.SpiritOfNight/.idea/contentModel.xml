@@ -63,6 +63,7 @@
               <e p="ChatLog.cs" t="Include" />
               <e p="ChatLogAgent.cs" t="Include" />
               <e p="ChatLogMessage.cs" t="Include" />
+              <e p="ChatLogMessageMovement.cs" t="Include" />
               <e p="ChatLogMessageQueueEntry.cs" t="Include" />
             </e>
             <e p="HeroStatsUI.cs" t="Include" />
