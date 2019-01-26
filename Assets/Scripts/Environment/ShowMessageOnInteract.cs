@@ -19,7 +19,7 @@ namespace Environment {
         }
         
         public override void OnInteract() {
-            if (cooldownTimer.IsTicking()) {
+            if (cooldownTimer.IsRunning()) {
                 return;
             }
             

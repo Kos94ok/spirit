@@ -1,438 +1,160 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using Misc;
+using Settings;
+using UI.UserInput;
+using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
-{
-    const float maximumSpeed = 2.15f;
-    const float acceleration = 50.00f;
-    const float deceleration = 70.00f;
-    const float sprintMaximumSpeed = 3.50f;
-    const float sprintAcceleration = 50.00f;
-    const float sprintDeceleration = 70.00f;
-    const bool rocketEnabled = false;
-    const float rocketFuelMax = 0.50f;
-    const float rocketManaDrain = 20.00f;
-    const float sprintManaCost = 5.00f;
-    const float sprintManaBuffer = 5.00f;
+namespace Units.Player.Movement {
+	public class PlayerMovement : MonoBehaviour {
+		private const float MaximumSpeed = 2.15f;
+		private const float Acceleration = 5.00f;
+		private const float AngularAcceleration = 10.00f;
+		private const float SprintMaximumSpeed = 3.50f;
+		private const float SprintAcceleration = 15.00f;
+		private const float Deceleration = 10.00f;
+		private const float DecelerationDistance = 0.50f;
+		private const float SprintManaCost = 5.00f;
+		private const float SprintManaBuffer = 5.00f;
 
-    bool isSprinting = false;
-    bool movementSprintDecelerating = false;
-    Vector2 movementVector;
-    //float jumpingVector = 0.00f;
+		private float MovementSpeed;
+		private Vector3 MovementDirection;
+		private Vector3? TargetPosition;
+		private bool IsSprinting;
 
-    GameObject mainCamera;
-    CharacterController movementController;
-    UnitStats stats;
-    PlayerEquipment equipment;
+		private readonly Timer FloatingTimer = new Timer();
+		private const float ExpectedFloatingHeight = 0.6f;
+		private Vector3 LastGroundedPosition;
 
-    void Start()
-    {
-        movementVector.x = 0.00f;
-        movementVector.y = 0.00f;
-        keyPressed.Add(KeyCode.W, false);
-        keyPressed.Add(KeyCode.A, false);
-        keyPressed.Add(KeyCode.S, false);
-        keyPressed.Add(KeyCode.D, false);
-        keyPressed.Add(KeyCode.Space, false);
-        keyPressed.Add(KeyCode.LeftShift, false);
-        mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
-        movementController = GetComponent<CharacterController>();
-        stats = GetComponent<UnitStats>();
-        equipment = GetComponent<PlayerEquipment>();
-    }
+		private UnitStats Stats;
+		private PlayerEquipment Equipment;
+		private CharacterController MovementController;
+		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
+		private readonly MouseStatus MouseStatus = AutowireFactory.GetInstanceOf<MouseStatus>();
 
-    // Update is called once per frame
-    void Update()
-    {
-        Update_KeyStatus();
-        Update_Rotation();
-        Update_Jump();
-        Update_Hover();
-        Update_Movement();
-        Update_Jump();
-        Update_Blink();
-    }
-    //===================================================================================================
-    // Key Status
-    //===================================================================================================
-    Dictionary<KeyCode, bool> keyPressed = new Dictionary<KeyCode, bool>();
-    void Update_KeyStatus()
-    {
-        var KeyList = new List<KeyCode>(keyPressed.Keys);
-        foreach (KeyCode Entry in KeyList)
-        {
-            if (Input.GetKeyDown(Entry))
-            {
-                keyPressed[Entry] = true;
-            }
-            if (Input.GetKeyUp(Entry))
-            {
-                keyPressed[Entry] = false;
-            }
-        }
-    }
-    //===================================================================================================
-    // 3rd Person Movement
-    //===================================================================================================
-    void Update_Movement()
-    {
-        if (stats.IsDead()) { return; }
+		private void Start() {
+			Stats = GetComponent<UnitStats>();
+			Equipment = GetComponent<PlayerEquipment>();
+			MovementController = GetComponent<CharacterController>();
+			FloatingTimer.StartForever(1.00f);
+		}
 
-        float MovementAccel = acceleration * Time.smoothDeltaTime;
-        float MovementDecel = deceleration * Time.smoothDeltaTime;
-        float MovementMaxSpeed = maximumSpeed;
-        float MovementAccelSprint = sprintAcceleration * Time.smoothDeltaTime;
-        float MovementDecelSprint = sprintDeceleration * Time.smoothDeltaTime;
-        float MovementMaxSpeedSprint = sprintMaximumSpeed;
-        // Enable or disable sprint
-        /*if (keyPressed[KeyCode.LeftShift])
-        {
-            movementSprintDecelerating = true;
-        }
-        else if (movementSprintDecelerating && Mathf.Abs(movementVector.x) <= MovementMaxSpeed && Mathf.Abs(movementVector.y) <= MovementMaxSpeed)
-        {
-            movementSprintDecelerating = false;
-        }*/
+		private void Update() {
+			Update_Movement();
+			Update_Blink();
+		}
+		private void Update_Movement() {
+			if (Stats.IsDead()) { return; }
 
-        if (keyPressed[KeyCode.LeftShift] && stats.HasMana(sprintManaBuffer)
-            && (keyPressed[KeyCode.W] || keyPressed[KeyCode.A] || keyPressed[KeyCode.S] || keyPressed[KeyCode.D]))
-        {
-            isSprinting = true;
-        }
-        else if (!keyPressed[KeyCode.LeftShift] || !stats.HasMana(sprintManaCost * Time.deltaTime)
-            || (!keyPressed[KeyCode.W] && !keyPressed[KeyCode.A] && !keyPressed[KeyCode.S] && !keyPressed[KeyCode.D]))
-        {
-            isSprinting = false;
-        }
+			var isSprintKeyDown = CommandStatus.IsActive(CommandBinding.Command.Sprint);
+			if (isSprintKeyDown && TargetPosition != null && Stats.HasMana(SprintManaBuffer)) {
+				IsSprinting = true;
+			} else if (!isSprintKeyDown || TargetPosition == null || !Stats.HasMana(SprintManaCost * Time.deltaTime)) {
+				IsSprinting = false;
+			}
 
-        if (isSprinting)
-        {
-            stats.DrainMana(sprintManaCost * Time.deltaTime);
-            movementSprintDecelerating = true;
-        }
-        else
-        {
-            movementSprintDecelerating = false;
-        }
+			var acceleration = Acceleration;
+			var maximumSpeed = MaximumSpeed;
+			if (IsSprinting) {
+				Stats.DrainMana(SprintManaCost * Time.deltaTime);
+				acceleration = SprintAcceleration;
+				maximumSpeed = SprintMaximumSpeed;
+			}
+			
+			// Slow when drawing the bow
+			if (Stats.buffs.Has(Buff.DrawingBow)) {
+				maximumSpeed *= 0.70f;
+			}
 
-        // Acceleration
-        if (keyPressed[KeyCode.W])
-        {
-            movementVector.y += MovementAccel;
-            if (keyPressed[KeyCode.LeftShift])
-            {
-                movementVector.y += MovementAccelSprint - MovementAccel;
-                if (movementVector.y > MovementMaxSpeedSprint)
-                    movementVector.y = MovementMaxSpeedSprint;
-            }
-            else if (movementVector.y > MovementMaxSpeed && movementSprintDecelerating)
-            {
-                movementVector.y -= MovementAccel + MovementDecelSprint;
-            }
-            if (movementVector.y > MovementMaxSpeed && !movementSprintDecelerating)
-                movementVector.y = MovementMaxSpeed;
-        }
-        else if (movementVector.y > 0.00f)
-        {
-            movementVector.y -= MovementDecel;
-            if (movementVector.y < 0.00f)
-                movementVector.y = 0.00f;
-        }
+			Vector3 updatedMovementDirection;
+			var decelerationModifier = 1.00f;
+			var mousePoint = MouseStatus.GetWorldPointForWalkableLayer();
+			if (CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && mousePoint.HasValue) {
+				TargetPosition = new Vector3(mousePoint.Value.x, mousePoint.Value.y + ExpectedFloatingHeight, mousePoint.Value.z);
+			}
+			
+			if (TargetPosition != null) {
+				updatedMovementDirection = Vector3.Normalize(TargetPosition.Value - transform.position);
+				decelerationModifier = Mathf.Min(1.00f, Vector3.Distance(transform.position, TargetPosition.Value) / DecelerationDistance);
+				if (Vector3.Distance(TargetPosition.Value, MovementController.transform.position) < 0.01f) {
+					TargetPosition = null;
+				}
+			} else {
+				updatedMovementDirection = Vector3.zero;
+			}
+			
+			MovementSpeed += (maximumSpeed - MovementSpeed) * acceleration * Time.deltaTime;
+			MovementSpeed -= MovementSpeed * (1.0f - Mathf.Pow(decelerationModifier, 1f / Deceleration));
+			MovementDirection = Vector3.Lerp(MovementDirection, updatedMovementDirection, AngularAcceleration * Time.deltaTime);
+			MovementController.Move(MovementDirection * MovementSpeed * Time.deltaTime);
 
+			var distanceToGround = GetControllerDistanceToGround();
+			if (Mathf.Abs(ExpectedFloatingHeight - distanceToGround) > 0.01f) {
+				var movementVector = new Vector3(0, ExpectedFloatingHeight - distanceToGround, 0);
+				MovementController.Move(movementVector * 1.00f * Time.deltaTime);
+			}
 
-        if (keyPressed[KeyCode.A])
-        {
-            movementVector.x -= MovementAccel;
-            if (keyPressed[KeyCode.LeftShift])
-            {
-                movementVector.x -= MovementAccelSprint - MovementAccel;
-                if (movementVector.x < -MovementMaxSpeedSprint)
-                    movementVector.x = -MovementMaxSpeedSprint;
-            }
-            else if (movementVector.x < -MovementMaxSpeed && movementSprintDecelerating)
-            {
-                movementVector.x += MovementAccel + MovementDecelSprint;
-            }
-            if (movementVector.x < -MovementMaxSpeed && !movementSprintDecelerating)
-                movementVector.x = -MovementMaxSpeed;
-        }
-        else if (movementVector.x < 0.00f)
-        {
-            movementVector.x += MovementDecel;
-            if (movementVector.x > 0.00f)
-                movementVector.x = 0.00f;
-        }
+			if (IsGrounded()) {
+				LastGroundedPosition = transform.position;
+			}
+		}
+		private void Update_Blink() {
+			var mousePoint = MouseStatus.GetWorldPointForWalkableLayer();
+			if (!mousePoint.HasValue) {
+				return;
+			}
 
+			var targetPoint = mousePoint.Value;
+			targetPoint.y += ExpectedFloatingHeight;
+			
+			var hasCheapBlink = Equipment.HasGlyph(Glyph.BlinkCost);
+			var hasPreciseBlink = Equipment.HasGlyph(Glyph.BlinkPrecision);
 
-        if (keyPressed[KeyCode.S])
-        {
-            movementVector.y -= MovementAccel;
-            if (keyPressed[KeyCode.LeftShift])
-            {
-                movementVector.y -= MovementAccelSprint - MovementAccel;
-                if (movementVector.y < -MovementMaxSpeedSprint)
-                    movementVector.y = -MovementMaxSpeedSprint;
-            }
-            else if (movementVector.y < -MovementMaxSpeed && movementSprintDecelerating)
-            {
-                movementVector.y += MovementAccel + MovementDecelSprint;
-            }
-            if (movementVector.y < -MovementMaxSpeed && !movementSprintDecelerating)
-                movementVector.y = -MovementMaxSpeed;
-        }
-        else if (movementVector.y < 0.00f)
-        {
-            movementVector.y += MovementDecel;
-            if (movementVector.y > 0.00f)
-                movementVector.y = 0.00f;
-        }
+			const float blinkRange = 3.00f;
+			var blinkManaCost = 30.00f;
+			if (hasCheapBlink) { blinkManaCost = 15.00f; }
 
+			if (CommandStatus.IsIssued(CommandBinding.Command.Blink) && Stats.HasMana(blinkManaCost)) {
+				Stats.DrainMana(blinkManaCost);
+				Vector3 movementVector;
 
-        if (keyPressed[KeyCode.D])
-        {
-            movementVector.x += MovementAccel;
-            if (keyPressed[KeyCode.LeftShift])
-            {
-                movementVector.x += MovementAccelSprint - MovementAccel;
-                if (movementVector.x > MovementMaxSpeedSprint)
-                    movementVector.x = MovementMaxSpeedSprint;
-            }
-            else if (movementVector.x > MovementMaxSpeed && movementSprintDecelerating)
-            {
-                movementVector.x -= MovementAccel + MovementDecelSprint;
-            }
-            if (movementVector.x > MovementMaxSpeed && !movementSprintDecelerating)
-                movementVector.x = MovementMaxSpeed;
-        }
-        else if (movementVector.x > 0.00f)
-        {
-            movementVector.x -= MovementDecel;
-            if (movementVector.x < 0.00f)
-                movementVector.x = 0.00f;
-        }
-        float theta = -mainCamera.transform.eulerAngles.y * Mathf.Deg2Rad;
+				if (hasPreciseBlink) {
+					movementVector = Vector3.MoveTowards(Vector3.zero, targetPoint - transform.position, blinkRange);
+				} else {
+					movementVector = Vector3.MoveTowards(Vector3.zero, targetPoint - transform.position, 1.00f).normalized * blinkRange;
+				}
 
-        float cs = Mathf.Cos(theta);
-        float sn = Mathf.Sin(theta);
+				MovementController.Move(movementVector);
+				TargetPosition = null;
+			}
+		}
 
-        //movementVector = movementVector.normalized * MovementMaxSpeed;
+		private bool IsGrounded() {
+			var distanceToGround = GetControllerDistanceToGround();
+			return distanceToGround <= ExpectedFloatingHeight * 2.00f;
+		}
+		public float GetLastValidGroundHeight() {
+			if (!IsGrounded()) {
+				return LastGroundedPosition.y;
+			}
+			return transform.position.y;
+		}
 
-        Vector2 fixedMovementVector = movementVector;
-        // Fixing the diagonal movement
-        if ((keyPressed[KeyCode.W] && keyPressed[KeyCode.A]) || (keyPressed[KeyCode.W] && keyPressed[KeyCode.D])
-            || (keyPressed[KeyCode.S] && keyPressed[KeyCode.A]) || (keyPressed[KeyCode.S] && keyPressed[KeyCode.D]))
-        {
-            fixedMovementVector *= 0.7071069f;
-        }
-        // Slow when drawing the bow
-        if (stats.buffs.Has(Buff.DrawingBow))
-        {
-            fixedMovementVector *= 0.70f;
-        }
+		private void OnControllerColliderHit(ControllerColliderHit hit) {
+			var body = hit.gameObject.GetComponent<Rigidbody>();
+			if (body != null) {
+				body.AddForce(hit.moveDirection * hit.moveLength * 200);
+			}
+		}
 
-        float px = fixedMovementVector.x * cs - fixedMovementVector.y * sn;
-        float py = fixedMovementVector.x * sn + fixedMovementVector.y * cs;
+		private float GetControllerDistanceToGround() {
+			RaycastHit hit;
+			const int walkableLayerMask = 1 << 9;
+			var ray = new Ray(transform.position, Vector3.down);
 
-        Vector3 m = new Vector3(px * Time.smoothDeltaTime, (expectedHeight - transform.position.y) * 0.04f, py * Time.smoothDeltaTime);
-        movementController.Move(m);
-    }
-    //===================================================================================================
-    // Blink
-    //===================================================================================================
-    void Update_Blink()
-    {
-        bool hasCheapBlink = equipment.HasGlyph(Glyph.BlinkCost);
-        bool hasPreciseBlink = equipment.HasGlyph(Glyph.BlinkPrecision);
+			if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayerMask)) {
+				return hit.distance;
+			}
 
-        float blinkRange = 3.00f;
-        float blinkManaCost = 30.00f;
-        if (hasCheapBlink) { blinkManaCost = 15.00f; }
-
-        if (Input.GetKeyDown(KeyCode.Space) && stats.HasMana(blinkManaCost))
-        {
-            stats.DrainMana(blinkManaCost);
-            Vector3 movementVector;
-
-            if (hasPreciseBlink) { movementVector = Vector3.MoveTowards(transform.position, Utility.GetMouseWorldPosition(transform.position), blinkRange) - transform.position; }
-            else { movementVector = (Vector3.MoveTowards(transform.position, Utility.GetMouseWorldPosition(transform.position), 1.00f) - transform.position).normalized * blinkRange; }
-            
-            movementController.Move(movementVector);
-        }
-    }
-
-    //===================================================================================================
-    // Jumping
-    //===================================================================================================
-    void Update_Jump()
-    {
-        desiredHoveredHeight = defaultHoveredHeight;
-        /*if (rocketEnabled == true && keyPressed[KeyCode.Space] && rocketDepleted == false)
-        {
-            desiredHoveredHeight += 10.00f * Time.smoothDeltaTime / Mathf.Max(1.00f, Mathf.Pow(GetControllerToGroundDist(), 2.00f));
-            rocketFuel -= Time.smoothDeltaTime;
-            if (rocketFuel <= 0.00f)
-            {
-                if (stats.mana >= rocketManaDrain)
-                {
-                    stats.DrainMana(rocketManaDrain);
-                    rocketFuel = rocketFuelMax;
-                }
-                else
-                {
-                    rocketFuel = 0.00f;
-                    rocketDepleted = true;
-                }
-            }
-        }
-        else
-        {
-            // Replenish supplies
-            if (rocketFuel < rocketFuelMax && IsControllerGrounded())
-            {
-                rocketFuel = rocketFuelMax;
-                rocketDepleted = false;
-            }
-            // Adjust height
-            if (desiredHoveredHeight > defaultHoveredHeight && Mathf.Abs(desiredHoveredHeight - defaultHoveredHeight) > 0.10f)
-                desiredHoveredHeight -= 5.00f * Time.smoothDeltaTime;
-            else
-                desiredHoveredHeight = defaultHoveredHeight;
-        }*/
-    }
-    //===================================================================================================
-    // Hovering
-    //===================================================================================================
-    float expectedHeight = 0.25f;
-    float desiredHoveredHeight;
-    float clearHoveredHeight;
-    float defaultHoveredHeight;
-    float hoveringTimer = 0.00f;
-    bool rocketDepleted = false;
-    float rocketFuel = rocketFuelMax;
-    float lastGroundHeight = -1.00f;
-    void Update_Hover()
-    {
-        hoveringTimer += Time.deltaTime;
-        clearHoveredHeight = 0.25f + GetControllerGroundHeight() + 0.20f;
-        defaultHoveredHeight = (Mathf.Sin(hoveringTimer * 2.00f) + 1.00f) / 5.00f + 0.25f + GetControllerGroundHeight();
-        // Stairs fix
-        if (lastGroundHeight != -1.00f && IsControllerGrounded())
-        {
-            float delta = GetControllerGroundHeight() - lastGroundHeight;
-            defaultHoveredHeight += Mathf.Min(Mathf.Max(0.00f, delta), 0.25f) * 5.00f;
-        }
-        lastGroundHeight = GetControllerGroundHeight();
-
-        //lastGroundHeight = expectedHeight;
-
-        expectedHeight = desiredHoveredHeight;
-    }
-    //===================================================================================================
-    // Rotation
-    //===================================================================================================
-    float RotationLastAngle;
-    float RotationLookAtTarget;
-    void Update_Rotation()
-    {
-        if (movementVector.x != 0.00f || movementVector.y != 0.00f)
-        {
-            float theta = -mainCamera.transform.eulerAngles.y * Mathf.Deg2Rad;
-
-            float cs = Mathf.Cos(theta);
-            float sn = Mathf.Sin(theta);
-
-            float px = movementVector.x * cs - movementVector.y * sn;
-            float py = movementVector.x * sn + movementVector.y * cs;
-
-            Vector3 Direction = new Vector3(px, 0, py);
-            if (Direction != Vector3.zero)
-            {
-                Quaternion RotationBlackBox = Quaternion.LookRotation(Direction);
-                transform.rotation = Quaternion.Slerp(transform.rotation, RotationBlackBox, 10.00f * Time.deltaTime);
-            }
-        }
-    }
-    //===================================================================================================
-    // Collision
-    //===================================================================================================
-    void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        var Body = hit.gameObject.GetComponent<Rigidbody>();
-        if (Body != null)
-            Body.AddForce(hit.moveDirection * hit.moveLength * 200);
-    }
-    //===================================================================================================
-    // Extras
-    //===================================================================================================
-    public void ApplyForce(Vector3 direction, float force)
-    {
-        Vector3 forceVector = Vector3.MoveTowards(Vector3.zero, direction * 500.00f, force);
-        movementVector.x = forceVector.x;
-        movementVector.y = forceVector.z;
-    }
-    public bool IsControllerGrounded()
-    {
-        if (keyPressed[KeyCode.Space] && rocketDepleted == false)
-            return false;
-        else
-            return transform.position.y - defaultHoveredHeight <= 0.40f;
-        //return GetControllerToGroundDist() <= 0.40f;
-    }
-    float lastGroundedHeight;
-    public float CalculateCameraHeight()
-    {
-        if (IsControllerGrounded() == false)
-        {
-            return transform.position.y;
-        }
-        else
-        {
-            return clearHoveredHeight;
-        }
-    }
-    float GetControllerToGroundDist()
-    {
-        //RaycastHit hit;
-        //Physics.Raycast(transform.position, Vector3.down, out hit);
-        Ray ray = new Ray(transform.position, Vector3.down);
-        RaycastHit[] hits = Physics.RaycastAll(ray);
-
-        float closestDist = 1000.00f;
-        foreach (RaycastHit hit in hits)
-        {
-            if (hit.transform.tag != "Hitbox" && (hit.distance < closestDist))
-            {
-                closestDist = hit.distance;
-            }
-        }
-        if (closestDist < 1000.00f)
-        {
-            return Mathf.Round((closestDist - movementController.radius * transform.localScale.y) * 100.00f) / 100.00f;
-        }
-        else
-            return 0.00f;
-    }
-    float GetControllerGroundHeight()
-    {
-        Ray ray = new Ray(transform.position, Vector3.down);
-        RaycastHit[] hits = Physics.RaycastAll(ray);
-
-        float closestDist = 1000.00f;
-        RaycastHit closestHit = new RaycastHit();
-        foreach (RaycastHit hit in hits)
-        {
-            if (hit.transform.tag != "Enemy" && hit.transform.tag != "Hitbox" && hit.distance < closestDist)
-            {
-                closestHit = hit;
-                closestDist = hit.distance;
-            }
-        }
-        if (closestDist < 1000.00f)
-        {
-            return closestHit.point.y;
-        }
-        else
-            return 0.00f;
-    }
+			return 1000.00f;
+		}
+	}
 }

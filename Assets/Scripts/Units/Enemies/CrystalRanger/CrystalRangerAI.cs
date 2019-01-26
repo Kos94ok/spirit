@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Units.Player.Movement;
 
 public class CrystalRangerAI : MonoBehaviour
 {
@@ -38,6 +39,7 @@ public class CrystalRangerAI : MonoBehaviour
     GameObject spherePrefab;
     GameObject sphereSpawnPEPrefab;
     GameObject spherePrelaunchPEPrefab;
+    private CharacterControllerExtension PlayerCharacterControllerExtension;
     void Start()
     {
         player = GameObject.FindGameObjectWithTag("Player");
@@ -48,6 +50,7 @@ public class CrystalRangerAI : MonoBehaviour
         spherePrefab = Resources.Load("CrystalRangerProjectile") as GameObject;
         sphereSpawnPEPrefab = Resources.Load("CrystalRangerProjectilePESpawn") as GameObject;
         spherePrelaunchPEPrefab = Resources.Load("CrystalRangerProjectilePEPrepare") as GameObject;
+        PlayerCharacterControllerExtension = player.GetComponent<CharacterControllerExtension>();
 
         bodyFlyingHeight = body.transform.position.y - agent.transform.position.y;
 
@@ -143,7 +146,7 @@ public class CrystalRangerAI : MonoBehaviour
                     // Calculate the launch vector
                     Vector3 playerPosition = player.transform.position;
                     //Vector3 playerVelocity = player.GetComponent<CharacterController>().velocity;
-                    Vector3 playerVelocity = player.GetComponent<CharacterControllerExtension>().averageVelocity;
+                    Vector3 playerVelocity = PlayerCharacterControllerExtension.GetAverageVelocity();
                     float interceptionTime = Utility.FirstOrderInterceptTime(sphereTravelSpeed, playerPosition - sphere.transform.GetChild(0).position, playerVelocity);
                     if (interceptionTime == 0.00f) { interceptionTime = Vector3.Distance(playerPosition, sphere.transform.GetChild(0).position) / sphereTravelSpeed; }
                     float verticalSpeed = (playerPosition.y - sphere.transform.GetChild(0).position.y) / interceptionTime;

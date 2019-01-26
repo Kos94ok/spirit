@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using Settings;
+using UI.UserInput;
 using UnityEngine;
 using Timer = Misc.Timer;
 
 namespace UI.ChatLog {
 	public class ChatLogAgent : MonoBehaviour {
-		private readonly KeyStatus KeyStatus = AutowireFactory.GetInstanceOf<KeyStatus>();
+		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 		
 		private const int HistoryLength = 32;
 		private const float GalvanizationCooldown = 1.00f;
@@ -37,12 +38,12 @@ namespace UI.ChatLog {
 			}
 			
 			GalvanizationCooldownTimer.TickIf(!IsGalvanized);
-			if (!IsGalvanized && GalvanizationCooldownTimer.IsDone() && KeyStatus.IsPressed(KeyBinding.Action.GalvanizeChatLog)) {
+			if (!IsGalvanized && GalvanizationCooldownTimer.IsDone() && CommandStatus.IsActive(CommandBinding.Command.GalvanizeChatLog)) {
 				Galvanize();
 			}
 
 			DegalvanizationCooldownTimer.TickIf(IsGalvanized);
-			if (IsGalvanized && DegalvanizationCooldownTimer.IsDone() && KeyStatus.IsReleased(KeyBinding.Action.GalvanizeChatLog)) {
+			if (IsGalvanized && DegalvanizationCooldownTimer.IsDone() && CommandStatus.IsInactive(CommandBinding.Command.GalvanizeChatLog)) {
 				Degalvanize();
 			}
 

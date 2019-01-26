@@ -47,7 +47,8 @@
             <e p="Timer.cs" t="Include" />
           </e>
           <e p="Settings" t="Include">
-            <e p="KeyBinding.cs" t="Include" />
+            <e p="CommandBinding.cs" t="Include" />
+            <e p="CommandMapping.cs" t="Include" />
           </e>
           <e p="Spring" t="Include">
             <e p="AutowireFactory.cs" t="Include" />
@@ -67,9 +68,12 @@
               <e p="ChatLogMessageQueueEntry.cs" t="Include" />
             </e>
             <e p="HeroStatsUI.cs" t="Include" />
-            <e p="KeyStatus.cs" t="Include" />
             <e p="Localization.cs" t="Include" />
             <e p="OverheadHealthBar.cs" t="Include" />
+            <e p="UserInput" t="Include">
+              <e p="CommandStatus.cs" t="Include" />
+              <e p="MouseStatus.cs" t="Include" />
+            </e>
           </e>
           <e p="Units" t="Include">
             <e p="Buffs" t="Include">
@@ -80,6 +84,7 @@
             <e p="Common" t="Include">
               <e p="BasicFollow.cs" t="Include" />
               <e p="CorpseCleanUp.cs" t="Include" />
+              <e p="HeightIndicator.cs" t="Include" />
               <e p="TimedLife.cs" t="Include" />
             </e>
             <e p="Enemies" t="Include">
@@ -118,7 +123,6 @@
                 <e p="CharacterControllerExtension.cs" t="Include" />
                 <e p="PlayerLightFollow.cs" t="Include" />
                 <e p="PlayerMovement.cs" t="Include" />
-                <e p="PlayerMovement_JumpVersion.cs" t="Include" />
               </e>
               <e p="PlayerDeath.cs" t="Include" />
               <e p="PlayerEquipment.cs" t="Include" />

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Settings;
+using UI.UserInput;
 using UnityEngine;
 
 namespace UI.ChatLog {
 	public class ChatLogMessage {
-		private readonly KeyStatus keyStatus = AutowireFactory.GetInstanceOf<KeyStatus>();
+		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 		
 		private bool IsGalvanized;
 		private bool IsFadingIn = true;
@@ -37,7 +38,7 @@ namespace UI.ChatLog {
 			WindowRect = windowRect;
 			Position = -SpawnOffset;
 			AnchorPosition = 0.00f;
-			if (keyStatus.IsPressed(KeyBinding.Action.GalvanizeChatLog)) {
+			if (CommandStatus.IsActive(CommandBinding.Command.GalvanizeChatLog)) {
 				Galvanize(0.00f);
 			}
 		}

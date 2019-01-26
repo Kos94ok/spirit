@@ -3,35 +3,42 @@ using UnityEngine;
 
 namespace Misc {
 	public class Timer {
-		private float counter;
-		private float maxTime;
-		private bool isTicking;
+		private float Counter;
+		private float MaxTime;
+		private bool IsTicking;
+		private bool IsForever;
 
 		public void Start(float time) {
-			counter = 0.00f;
-			maxTime = time;
-			isTicking = true;
+			Counter = 0.00f;
+			MaxTime = time;
+			IsTicking = true;
+		}
+
+		public void StartForever(float time) {
+			Start(time);
+			IsForever = true;
 		}
 
 		public void Reset() {
-			counter = 0.00f;
+			Counter = 0.00f;
 		}
 
 		public void Stop() {
-			isTicking = false;
+			IsTicking = false;
+			IsForever = false;
 		}
 		
 		public void Tick() {
-			if (!isTicking) {
+			if (!IsTicking) {
 				return;
 			}
 			
-			counter += Time.deltaTime;
-			if (counter < maxTime) {
-				return;
+			Counter += Time.deltaTime;
+			if (Counter >= MaxTime && IsForever) {
+				Counter -= MaxTime;
+			} else if (Counter >= MaxTime) {
+				IsTicking = false;
 			}
-			
-			isTicking = false;
 		}
 
 		public void TickIf(bool condition) {
@@ -43,19 +50,19 @@ namespace Misc {
 		}
 
 		public bool IsDone() {
-			return counter >= maxTime || !isTicking;
+			return Counter >= MaxTime || !IsTicking;
 		}
 
-		public bool IsTicking() {
-			return isTicking;
+		public bool IsRunning() {
+			return IsTicking;
 		}
 
 		public bool IsStopped() {
-			return !isTicking;
+			return !IsTicking;
 		}
 
 		public float GetFraction() {
-			return counter / maxTime;
+			return Counter / MaxTime;
 		}
 	}
 }

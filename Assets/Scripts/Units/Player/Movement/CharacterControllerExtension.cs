@@ -1,33 +1,32 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-class CharacterControllerExtension : MonoBehaviour
-{
-    [HideInInspector]
-    public Vector3 averageVelocity;
+namespace Units.Player.Movement {
+    public class CharacterControllerExtension : MonoBehaviour {
+        private Vector3 AverageVelocity;
+        private readonly List<Vector3> VelocityHistory = new List<Vector3>();
 
-    List<Vector3> velocityHistory = new List<Vector3>();
+        private CharacterController Original;
 
-    CharacterController original;
-
-    void Start()
-    {
-        original = GetComponent<CharacterController>();
-    }
-
-    void Update()
-    {
-        while (velocityHistory.Count > 60)
-        {
-            velocityHistory.RemoveAt(0);
+        private void Start() {
+            Original = GetComponent<CharacterController>();
         }
-        velocityHistory.Add(original.velocity);
 
-        averageVelocity = new Vector3(0.00f, 0.00f, 0.00f);
-        for (int i = 0; i < velocityHistory.Count; i++)
-        {
-            averageVelocity += velocityHistory[i];
+        private void Update() {
+            while (VelocityHistory.Count > 60) {
+                VelocityHistory.RemoveAt(0);
+            }
+            VelocityHistory.Add(Original.velocity);
+
+            AverageVelocity = new Vector3(0.00f, 0.00f, 0.00f);
+            foreach (var entry in VelocityHistory) {
+                AverageVelocity += entry;
+            }
+            AverageVelocity /= VelocityHistory.Count;
         }
-        averageVelocity /= velocityHistory.Count;
+
+        public Vector3 GetAverageVelocity() {
+            return AverageVelocity;
+        }
     }
 }

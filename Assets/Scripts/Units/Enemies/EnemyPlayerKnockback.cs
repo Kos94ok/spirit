@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Units.Player.Movement;
 
 public class EnemyPlayerKnockback : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class EnemyPlayerKnockback : MonoBehaviour
     {
         if (Vector3.Distance(transform.position, Player.transform.position) <= radius)
         {
-            Player.GetComponent<PlayerMovement>().ApplyForce(Player.transform.position - transform.position, 3.00f);
+            //Player.GetComponent<PlayerMovement>().ApplyForce(Player.transform.position - transform.position, 3.00f);
         }
 	}
 }

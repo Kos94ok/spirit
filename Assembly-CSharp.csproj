@@ -68,7 +68,8 @@
     <Compile Include="Assets\Scripts\Misc\Math.cs" />
     <Compile Include="Assets\Scripts\Misc\RemoveMeshInGame.cs" />
     <Compile Include="Assets\Scripts\Misc\Timer.cs" />
-    <Compile Include="Assets\Scripts\Settings\KeyBinding.cs" />
+    <Compile Include="Assets\Scripts\Settings\CommandBinding.cs" />
+    <Compile Include="Assets\Scripts\Settings\CommandMapping.cs" />
     <Compile Include="Assets\Scripts\Spring\AutowireFactory.cs" />
     <Compile Include="Assets\Scripts\Test\ProbablyWorkingPauseButton.cs" />
     <Compile Include="Assets\Scripts\Test\TombCoverAnimation.cs" />
@@ -80,14 +81,16 @@
     <Compile Include="Assets\Scripts\UI\ChatLog\ChatLogMessageMovement.cs" />
     <Compile Include="Assets\Scripts\UI\ChatLog\ChatLogMessageQueueEntry.cs" />
     <Compile Include="Assets\Scripts\UI\HeroStatsUI.cs" />
-    <Compile Include="Assets\Scripts\UI\KeyStatus.cs" />
     <Compile Include="Assets\Scripts\UI\Localization.cs" />
     <Compile Include="Assets\Scripts\UI\OverheadHealthBar.cs" />
+    <Compile Include="Assets\Scripts\UI\UserInput\CommandStatus.cs" />
+    <Compile Include="Assets\Scripts\UI\UserInput\MouseStatus.cs" />
     <Compile Include="Assets\Scripts\Units\Buffs\BuffController.cs" />
     <Compile Include="Assets\Scripts\Units\Buffs\BuffDatabase.cs" />
     <Compile Include="Assets\Scripts\Units\Buffs\BuffInstance.cs" />
     <Compile Include="Assets\Scripts\Units\Common\BasicFollow.cs" />
     <Compile Include="Assets\Scripts\Units\Common\CorpseCleanUp.cs" />
+    <Compile Include="Assets\Scripts\Units\Common\HeightIndicator.cs" />
     <Compile Include="Assets\Scripts\Units\Common\TimedLife.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\CorruptedFire\CorruptedFireAI.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\CorruptedFire\CorruptedFireDeath.cs" />
@@ -109,7 +112,6 @@
     <Compile Include="Assets\Scripts\Units\Player\Movement\CharacterControllerExtension.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerLightFollow.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerMovement.cs" />
-    <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerMovement_JumpVersion.cs" />
     <Compile Include="Assets\Scripts\Units\Player\PlayerDeath.cs" />
     <Compile Include="Assets\Scripts\Units\Player\PlayerEquipment.cs" />
     <Compile Include="Assets\Scripts\Units\Player\PlayerInteractor.cs" />
