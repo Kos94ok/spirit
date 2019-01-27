@@ -1,5 +1,4 @@
-﻿using JetBrains.Annotations;
-using Misc;
+﻿using Misc;
 using Settings;
 using UI.UserInput;
 using UnityEngine;
@@ -11,7 +10,6 @@ namespace Units.Player.Movement {
 		private const float AngularAcceleration = 10.00f;
 		private const float SprintMaximumSpeed = 3.50f;
 		private const float SprintAcceleration = 15.00f;
-		private const float Deceleration = 5.00f;
 		private const float DecelerationDistance = 1.00f;
 		private const float SprintManaCost = 5.00f;
 		private const float SprintManaBuffer = 5.00f;
@@ -23,7 +21,6 @@ namespace Units.Player.Movement {
 		private PlayerTargetPositionIndicator TargetPositionIndicator;
 		private bool IsSprinting;
 
-		private readonly Timer FloatingTimer = new Timer();
 		private const float ExpectedFloatingHeight = 0.6f;
 
 		private float LastNonDeceleratingSpeed;
@@ -42,8 +39,6 @@ namespace Units.Player.Movement {
 			MovementController = GetComponent<CharacterController>();
 			var targetPositionIndicatorAgent = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorPosition));
 			TargetPositionIndicator = targetPositionIndicatorAgent.GetComponent<PlayerTargetPositionIndicator>();
-			Debug.Log(TargetPositionIndicator);
-			FloatingTimer.StartForever(1.00f);
 		}
 
 		private void Update() {
