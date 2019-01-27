@@ -112,6 +112,7 @@
     <Compile Include="Assets\Scripts\Units\Player\Movement\CharacterControllerExtension.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerLightFollow.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerMovement.cs" />
+    <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerTargetPositionIndicator.cs" />
     <Compile Include="Assets\Scripts\Units\Player\PlayerDeath.cs" />
     <Compile Include="Assets\Scripts\Units\Player\PlayerEquipment.cs" />
     <Compile Include="Assets\Scripts\Units\Player\PlayerInteractor.cs" />

@@ -123,6 +123,7 @@
                 <e p="CharacterControllerExtension.cs" t="Include" />
                 <e p="PlayerLightFollow.cs" t="Include" />
                 <e p="PlayerMovement.cs" t="Include" />
+                <e p="PlayerTargetPositionIndicator.cs" t="Include" />
               </e>
               <e p="PlayerDeath.cs" t="Include" />
               <e p="PlayerEquipment.cs" t="Include" />

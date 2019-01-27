@@ -1,4 +1,5 @@
-﻿using Misc;
+﻿using JetBrains.Annotations;
+using Misc;
 using Settings;
 using UI.UserInput;
 using UnityEngine;
@@ -10,18 +11,22 @@ namespace Units.Player.Movement {
 		private const float AngularAcceleration = 10.00f;
 		private const float SprintMaximumSpeed = 3.50f;
 		private const float SprintAcceleration = 15.00f;
-		private const float Deceleration = 10.00f;
-		private const float DecelerationDistance = 0.50f;
+		private const float Deceleration = 5.00f;
+		private const float DecelerationDistance = 1.00f;
 		private const float SprintManaCost = 5.00f;
 		private const float SprintManaBuffer = 5.00f;
 
 		private float MovementSpeed;
+		private float LastDecelerationModifier;
 		private Vector3 MovementDirection;
 		private Vector3? TargetPosition;
+		private PlayerTargetPositionIndicator TargetPositionIndicator;
 		private bool IsSprinting;
 
 		private readonly Timer FloatingTimer = new Timer();
 		private const float ExpectedFloatingHeight = 0.6f;
+
+		private float LastNonDeceleratingSpeed;
 		private Vector3 LastGroundedPosition;
 
 		private UnitStats Stats;
@@ -34,6 +39,9 @@ namespace Units.Player.Movement {
 			Stats = GetComponent<UnitStats>();
 			Equipment = GetComponent<PlayerEquipment>();
 			MovementController = GetComponent<CharacterController>();
+			var targetPositionIndicatorAgent = (GameObject) Instantiate(Resources.Load("TargetPositionIndicator"));
+			TargetPositionIndicator = targetPositionIndicatorAgent.GetComponent<PlayerTargetPositionIndicator>();
+			Debug.Log(TargetPositionIndicator);
 			FloatingTimer.StartForever(1.00f);
 		}
 
@@ -64,25 +72,38 @@ namespace Units.Player.Movement {
 				maximumSpeed *= 0.70f;
 			}
 
-			Vector3 updatedMovementDirection;
-			var decelerationModifier = 1.00f;
 			var mousePoint = MouseStatus.GetWorldPointForWalkableLayer();
 			if (CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && mousePoint.HasValue) {
-				TargetPosition = new Vector3(mousePoint.Value.x, mousePoint.Value.y + ExpectedFloatingHeight, mousePoint.Value.z);
+				SetTargetPosition(mousePoint.Value);
+			} else if (CommandStatus.IsStoppedThisFrame(CommandBinding.Command.MoveToMouse)) {
+				ShowTargetPosition();
 			}
 			
-			if (TargetPosition != null) {
-				updatedMovementDirection = Vector3.Normalize(TargetPosition.Value - transform.position);
-				decelerationModifier = Mathf.Min(1.00f, Vector3.Distance(transform.position, TargetPosition.Value) / DecelerationDistance);
-				if (Vector3.Distance(TargetPosition.Value, MovementController.transform.position) < 0.01f) {
-					TargetPosition = null;
+			Vector3 updatedMovementDirection;
+			var position = transform.position;
+			if (TargetPosition != null && Vector3.Distance(TargetPosition.Value, position) > 0.01f) {
+				updatedMovementDirection = Vector3.Normalize(TargetPosition.Value - position);
+				var decelerationModifier = Mathf.Pow(Mathf.Min(1.00f, Vector3.Distance(position, TargetPosition.Value) / DecelerationDistance), 0.5f);
+				if (decelerationModifier >= 1.00f) {
+					MovementSpeed += (maximumSpeed - MovementSpeed) * acceleration * Time.deltaTime;
+					LastNonDeceleratingSpeed = MovementSpeed;
+				} else {
+					MovementSpeed = LastNonDeceleratingSpeed * decelerationModifier;
 				}
+				
+			} else if (TargetPosition != null) {
+				MovementSpeed = 0f;
+				updatedMovementDirection = Vector3.zero;
+				MovementController.Move(TargetPosition.Value - position);
+				ResetTargetPosition();
+				
 			} else {
+				MovementSpeed = 0f;
 				updatedMovementDirection = Vector3.zero;
 			}
 			
-			MovementSpeed += (maximumSpeed - MovementSpeed) * acceleration * Time.deltaTime;
-			MovementSpeed -= MovementSpeed * (1.0f - Mathf.Pow(decelerationModifier, 1f / Deceleration));
+			//MovementSpeed -= MovementSpeed * (1.0f - Mathf.Pow(decelerationModifier, 3f));
+			//MovementSpeed -= MovementSpeed * (1.0f)
 			MovementDirection = Vector3.Lerp(MovementDirection, updatedMovementDirection, AngularAcceleration * Time.deltaTime);
 			MovementController.Move(MovementDirection * MovementSpeed * Time.deltaTime);
 
@@ -112,7 +133,7 @@ namespace Units.Player.Movement {
 			var blinkManaCost = 30.00f;
 			if (hasCheapBlink) { blinkManaCost = 15.00f; }
 
-			if (CommandStatus.IsIssued(CommandBinding.Command.Blink) && Stats.HasMana(blinkManaCost)) {
+			if (CommandStatus.IsIssuedThisFrame(CommandBinding.Command.Blink) && Stats.HasMana(blinkManaCost)) {
 				Stats.DrainMana(blinkManaCost);
 				Vector3 movementVector;
 
@@ -123,7 +144,7 @@ namespace Units.Player.Movement {
 				}
 
 				MovementController.Move(movementVector);
-				TargetPosition = null;
+				ResetTargetPosition();
 			}
 		}
 
@@ -155,6 +176,20 @@ namespace Units.Player.Movement {
 			}
 
 			return 1000.00f;
+		}
+		private void ShowTargetPosition() {
+			TargetPositionIndicator.Show();
+		}
+
+		private void SetTargetPosition(Vector3 target) {
+			TargetPosition = new Vector3(target.x, target.y + ExpectedFloatingHeight, target.z);
+			TargetPositionIndicator.MoveTo(target);
+			TargetPositionIndicator.Hide();
+		}
+
+		private void ResetTargetPosition() {
+			TargetPosition = null;
+			TargetPositionIndicator.Hide();
 		}
 	}
 }

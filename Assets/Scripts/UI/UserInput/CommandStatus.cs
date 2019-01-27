@@ -18,7 +18,7 @@ namespace UI.UserInput {
 				   || commandBinding.IsMouse() && MouseStatus.IsHoldDown(commandBinding.GetMouseButton());
 		}
 
-		public bool IsIssued(CommandBinding.Command command) {
+		public bool IsIssuedThisFrame(CommandBinding.Command command) {
 			var commandBinding = CommandBinding.Get(command);
 			if (commandBinding == null) {
 				return false;
@@ -26,6 +26,16 @@ namespace UI.UserInput {
 
 			return commandBinding.IsKeyboard() && Input.GetKeyDown(commandBinding.GetKeyCode())
 			       || commandBinding.IsMouse() && MouseStatus.IsClickedThisFrame(commandBinding.GetMouseButton());
+		}
+
+		public bool IsStoppedThisFrame(CommandBinding.Command command) {
+			var commandBinding = CommandBinding.Get(command);
+			if (commandBinding == null) {
+				return false;
+			}
+
+			return commandBinding.IsKeyboard() && Input.GetKeyUp(commandBinding.GetKeyCode())
+			       || commandBinding.IsMouse() && MouseStatus.IsReleasedThisFrame(commandBinding.GetMouseButton());
 		}
 
 		public bool IsInactive(CommandBinding.Command command) {

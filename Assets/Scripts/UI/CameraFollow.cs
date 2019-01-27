@@ -57,7 +57,6 @@ public class CameraFollow : MonoBehaviour
             movementVector.y = movementScript.GetLastValidGroundHeight() - transform.position.y + cameraOffset.y;
             movementVector.z = player.transform.position.z - transform.position.z + cameraOffset.z;
             movementVector *= cameraSpeed * movementVectorModifier;
-            Debug.Log(movementScript.GetLastValidGroundHeight());
             transform.Translate(movementVector.x * Time.smoothDeltaTime, movementVector.y * Time.smoothDeltaTime, movementVector.z * Time.smoothDeltaTime, Space.World);
         }
 	}
