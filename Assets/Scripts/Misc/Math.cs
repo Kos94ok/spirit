@@ -64,73 +64,17 @@ public static class Utility
         else
             return new Vector3(0, 0, 0);
     }
-    // 
-    /*public static Vector3 GetMouseWorldPosition()
-    {
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        float distance = 0;
-        Plane hPlane = new Plane(Vector3.up, planePoint);
-        if (hPlane.Raycast(ray, out distance))
-            return ray.GetPoint(distance);
-        else
-            return new Vector3(0, 0, 0);
-    }
-    */
+    
+    public static Vector3 GetGroundPosition(Vector3 fromPosition) {
+        RaycastHit hit;
+        const int walkableLayerMask = 1 << 9;
+        var ray = new Ray(fromPosition, Vector3.down);
 
-    public static Vector3 GetGroundPosition(Vector3 fromPosition)
-    {
-        return new Vector3(fromPosition.x, GetGroundHeight(fromPosition), fromPosition.z);
-    }
+        if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayerMask)) {
+            return hit.point;
+        }
 
-    // Return the Y coordinate of the closest ground piece under given position.
-    public static float GetGroundHeight(Vector3 fromPosition)
-    {
-        Ray ray = new Ray(fromPosition, Vector3.down);
-        RaycastHit[] hits = Physics.RaycastAll(ray);
-        
-        float closestDist = 1000.00f;
-        RaycastHit closestHit = new RaycastHit();
-        foreach (RaycastHit hit in hits)
-        {
-            if (hit.transform.tag != "Enemy" && hit.transform.tag != "Hitbox" && hit.distance < closestDist)
-            {
-                closestHit = hit;
-                closestDist = hit.distance;
-            }
-        }
-        if (closestDist < 1000.00f && closestHit.point.y != 0.00f)
-        {
-            return closestHit.point.y;
-        }
-        else
-        {
-            // If there is no ground below, also check above
-            return GetCeilingHeight(fromPosition);
-        }
-    }
-    public static float GetCeilingHeight(Vector3 fromPosition)
-    {
-        Ray ray = new Ray(fromPosition, Vector3.up);
-        RaycastHit[] hits = Physics.RaycastAll(ray);
-
-        float closestDist = 1000.00f;
-        RaycastHit closestHit = new RaycastHit();
-        foreach (RaycastHit hit in hits)
-        {
-            if (hit.transform.tag != "Enemy" && hit.transform.tag != "Hitbox" && hit.distance < closestDist)
-            {
-                closestHit = hit;
-                closestDist = hit.distance;
-            }
-        }
-        if (closestDist < 1000.00f)
-        {
-            return closestHit.point.y;
-        }
-        else
-        {
-            return 0.00f;
-        }
+        return Vector3.zero;
     }
 
     // Returns the distance to the first obstacle from position to a specified direction

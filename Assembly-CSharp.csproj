@@ -63,9 +63,11 @@
     <Compile Include="Assets\Scripts\Environment\SimpleTeleport.cs" />
     <Compile Include="Assets\Scripts\Environment\TorchMountedAutoEnable.cs" />
     <Compile Include="Assets\Scripts\Environment\UnlockEquipmentOnInteract.cs" />
+    <Compile Include="Assets\Scripts\Misc\Assets.cs" />
     <Compile Include="Assets\Scripts\Misc\DestroyOnStart.cs" />
     <Compile Include="Assets\Scripts\Misc\LightSourceController.cs" />
     <Compile Include="Assets\Scripts\Misc\Math.cs" />
+    <Compile Include="Assets\Scripts\Misc\Maybe.cs" />
     <Compile Include="Assets\Scripts\Misc\RemoveMeshInGame.cs" />
     <Compile Include="Assets\Scripts\Misc\Timer.cs" />
     <Compile Include="Assets\Scripts\Settings\CommandBinding.cs" />
@@ -133,6 +135,9 @@
     <Compile Include="Assets\Scripts\Units\Player\Souls\HeroAbility.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Souls\HeroSoul.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Souls\HeroSoulController.cs" />
+    <Compile Include="Assets\Scripts\Units\Player\Targeting\PlayerTargeting.cs" />
+    <Compile Include="Assets\Scripts\Units\Player\Targeting\TargetedEnemy.cs" />
+    <Compile Include="Assets\Scripts\Units\Player\Targeting\TargetedEnemyEffect.cs" />
     <Compile Include="Assets\Scripts\Units\UnitBleeding.cs" />
     <Compile Include="Assets\Scripts\Units\UnitDeath.cs" />
     <Compile Include="Assets\Scripts\Units\UnitHitbox.cs" />

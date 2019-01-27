@@ -102,7 +102,7 @@ public class HeroSoul_Priestess : HeroSoulOffensive_Old
         {
             healEffect = Instantiate(healEffectPrefab);
         }
-        if (stats.health < stats.healthMax)
+        if (stats.Health < stats.HealthMax)
         {
             stats.HealDamage(healPerSecond / ticksPerSecond);
             return true;

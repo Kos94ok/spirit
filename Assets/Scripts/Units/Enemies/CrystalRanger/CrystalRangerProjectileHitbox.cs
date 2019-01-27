@@ -22,7 +22,7 @@ public class CrystalRangerProjectileHitbox : MonoBehaviour
         if (enemyHit == null)
             return;
 
-        if (enemyHit.Stats.alliance == UnitAlliance.Player && enemyHit.Stats.IsAlive())
+        if (enemyHit.Stats.Alliance == UnitAlliance.Player && enemyHit.Stats.IsAlive())
         {
             enemyHit.DealDamage(collisionDamage, gameObject);
             UnitBleeding Bleeding = hit.GetComponent<UnitBleeding>();

@@ -38,7 +38,7 @@ public class EternalGuardianAttackHitbox : MonoBehaviour
         if (enemyHit == null || hitObjects.Contains(enemyHit))
             return;
 
-        if (enemyHit.Stats.alliance == UnitAlliance.Player && enemyHit.Stats.IsAlive())
+        if (enemyHit.Stats.Alliance == UnitAlliance.Player && enemyHit.Stats.IsAlive())
         {
             hitObjects.Add(enemyHit);
             if (damageOnImpact > 0.00f)

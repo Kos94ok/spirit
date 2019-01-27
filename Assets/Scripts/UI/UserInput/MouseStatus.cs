@@ -1,4 +1,6 @@
+using System;
 using JetBrains.Annotations;
+using Misc;
 using UnityEngine;
 
 namespace UI.UserInput {
@@ -10,9 +12,9 @@ namespace UI.UserInput {
 			Middle,
 		}
 		
-		public Vector3? GetWorldPointForWalkableLayer() {
+		public Maybe<Vector3> GetWalkableWorldPoint() {
 			if (Camera.main == null) {
-				return Vector3.zero;
+				return Maybe<Vector3>.None;
 			}
 			
 			RaycastHit hit;
@@ -20,9 +22,24 @@ namespace UI.UserInput {
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
   
 			if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayer)) {
-				return hit.point;
+				return Maybe<Vector3>.Some(hit.point);
 			}
-			return null;
+			return Maybe<Vector3>.None;
+		}
+
+		public Maybe<GameObject> GetHoveredEnemy() {
+			if (Camera.main == null) {
+				return Maybe<GameObject>.None;
+			}
+			
+			RaycastHit hit;
+			const int enemyTargetboxLayer = 1 << 10;
+			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+  
+			if (Physics.Raycast(ray, out hit, 1000.00f, enemyTargetboxLayer)) {
+				return Maybe<GameObject>.Some(hit.transform.parent.gameObject);
+			}
+			return Maybe<GameObject>.None;
 		}
 
 		public bool IsHoldDown(Button mouseButton) {

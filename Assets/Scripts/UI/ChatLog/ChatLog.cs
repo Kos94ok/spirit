@@ -9,19 +9,19 @@ namespace UI.ChatLog {
 
 	[UsedImplicitly]
 	public class ChatLog {
-		private ChatLogAgent chatLogAgent;
-		private readonly Localization localization = AutowireFactory.GetInstanceOf<Localization>();
+		private ChatLogAgent ChatLogAgent;
+		private readonly Localization Localization = AutowireFactory.GetInstanceOf<Localization>();
 
 		public void PostRaw(string text, ChatWindow window = ChatWindow.Info) {
-			if (chatLogAgent == null) {
+			if (ChatLogAgent == null) {
 				var chatLogAgentHolder = new GameObject();
-				chatLogAgent = (ChatLogAgent) chatLogAgentHolder.AddComponent(typeof(ChatLogAgent));
+				ChatLogAgent = (ChatLogAgent) chatLogAgentHolder.AddComponent(typeof(ChatLogAgent));
 			}
 
-			chatLogAgent.PostMessage(text, window);
+			ChatLogAgent.PostMessage(text, window);
 		}
 		public void Post(string link, ChatWindow window = ChatWindow.Info) {
-			PostRaw(localization.Get(link));
+			PostRaw(Localization.Get(link));
 		}
 	}
 }

@@ -32,14 +32,15 @@ namespace Units.Player.Movement {
 		private UnitStats Stats;
 		private PlayerEquipment Equipment;
 		private CharacterController MovementController;
-		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
+		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
 		private readonly MouseStatus MouseStatus = AutowireFactory.GetInstanceOf<MouseStatus>();
+		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 
 		private void Start() {
 			Stats = GetComponent<UnitStats>();
 			Equipment = GetComponent<PlayerEquipment>();
 			MovementController = GetComponent<CharacterController>();
-			var targetPositionIndicatorAgent = (GameObject) Instantiate(Resources.Load("TargetPositionIndicator"));
+			var targetPositionIndicatorAgent = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorPosition));
 			TargetPositionIndicator = targetPositionIndicatorAgent.GetComponent<PlayerTargetPositionIndicator>();
 			Debug.Log(TargetPositionIndicator);
 			FloatingTimer.StartForever(1.00f);
@@ -68,11 +69,11 @@ namespace Units.Player.Movement {
 			}
 			
 			// Slow when drawing the bow
-			if (Stats.buffs.Has(Buff.DrawingBow)) {
+			if (Stats.Buffs.Has(Buff.DrawingBow)) {
 				maximumSpeed *= 0.70f;
 			}
 
-			var mousePoint = MouseStatus.GetWorldPointForWalkableLayer();
+			var mousePoint = MouseStatus.GetWalkableWorldPoint();
 			if (CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && mousePoint.HasValue) {
 				SetTargetPosition(mousePoint.Value);
 			} else if (CommandStatus.IsStoppedThisFrame(CommandBinding.Command.MoveToMouse)) {
@@ -118,7 +119,7 @@ namespace Units.Player.Movement {
 			}
 		}
 		private void Update_Blink() {
-			var mousePoint = MouseStatus.GetWorldPointForWalkableLayer();
+			var mousePoint = MouseStatus.GetWalkableWorldPoint();
 			if (!mousePoint.HasValue) {
 				return;
 			}
@@ -177,6 +178,7 @@ namespace Units.Player.Movement {
 
 			return 1000.00f;
 		}
+
 		private void ShowTargetPosition() {
 			TargetPositionIndicator.Show();
 		}
@@ -190,6 +192,10 @@ namespace Units.Player.Movement {
 		private void ResetTargetPosition() {
 			TargetPosition = null;
 			TargetPositionIndicator.Hide();
+		}
+
+		private void OnDestroy() {
+			Destroy(TargetPositionIndicator);
 		}
 	}
 }

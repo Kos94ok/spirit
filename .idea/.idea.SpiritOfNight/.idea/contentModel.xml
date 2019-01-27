@@ -40,9 +40,11 @@
             <e p="UnlockEquipmentOnInteract.cs" t="Include" />
           </e>
           <e p="Misc" t="Include">
+            <e p="Assets.cs" t="Include" />
             <e p="DestroyOnStart.cs" t="Include" />
             <e p="LightSourceController.cs" t="Include" />
             <e p="Math.cs" t="Include" />
+            <e p="Maybe.cs" t="Include" />
             <e p="RemoveMeshInGame.cs" t="Include" />
             <e p="Timer.cs" t="Include" />
           </e>
@@ -133,7 +135,7 @@
                 <e p="PlayerLightCharge.cs" t="Include" />
                 <e p="PlayerLightChargeFollow.cs" t="Include" />
               </e>
-              <e p="Souls" t="Include">
+              <e p="Souls-old" t="Include">
                 <e p="[1] Royal Guard" t="Include">
                   <e p="HeroSoul_RoyalGuard.cs" t="Include" />
                   <e p="RoyalGuard_TripleSwing.cs" t="Include" />
@@ -160,6 +162,11 @@
                 <e p="HeroAbility.cs" t="Include" />
                 <e p="HeroSoul.cs" t="Include" />
                 <e p="HeroSoulController.cs" t="Include" />
+              </e>
+              <e p="Targeting" t="Include">
+                <e p="PlayerTargeting.cs" t="Include" />
+                <e p="TargetedEnemy.cs" t="Include" />
+                <e p="TargetedEnemyEffect.cs" t="Include" />
               </e>
             </e>
             <e p="UnitBleeding.cs" t="Include" />

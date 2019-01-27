@@ -25,7 +25,7 @@ public class HostileGolemAttackHitbox : MonoBehaviour
         if (EnemyHit == null || hitObjects.Contains(EnemyHit.gameObject))
             return;
 
-        if (EnemyHit.Stats.alliance == UnitAlliance.Player && EnemyHit.Stats.IsAlive())
+        if (EnemyHit.Stats.Alliance == UnitAlliance.Player && EnemyHit.Stats.IsAlive())
         {
             EnemyHit.DealDamage(Damage, gameObject);
             hitObjects.Add(EnemyHit.gameObject);

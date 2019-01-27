@@ -1,336 +1,309 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
+using Misc;
 
-public enum UnitAlliance
-{
-    Neutral,
-    Ally,
-    Enemy,
-    Player,
+public enum UnitAlliance {
+	Neutral,
+	Ally,
+	Enemy,
+	Player,
 }
 
-public enum ShieldsBehaviour
-{
-    PassiveGeneration,
-    PassiveDecay,
+public enum ShieldsBehaviour {
+	PassiveGeneration,
+	PassiveDecay,
 }
 
-public enum ShieldsRegenerationType
-{
-    Always,
-    InCombat,
-    OutOfCombatInstant,
-    OutOfCombatWithDelay,
-    OutOfCombatWhenNotUsed,
-    Never,
+public enum ShieldsRegenerationType {
+	Always,
+	InCombat,
+	OutOfCombatInstant,
+	OutOfCombatWithDelay,
+	OutOfCombatWhenNotUsed,
+	Never,
 }
 
-public enum RegenerationType
-{
-    Always,
-    WithDelay,
-    WhenNotUsed,
-    Never,
+public enum RegenerationType {
+	Always,
+	WithDelay,
+	WhenNotUsed,
+	Never,
 }
 
-public enum CombatState
-{
-    In,
-    Out,
+public enum CombatState {
+	In,
+	Out,
 }
 
-public class UnitStats : MonoBehaviour
-{
-    public string debugName;
-    public UnitAlliance alliance = UnitAlliance.Neutral;
-    public float timeUntilOutOfCombat = 3.00f;
+public sealed class UnitStats : MonoBehaviour {
+	public string DebugName;
+	public UnitAlliance Alliance = UnitAlliance.Neutral;
+	public float TimeUntilOutOfCombat = 3.00f;
 
-    public float health = 100.00f;
-    public float healthMax = 100.00f;
-    public float healthRegen = 1.00f;
-    public RegenerationType healthRegenMode = RegenerationType.Always;
-    public float healthRegenDelay = 1.00f;
+	public float Health = 100.00f;
+	public float HealthMax = 100.00f;
+	public float HealthRegen = 1.00f;
+	public float HealthRegenDelay = 1.00f;
+	public RegenerationType HealthRegenMode = RegenerationType.Always;
 
-    public float mana = 100.00f;
-    public float manaMax = 100.00f;
-    public float manaRegen = 10.00f;
-    public RegenerationType manaRegenMode = RegenerationType.WhenNotUsed;
-    public float manaRegenDelay = 1.00f;
+	public float Mana = 100.00f;
+	public float ManaMax = 100.00f;
+	public float ManaRegen = 10.00f;
+	public float ManaRegenDelay = 1.00f;
+	public RegenerationType ManaRegenMode = RegenerationType.WhenNotUsed;
 
-    public float shields = 0.00f;
-    public float shieldsMax = 1000.00f;
-    public float shieldsRegen = 10.00f;
-    public ShieldsBehaviour shieldsPassiveMode = ShieldsBehaviour.PassiveDecay;
-    public ShieldsRegenerationType shieldsRegenMode = ShieldsRegenerationType.OutOfCombatWithDelay;
-    public float shieldsRegenDelay = 3.00f;
+	public float Shields;
+	public float ShieldsMax = 1000.00f;
+	public float ShieldsRegen = 10.00f;
+	public float ShieldsRegenDelay = 3.00f;
+	public ShieldsBehaviour ShieldsPassiveMode = ShieldsBehaviour.PassiveDecay;
+	public ShieldsRegenerationType ShieldsRegenMode = ShieldsRegenerationType.OutOfCombatWithDelay;
 
-    bool IsReallyDead = false;
+	public float SelectionRadius = 1.00f;
 
-    private bool healthUsedThisFrame = false;
-    private bool manaUsedThisFrame = false;
-    private bool shieldsAffectedThisFrame = false;
-    private float healthRegenTimer = 0.00f;
-    private float manaRegenTimer = 0.00f;
-    private float shieldsRegenTimer = 0.00f;
-    private CombatState combatState = CombatState.Out;
-    private float combatTimer = 0.00f;
+	private bool IsConfirmedDead;
 
-    [HideInInspector]
-    public BuffController buffs;
+	private bool HealthUsedThisFrame;
+	private bool ManaUsedThisFrame;
+	private bool ShieldsAffectedThisFrame;
+	private CombatState CombatState = CombatState.Out;
+	private readonly Timer HealthRegenTimer = new Timer();
+	private readonly Timer ManaRegenTimer = new Timer();
+	private readonly Timer ShieldsRegenTimer = new Timer();
+	private readonly Timer CombatTimer = new Timer();
 
-    void Start()
-    {
-        // Add buff controller
-        buffs = gameObject.AddComponent<BuffController>();
-    }
-    void Update()
-    {
-        if (IsAlive())
-        {
-            // Update timers
-            if (healthRegenTimer > 0.00f)
-            {
-                healthRegenTimer -= Time.deltaTime;
-                if (healthRegenTimer < 0.00f) { healthRegenTimer = 0.00f; }
-            }
-            if (manaRegenTimer > 0.00f)
-            {
-                manaRegenTimer -= Time.deltaTime;
-                if (manaRegenTimer < 0.00f) { manaRegenTimer = 0.00f; }
-            }
-            if (shieldsRegenTimer > 0.00f)
-            {
-                shieldsRegenTimer -= Time.deltaTime;
-                if (shieldsRegenTimer < 0.00f) { shieldsRegenTimer = 0.00f; }
-            }
+	private EnemyAI EnemyAIController;
 
-            // Basic health regeneration
-            if (healthRegenMode == RegenerationType.Always
-                || (healthRegenMode == RegenerationType.WithDelay && healthRegenTimer <= 0.00f)
-                || (healthRegenMode == RegenerationType.WhenNotUsed && !healthUsedThisFrame))
-            {
-                HealDamage(healthRegen * Time.deltaTime);
-            }
-            // Basic mana regeneration
-            if (manaRegenMode == RegenerationType.Always
-                || (manaRegenMode == RegenerationType.WithDelay && manaRegenTimer <= 0.00f)
-                || (manaRegenMode == RegenerationType.WhenNotUsed && !manaUsedThisFrame))
-            {
-                RestoreMana(manaRegen * Time.deltaTime);
-            }
-            // Shield passive mode
-            if (shieldsRegenMode == ShieldsRegenerationType.Always
-                || (IsInCombat() && shieldsRegenMode == ShieldsRegenerationType.InCombat)
-                || (!IsInCombat() && shieldsRegenMode == ShieldsRegenerationType.OutOfCombatInstant)
-                || (!IsInCombat() && shieldsRegenMode == ShieldsRegenerationType.OutOfCombatWithDelay && shieldsRegenTimer <= 0.00f)
-                || (!IsInCombat() && shieldsRegenMode == ShieldsRegenerationType.OutOfCombatWhenNotUsed && !shieldsAffectedThisFrame))
-            {
-                if (shieldsPassiveMode == ShieldsBehaviour.PassiveGeneration)
-                {
-                    GainShields(shieldsRegen * Time.deltaTime);
-                }
-                else if (shieldsPassiveMode == ShieldsBehaviour.PassiveDecay)
-                {
-                    DrainShields(shieldsRegen * Time.deltaTime);
-                }
-            }
-            // Combat mode
-            if (IsInCombat())
-            {
-                combatTimer -= Time.deltaTime;
-                if (combatTimer <= 0.00f)
-                {
-                    combatTimer = 0.00f;
-                    OnCombatLeave();
-                }
-            }
-        }
-        healthUsedThisFrame = false;
-        manaUsedThisFrame = false;
-        shieldsAffectedThisFrame = false;
-    }
-    //===================================================================================================
-    // Shields
-    //===================================================================================================
-    public bool HasShields(float amount, float buffer = 1.00f)
-    {
-        return shields >= amount + buffer;
-    }
-    public float DrainShields(float amount)
-    {
-        if (amount <= 0f)
-            return 0f;
+	[HideInInspector]
+	public BuffController Buffs;
 
-        shieldsAffectedThisFrame = true;
-        float damageOverflow = 0f;
-        if (HasShields(amount, 0f))
-        {
-            shields -= amount;
-        }
-        else
-        {
-            damageOverflow = amount - shields;
-            shields = 0f;
-        }
-        return damageOverflow;
-    }
-    public void GainShields(float amount)
-    {
-        shields += amount;
-        if (shields > shieldsMax)
-        {
-            shields = shieldsMax;
-        }
+	private void Start() {
+		EnemyAIController = GetComponent<EnemyAI>();
+		Buffs = gameObject.AddComponent<BuffController>();
+	}
+	private void Update() {
+		if (!IsAlive()) {
+			return;
+		}
+		
+		HealthRegenTimer.Tick();
+		ManaRegenTimer.Tick();
+		ShieldsRegenTimer.Tick();
 
-        shieldsAffectedThisFrame = true;
-        if (shieldsRegenMode == ShieldsRegenerationType.OutOfCombatWithDelay)
-        {
-            shieldsRegenTimer = shieldsRegenDelay;
-        }
-    }
-    //===================================================================================================
-    // Health
-    //===================================================================================================
-    public bool HasHealth(float amount, float buffer = 1.00f)
-    {
-        return health >= amount + buffer;
-    }
-    public void DealDamage(float amount, GameObject source = null)
-    {
-        if (IsDead() || amount <= 0.00f)
-            return;
+		// Basic health regeneration
+		if (HealthRegenMode == RegenerationType.Always
+				|| HealthRegenMode == RegenerationType.WithDelay && HealthRegenTimer.IsDone()
+				|| HealthRegenMode == RegenerationType.WhenNotUsed && !HealthUsedThisFrame) {
+			HealDamage(HealthRegen * Time.deltaTime);
+		}
+		// Basic mana regeneration
+		if (ManaRegenMode == RegenerationType.Always
+				|| ManaRegenMode == RegenerationType.WithDelay && ManaRegenTimer.IsDone()
+				|| ManaRegenMode == RegenerationType.WhenNotUsed && !ManaUsedThisFrame) {
+			RestoreMana(ManaRegen * Time.deltaTime);
+		}
+		// Shield passive mode
+		if (ShieldsRegenMode == ShieldsRegenerationType.Always
+				|| IsInCombat() && ShieldsRegenMode == ShieldsRegenerationType.InCombat
+				|| !IsInCombat() && ShieldsRegenMode == ShieldsRegenerationType.OutOfCombatInstant
+				|| !IsInCombat() && ShieldsRegenMode == ShieldsRegenerationType.OutOfCombatWithDelay && ShieldsRegenTimer.IsDone()
+				|| !IsInCombat() && ShieldsRegenMode == ShieldsRegenerationType.OutOfCombatWhenNotUsed && !ShieldsAffectedThisFrame) {
+			switch (ShieldsPassiveMode) {
+				case ShieldsBehaviour.PassiveGeneration:
+					GainShields(ShieldsRegen * Time.deltaTime);
+					break;
+				case ShieldsBehaviour.PassiveDecay:
+					DrainShields(ShieldsRegen * Time.deltaTime);
+					break;
+			}
+		}
+		// Combat mode
+		if (IsInCombat()) {
+			CombatTimer.Tick();
+			if (CombatTimer.IsDone()) {
+				OnCombatLeave();
+			}
+		}
+		HealthUsedThisFrame = false;
+		ManaUsedThisFrame = false;
+		ShieldsAffectedThisFrame = false;
+	}
 
-        // Damage taken - we are in combat
-        EngageCombat();
+	public bool HasShields(float amount, float buffer = 1.00f) {
+		return Shields >= amount + buffer;
+	}
+	
+	public float DrainShields(float amount) {
+		if (amount <= 0f)
+			return 0f;
 
-        // Deduce health
-        float overflow = amount;
-        if (buffs.Has(Buff.ManaShield)) { overflow = DrainMana(overflow); }
-        overflow = DrainShields(overflow);
-        health -= overflow;
-        if (health <= 0.00f)
-        {
-            Kill();
-        }
-        else
-        {
-            // Enemy AI on hit
-            EnemyAI enemyController = GetComponent<EnemyAI>();
-            if (enemyController != null) { enemyController.OnHit(amount, source); }
-        }
+		var damageOverflow = 0f;
+		if (HasShields(amount, 0f)) {
+			Shields -= amount;
+		} else {
+			damageOverflow = amount - Shields;
+			Shields = 0f;
+		}
+		ShieldsAffectedThisFrame = true;
+		return damageOverflow;
+	}
+	
+	public void GainShields(float amount) {
+		Shields += amount;
+		if (Shields > ShieldsMax) {
+			Shields = ShieldsMax;
+		}
 
-        // Regeneration delays
-        if (healthRegenMode == RegenerationType.WhenNotUsed)
-        {
-            healthUsedThisFrame = true;
-        }
-        else if (healthRegenMode == RegenerationType.WithDelay)
-        {
-            healthRegenTimer = healthRegenDelay;
-        }
-    }
-    public void HealDamage(float amount)
-    {
-        health += amount;
-        health = Mathf.Min(health, healthMax);
-    }
-    //===================================================================================================
-    // Mana
-    //===================================================================================================
-    public bool HasMana(float amount) { return mana >= amount; }
-    public float DrainMana(float amount)
-    {
-        if (amount <= 0f)
-            return 0f;
+		if (ShieldsRegenMode == ShieldsRegenerationType.OutOfCombatWithDelay) {
+			ShieldsRegenTimer.Start(ShieldsRegenDelay);
+		}
+		ShieldsAffectedThisFrame = true;
+	}
+	
+	public bool HasHealth(float amount, float buffer = 1.00f) {
+		return Health >= amount + buffer;
+	}
+	
+	public float DealDamage(float amount, GameObject source = null) {
+		if (IsDead() || amount <= 0.00f)
+			return 0f;
 
-        float overflow = 0f;
-        if (HasMana(amount))
-        {
-            mana -= amount;
-        }
-        else
-        {
-            overflow = amount - mana;
-            mana = 0f;
-        }
+		EngageCombat();
 
-        // Regeneration delays
-        if (manaRegenMode == RegenerationType.WhenNotUsed) { manaUsedThisFrame = true; }
-        else if (manaRegenMode == RegenerationType.WithDelay) { manaRegenTimer = manaRegenDelay; }
+		var overflow = amount;
+		if (Buffs.Has(Buff.ManaShield)) {
+			overflow = DrainMana(overflow);
+		}
+		overflow = DrainShields(overflow);
+		Health -= overflow;
+		if (Health <= 0f) {
+			overflow = -Health;
+			Kill();
+		} else {
+			overflow = 0f;
+			if (EnemyAIController != null) {
+				EnemyAIController.OnHit(amount, source);
+			}
+		}
 
-        return overflow;
-    }
-    public void RestoreMana(float amount)
-    {
-        mana += amount;
-        mana = Mathf.Min(mana, manaMax);
-    }
-    //===================================================================================================
-    // Is alive
-    //===================================================================================================
-    public bool IsAlive() { return health > 0f; }
-    public bool IsDead() { return !IsAlive(); }
-    //===================================================================================================
-    // Death
-    //===================================================================================================
-    public virtual void Kill()
-    {
-        if (IsReallyDead)
-            return;
+		if (HealthRegenMode == RegenerationType.WithDelay) {
+			HealthRegenTimer.Start(HealthRegenDelay);
+		}
+		HealthUsedThisFrame = true;
+		return overflow;
+	}
+	
+	public float HealDamage(float amount) {
+		var overflow = Mathf.Max(0f, amount - (HealthMax - Health));
+		Health += amount;
+		Health = Mathf.Min(Health, HealthMax);
+		return overflow;
+	}
+	
+	public bool HasMana(float amount) {
+		return Mana >= amount;
+	}
+	
+	public float DrainMana(float amount) {
+		if (amount <= 0f)
+			return 0f;
 
-        // Set health
-        health = 0.00f;
-        IsReallyDead = true;
-        if (tag != "Player")
-        {
-            // Destroy movement agents
-            UnityEngine.AI.NavMeshAgent Agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-            if (Agent != null)
-                Destroy(Agent);
-            // Destroy animation agent
-            Animator Anim = GetComponent<Animator>();
-            if (Anim != null)
-                Destroy(Anim);
+		var overflow = 0f;
+		if (HasMana(amount)) {
+			Mana -= amount;
+		} else {
+			overflow = amount - Mana;
+			Mana = 0f;
+		}
 
-            // Set ragdoll properties
-            /*Rigidbody Body = GetComponent<Rigidbody>();
-            Body.drag = 0.0f;
-            Body.mass *= 2.50f;*/
+		if (ManaRegenMode == RegenerationType.WithDelay) {
+			ManaRegenTimer.Start(ManaRegenDelay);
+		}
 
-            // Enable death script
-            UnitDeath Death = GetComponent<UnitDeath>();
-            if (Death != null)
-                Death.OnDeath();
+		ManaUsedThisFrame = true;
+		return overflow;
+	}
+	
+	public float RestoreMana(float amount) {
+		var overflow = Mathf.Max(0f, amount - (ManaMax - Mana));
+		Mana += amount;
+		Mana = Mathf.Min(Mana, ManaMax);
+		return overflow;
+	}
 
-            // Enable corpse script
-            CorpseCleanUp Corpse = gameObject.AddComponent<CorpseCleanUp>();
-            Corpse.SetTimer(15.00f, 0.75f);
-        }
-    }
-    //===================================================================================================
-    // Physics
-    //===================================================================================================
-    public void ApplyForce(Vector3 force, ForceMode mode)
-    {
-        // Only works on death ragdoll
-        if (IsAlive())
-            return;
-        UnitDeath Death = GetComponent<UnitDeath>();
-        if (Death != null)
-            Death.ApplyForce(force, mode);
-    }
-    //===================================================================================================
-    // Combat
-    //===================================================================================================
-    public bool IsInCombat() { return combatState == CombatState.In; }
-    public void EngageCombat()
-    {
-        if (!IsInCombat())
-        {
-            OnCombatEnter();
-        }
-        combatTimer = timeUntilOutOfCombat;
-    }
-    public virtual void OnCombatEnter() { combatState = CombatState.In; }
-    public virtual void OnCombatLeave() { combatState = CombatState.Out; }
+	public bool IsAlive() {
+		return Health > 0f;
+	}
+
+	public bool IsDead() {
+		return !IsAlive();
+	}
+	
+	public void Kill() {
+		if (IsConfirmedDead) {
+			return;
+		}
+
+		Health = 0.00f;
+		IsConfirmedDead = true;
+		if (!CompareTag("Player")) {
+			var navMeshAgent = GetComponent<UnityEngine.AI.NavMeshAgent>();
+			if (navMeshAgent != null) {
+				Destroy(navMeshAgent);
+			}
+
+			var animator = GetComponent<Animator>();
+			if (animator != null) {
+				Destroy(animator);
+			}
+
+			var unitDeath = GetComponent<UnitDeath>();
+			if (unitDeath != null) {
+				unitDeath.OnDeath();
+			}
+
+			var corpseCleanUp = gameObject.AddComponent<CorpseCleanUp>();
+			corpseCleanUp.SetTimer(15.00f, 0.75f);
+		}
+	}
+	
+	public void ApplyForce(Vector3 force, ForceMode mode) {
+		if (IsAlive()) {
+			return;
+		}
+
+		var unitDeath = GetComponent<UnitDeath>();
+		if (unitDeath != null) {
+			unitDeath.ApplyForce(force, mode);
+		}
+	}
+	
+	public bool IsInCombat() {
+		return CombatState == CombatState.In;
+	}
+	
+	public void EngageCombat() {
+		if (!IsInCombat()) {
+			OnCombatEnter();
+		}
+		CombatTimer.Start(TimeUntilOutOfCombat);
+	}
+	
+	public void OnCombatEnter() {
+		CombatState = CombatState.In;
+	}
+	
+	public void OnCombatLeave() {
+		CombatState = CombatState.Out;
+	}
+
+	public override string ToString() {
+		var displayName = "Unnamed unit";
+		if (DebugName != null) {
+			displayName = DebugName;
+		}
+
+		return displayName + ": " + Health + " HP; " + Mana + " MP; " + "Alliance: " + Alliance;
+	}
 }
