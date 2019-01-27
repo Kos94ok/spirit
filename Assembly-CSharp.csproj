@@ -111,6 +111,7 @@
     <Compile Include="Assets\Scripts\Units\Enemies\HostileGolem\HostileGolemAI.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\HostileGolem\HostileGolemAttackHitbox.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\HostileGolem\HostileGolemDeath.cs" />
+    <Compile Include="Assets\Scripts\Units\Player\Combat\PlayerCombat.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\CharacterControllerExtension.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerLightFollow.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Movement\PlayerMovement.cs" />

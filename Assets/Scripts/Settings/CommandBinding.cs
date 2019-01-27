@@ -11,6 +11,7 @@ namespace Settings {
 
 		public enum Command {
 			MoveToMouse,
+			ForceMoveToMouse,
 			MoveUp,
 			MoveDown,
 			MoveLeft,
@@ -24,6 +25,7 @@ namespace Settings {
 		
 		public CommandBinding() {
 			Library.Add(Command.MoveToMouse, CommandMapping.Mouse(MouseStatus.Button.Left));
+			Library.Add(Command.ForceMoveToMouse, CommandMapping.Mouse(MouseStatus.Button.Middle));
 			Library.Add(Command.MoveUp, CommandMapping.Keyboard(KeyCode.W));
 			Library.Add(Command.MoveDown, CommandMapping.Keyboard(KeyCode.S));
 			Library.Add(Command.MoveLeft, CommandMapping.Keyboard(KeyCode.A));

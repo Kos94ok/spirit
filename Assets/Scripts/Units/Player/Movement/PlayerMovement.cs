@@ -1,6 +1,8 @@
 ﻿using Misc;
 using Settings;
 using UI.UserInput;
+using Units.Player.Combat;
+using Units.Player.Targeting;
 using UnityEngine;
 
 namespace Units.Player.Movement {
@@ -27,6 +29,8 @@ namespace Units.Player.Movement {
 		private Vector3 LastGroundedPosition;
 
 		private UnitStats Stats;
+		private PlayerCombat Combat;
+		private PlayerTargeting Targeting;
 		private PlayerEquipment Equipment;
 		private CharacterController MovementController;
 		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
@@ -35,6 +39,8 @@ namespace Units.Player.Movement {
 
 		private void Start() {
 			Stats = GetComponent<UnitStats>();
+			Combat = GetComponent<PlayerCombat>();
+			Targeting = GetComponent<PlayerTargeting>();
 			Equipment = GetComponent<PlayerEquipment>();
 			MovementController = GetComponent<CharacterController>();
 			var targetPositionIndicatorAgent = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorPosition));
@@ -68,10 +74,13 @@ namespace Units.Player.Movement {
 				maximumSpeed *= 0.70f;
 			}
 
+			var targetedEnemy = Targeting.GetTargetedEnemy();
 			var mousePoint = MouseStatus.GetWalkableWorldPoint();
-			if (CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && mousePoint.HasValue) {
+			if (CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && targetedEnemy.HasValue && Combat.IsInRangeForBasicAttack(targetedEnemy.Value)) {
+				ResetTargetPosition();
+			} else if (CommandStatus.IsAnyActive(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse) && mousePoint.HasValue) {
 				SetTargetPosition(mousePoint.Value);
-			} else if (CommandStatus.IsStoppedThisFrame(CommandBinding.Command.MoveToMouse)) {
+			} else if (CommandStatus.IsAnyStoppedThisFrame(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse)) {
 				ShowTargetPosition();
 			}
 			

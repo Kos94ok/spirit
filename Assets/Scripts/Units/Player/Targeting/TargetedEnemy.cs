@@ -1,3 +1,4 @@
+using Misc;
 using UnityEngine;
 
 namespace Units.Player.Targeting {
@@ -10,6 +11,9 @@ namespace Units.Player.Targeting {
 			Effect = Target.AddComponent<TargetedEnemyEffect>();
 		}
 
+		public Vector3 GetPosition() {
+			return Target.transform.position;
+		}
 		public bool IsSame(GameObject target) {
 			return target.Equals(Target);
 		}

@@ -34,5 +34,9 @@ namespace Units.Player.Targeting {
 			TargetedEnemy.Value.RemoveEffect();
 			TargetedEnemy = Maybe<TargetedEnemy>.None;
 		}
+
+		public Maybe<TargetedEnemy> GetTargetedEnemy() {
+			return TargetedEnemy;
+		}
 	}
 }

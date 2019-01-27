@@ -1,3 +1,4 @@
+using System.Linq;
 using JetBrains.Annotations;
 using Settings;
 using UnityEngine;
@@ -18,6 +19,14 @@ namespace UI.UserInput {
 				   || commandBinding.IsMouse() && MouseStatus.IsHoldDown(commandBinding.GetMouseButton());
 		}
 
+		public bool IsAnyActive(params CommandBinding.Command[] commands) {
+			return commands.Any(IsActive);
+		}
+		
+		public bool IsAllActive(params CommandBinding.Command[] commands) {
+			return commands.All(IsActive);
+		}
+
 		public bool IsIssuedThisFrame(CommandBinding.Command command) {
 			var commandBinding = CommandBinding.Get(command);
 			if (commandBinding == null) {
@@ -36,6 +45,10 @@ namespace UI.UserInput {
 
 			return commandBinding.IsKeyboard() && Input.GetKeyUp(commandBinding.GetKeyCode())
 			       || commandBinding.IsMouse() && MouseStatus.IsReleasedThisFrame(commandBinding.GetMouseButton());
+		}
+
+		public bool IsAnyStoppedThisFrame(params CommandBinding.Command[] commands) {
+			return commands.Any(IsStoppedThisFrame);
 		}
 
 		public bool IsInactive(CommandBinding.Command command) {
