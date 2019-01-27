@@ -135,7 +135,7 @@
                 <e p="PlayerLightCharge.cs" t="Include" />
                 <e p="PlayerLightChargeFollow.cs" t="Include" />
               </e>
-              <e p="Souls-old" t="Include">
+              <e p="Souls" t="Include">
                 <e p="[1] Royal Guard" t="Include">
                   <e p="HeroSoul_RoyalGuard.cs" t="Include" />
                   <e p="RoyalGuard_TripleSwing.cs" t="Include" />

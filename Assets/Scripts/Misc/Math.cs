@@ -76,6 +76,18 @@ public static class Utility
 
         return Vector3.zero;
     }
+    
+    public static float GetDistanceToGround(Vector3 fromPosition) {
+        RaycastHit hit;
+        const int walkableLayerMask = 1 << 9;
+        var ray = new Ray(fromPosition, Vector3.down);
+
+        if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayerMask)) {
+            return hit.distance;
+        }
+
+        return 1000.00f;
+    }
 
     // Returns the distance to the first obstacle from position to a specified direction
     public static float GetDistanceToObstacle(Vector3 fromPosition, Vector3 direction)

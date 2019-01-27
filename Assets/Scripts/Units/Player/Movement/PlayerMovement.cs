@@ -103,12 +103,10 @@ namespace Units.Player.Movement {
 				updatedMovementDirection = Vector3.zero;
 			}
 			
-			//MovementSpeed -= MovementSpeed * (1.0f - Mathf.Pow(decelerationModifier, 3f));
-			//MovementSpeed -= MovementSpeed * (1.0f)
 			MovementDirection = Vector3.Lerp(MovementDirection, updatedMovementDirection, AngularAcceleration * Time.deltaTime);
 			MovementController.Move(MovementDirection * MovementSpeed * Time.deltaTime);
 
-			var distanceToGround = GetControllerDistanceToGround();
+			var distanceToGround = Utility.GetDistanceToGround(transform.position);
 			if (Mathf.Abs(ExpectedFloatingHeight - distanceToGround) > 0.01f) {
 				var movementVector = new Vector3(0, ExpectedFloatingHeight - distanceToGround, 0);
 				MovementController.Move(movementVector * 1.00f * Time.deltaTime);
@@ -150,8 +148,7 @@ namespace Units.Player.Movement {
 		}
 
 		private bool IsGrounded() {
-			var distanceToGround = GetControllerDistanceToGround();
-			return distanceToGround <= ExpectedFloatingHeight * 2.00f;
+			return Utility.GetDistanceToGround(transform.position) <= ExpectedFloatingHeight * 2.00f;
 		}
 		public float GetLastValidGroundHeight() {
 			if (!IsGrounded()) {
@@ -165,18 +162,6 @@ namespace Units.Player.Movement {
 			if (body != null) {
 				body.AddForce(hit.moveDirection * hit.moveLength * 200);
 			}
-		}
-
-		private float GetControllerDistanceToGround() {
-			RaycastHit hit;
-			const int walkableLayerMask = 1 << 9;
-			var ray = new Ray(transform.position, Vector3.down);
-
-			if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayerMask)) {
-				return hit.distance;
-			}
-
-			return 1000.00f;
 		}
 
 		private void ShowTargetPosition() {
