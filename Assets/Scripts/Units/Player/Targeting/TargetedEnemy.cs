@@ -4,11 +4,10 @@ using UnityEngine;
 namespace Units.Player.Targeting {
 	public class TargetedEnemy {
 		private readonly GameObject Target;
-		private readonly TargetedEnemyEffect Effect;
+		private TargetedEnemyEffect Effect;
 
 		public TargetedEnemy(GameObject enemy) {
 			Target = enemy;
-			Effect = Target.AddComponent<TargetedEnemyEffect>();
 		}
 
 		public Vector3 GetPosition() {
@@ -17,7 +16,14 @@ namespace Units.Player.Targeting {
 		public bool IsSame(GameObject target) {
 			return target.Equals(Target);
 		}
+
+		public void CreateEffect() {
+			Effect = Target.AddComponent<TargetedEnemyEffect>();
+		}
 		public void RemoveEffect() {
+			if (Effect == null) {
+				return;
+			}
 			Object.Destroy(Effect);
 		}
 	}

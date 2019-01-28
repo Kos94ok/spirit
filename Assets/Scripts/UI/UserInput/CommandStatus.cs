@@ -54,5 +54,9 @@ namespace UI.UserInput {
 		public bool IsInactive(CommandBinding.Command command) {
 			return !IsActive(command);
 		}
+
+		public bool IsAllInactive(params CommandBinding.Command[] commands) {
+			return commands.All(IsInactive);
+		}
 	}
 }
