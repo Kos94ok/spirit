@@ -9,6 +9,7 @@ namespace Misc {
 		TargetIndicatorEnemy,
 		TargetIndicatorNeutral,
 		TargetIndicatorPosition,
+		LightningEffectFragment,
 	}
 
 	[UsedImplicitly]
@@ -21,6 +22,7 @@ namespace Misc {
 			Library.Add(Resource.TargetIndicatorEnemy, "Indicators/TargetIndicatorEnemy");
 			Library.Add(Resource.TargetIndicatorNeutral, "Indicators/TargetIndicatorNeutral");
 			Library.Add(Resource.TargetIndicatorPosition, "Indicators/TargetIndicatorPosition");
+			Library.Add(Resource.LightningEffectFragment, "EffectFragments/LightningEffectFragment");
 		}
 
 		public Object Get(Resource resource) {

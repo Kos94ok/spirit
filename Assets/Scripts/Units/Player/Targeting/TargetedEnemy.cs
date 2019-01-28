@@ -10,6 +10,9 @@ namespace Units.Player.Targeting {
 			Target = enemy;
 		}
 
+		public GameObject GetTarget() {
+			return Target;
+		}
 		public Vector3 GetPosition() {
 			return Target.transform.position;
 		}

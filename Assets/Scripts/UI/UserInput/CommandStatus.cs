@@ -37,6 +37,10 @@ namespace UI.UserInput {
 			       || commandBinding.IsMouse() && MouseStatus.IsClickedThisFrame(commandBinding.GetMouseButton());
 		}
 
+		public bool IsAnyIssuedThisFrame(params CommandBinding.Command[] commands) {
+			return commands.Any(IsIssuedThisFrame);
+		}
+
 		public bool IsStoppedThisFrame(CommandBinding.Command command) {
 			var commandBinding = CommandBinding.Get(command);
 			if (commandBinding == null) {

@@ -53,8 +53,8 @@ namespace Units.Player.Targeting {
 			}
 		}
 
-		public Maybe<TargetedEnemy> GetTargetedEnemy() {
-			return TargetedEnemy;
+		public Maybe<GameObject> GetTargetedEnemy() {
+			return TargetedEnemy.HasValue ? Maybe<GameObject>.Some(TargetedEnemy.Value.GetTarget()) : Maybe<GameObject>.None;
 		}
 	}
 }

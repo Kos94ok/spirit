@@ -122,7 +122,13 @@
             </e>
             <e p="Player" t="Include">
               <e p="Combat" t="Include">
+                <e p="Abilities" t="Include">
+                  <e p="PlayerBasicAttack.cs" t="Include" />
+                </e>
+                <e p="AbilityTargetType.cs" t="Include" />
+                <e p="PlayerAbility.cs" t="Include" />
                 <e p="PlayerCombat.cs" t="Include" />
+                <e p="QueuedPlayerAbility.cs" t="Include" />
               </e>
               <e p="Movement" t="Include">
                 <e p="CharacterControllerExtension.cs" t="Include" />

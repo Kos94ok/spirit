@@ -22,6 +22,7 @@ namespace Units.Player.Movement {
 		private Vector3? TargetPosition;
 		private PlayerTargetPositionIndicator TargetPositionIndicator;
 		private bool IsSprinting;
+		private bool IsMovingToSpellTarget;
 
 		private const float ExpectedFloatingHeight = 0.6f;
 
@@ -30,7 +31,6 @@ namespace Units.Player.Movement {
 
 		private UnitStats Stats;
 		private PlayerCombat Combat;
-		private PlayerTargeting Targeting;
 		private PlayerEquipment Equipment;
 		private CharacterController MovementController;
 		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
@@ -40,7 +40,6 @@ namespace Units.Player.Movement {
 		private void Start() {
 			Stats = GetComponent<UnitStats>();
 			Combat = GetComponent<PlayerCombat>();
-			Targeting = GetComponent<PlayerTargeting>();
 			Equipment = GetComponent<PlayerEquipment>();
 			MovementController = GetComponent<CharacterController>();
 			var targetPositionIndicatorAgent = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorPosition));
@@ -74,9 +73,12 @@ namespace Units.Player.Movement {
 				maximumSpeed *= 0.70f;
 			}
 
-			var targetedEnemy = Targeting.GetTargetedEnemy();
+			var queuedAbility = Combat.GetQueuedAbility();
 			var mousePoint = MouseStatus.GetWalkableWorldPoint();
-			if (CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && targetedEnemy.HasValue && Combat.IsInRangeForBasicAttack(targetedEnemy.Value)) {
+
+			if (queuedAbility.HasValue && queuedAbility.Value.GetReason() == PlayerCombat.AbilityQueueReason.Range) {
+				SetTargetPositionToSpellTarget(queuedAbility.Value);
+			} else if (IsMovingToSpellTarget) {
 				ResetTargetPosition();
 			} else if (CommandStatus.IsAnyActive(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse) && mousePoint.HasValue) {
 				SetTargetPosition(mousePoint.Value);
@@ -172,6 +174,11 @@ namespace Units.Player.Movement {
 			TargetPositionIndicator.Show();
 		}
 
+		private void SetTargetPositionToSpellTarget(QueuedPlayerAbility queuedPlayerAbility) {
+			IsMovingToSpellTarget = true;
+			SetTargetPosition(queuedPlayerAbility.GetTargetPosition());
+		}
+		
 		private void SetTargetPosition(Vector3 target) {
 			TargetPosition = new Vector3(target.x, target.y + ExpectedFloatingHeight, target.z);
 			TargetPositionIndicator.MoveTo(target);
@@ -181,6 +188,7 @@ namespace Units.Player.Movement {
 		private void ResetTargetPosition() {
 			TargetPosition = null;
 			TargetPositionIndicator.Hide();
+			IsMovingToSpellTarget = false;
 		}
 
 		private void OnDestroy() {
