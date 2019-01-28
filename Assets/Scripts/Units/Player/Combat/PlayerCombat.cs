@@ -13,7 +13,7 @@ namespace Units.Player.Combat {
 			Range,
 		}
 		
-		private PlayerTargeting PlayerTargeting;
+		private PlayerTargeting Targeting;
 		private readonly MouseStatus MouseStatus = AutowireFactory.GetInstanceOf<MouseStatus>();
 		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 
@@ -21,12 +21,13 @@ namespace Units.Player.Combat {
 		private readonly Dictionary<CommandBinding.Command, PlayerAbility> AbilityLibrary = new Dictionary<CommandBinding.Command, PlayerAbility>();
 		
 		private void Start() {
-			PlayerTargeting = GetComponent<PlayerTargeting>();
+			Targeting = GetComponent<PlayerTargeting>();
 			AbilityLibrary.Add(CommandBinding.Command.MoveToMouse, new PlayerBasicAttack());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityQ, new GroundBasicAttack());
 		}
 
 		private void Update() {
-			var targetUnit = PlayerTargeting.GetTargetedEnemy();
+			var targetUnit = Targeting.GetTargetedEnemy();
 			var targetPoint = MouseStatus.GetWalkableWorldPoint();
 			var abilityToQueue = Maybe<QueuedPlayerAbility>.None;
 			foreach (var entry in AbilityLibrary) {
@@ -38,7 +39,6 @@ namespace Units.Player.Combat {
 				
 				if (!IsInRange(ability) && (ability.IsTargetingPoint() && targetPoint.HasValue || ability.IsTargetingUnit() && targetUnit.HasValue)) {
 					abilityToQueue = CreateQueuedAbility(ability, AbilityQueueReason.Range);
-					Debug.Log("Queueing at range " + ability.GetMaximumRange());
 					continue;
 				}
 
@@ -53,7 +53,7 @@ namespace Units.Player.Combat {
 				QueuedAbility = Maybe<QueuedPlayerAbility>.None;
 			}
 			
-			if (QueuedAbility.HasValue && QueuedAbility.Value.GetReason() == AbilityQueueReason.Range && IsInRange(QueuedAbility.Value.GetAbility())) {
+			if (QueuedAbility.HasValue && QueuedAbility.Value.GetReason() == AbilityQueueReason.Range && IsInRange(QueuedAbility.Value)) {
 				QueuedAbility.Value.GetAbility().OnCast(QueuedAbility.Value.GetTargetPoint(), QueuedAbility.Value.GetTargetUnit());
 				QueuedAbility = Maybe<QueuedPlayerAbility>.None;
 			}
@@ -64,18 +64,28 @@ namespace Units.Player.Combat {
 		}
 
 		private bool IsInRange(PlayerAbility ability) {
-			var target = PlayerTargeting.GetTargetedEnemy();
+			var target = Targeting.GetTargetedEnemy();
 			var targetPoint = target.HasValue ? Maybe<Vector3>.Some(target.Value.transform.position) : MouseStatus.GetWalkableWorldPoint();
 
 			if (!targetPoint.HasValue) {
 				return false;
 			}
 
-			return Vector3.Distance(transform.position, targetPoint.Value) <= ability.GetMaximumRange();
+			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= ability.GetMaximumRange();
+		}
+		
+		private bool IsInRange(QueuedPlayerAbility queuedAbility) {
+			var target = queuedAbility.GetTargetUnit();
+			var targetPoint = target.HasValue ? Maybe<Vector3>.Some(target.Value.transform.position) : queuedAbility.GetTargetPoint();
+
+			if (!targetPoint.HasValue) {
+				return false;
+			}
+			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= queuedAbility.GetAbility().GetMaximumRange();
 		}
 
 		private Maybe<QueuedPlayerAbility> CreateQueuedAbility(PlayerAbility ability, AbilityQueueReason reason) {
-			var targetUnit = PlayerTargeting.GetTargetedEnemy();
+			var targetUnit = Targeting.GetTargetedEnemy();
 			if (targetUnit.HasValue) {
 				return Maybe<QueuedPlayerAbility>.Some(new QueuedPlayerAbility(ability, targetUnit.Value, reason));
 			}
@@ -89,6 +99,16 @@ namespace Units.Player.Combat {
 
 		public Maybe<QueuedPlayerAbility> GetQueuedAbility() {
 			return QueuedAbility;
+		}
+
+		public bool IsBasicAttacking() {
+			PlayerAbility basicAttack;
+			if (!AbilityLibrary.TryGetValue(CommandBinding.Command.MoveToMouse, out basicAttack)) {
+				return false;
+			}
+
+			var targetedEnemy = Targeting.GetTargetedEnemy();
+			return CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && targetedEnemy.HasValue && IsInRange(basicAttack);
 		}
 	}
 }
