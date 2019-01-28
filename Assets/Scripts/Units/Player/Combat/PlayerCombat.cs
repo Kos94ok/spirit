@@ -3,6 +3,7 @@ using Misc;
 using Settings;
 using UI.UserInput;
 using Units.Player.Combat.Abilities;
+using Units.Player.Combat.Abilities.PlayerBasicAttack;
 using Units.Player.Targeting;
 using UnityEngine;
 
@@ -33,6 +34,7 @@ namespace Units.Player.Combat {
 			foreach (var entry in AbilityLibrary) {
 				var command = entry.Key;
 				var ability = entry.Value;
+				ability.Update();
 				if (!CommandStatus.IsActive(command) || !ability.IsReady()) {
 					continue;
 				}
@@ -45,7 +47,7 @@ namespace Units.Player.Combat {
 				if (ability.IsTargetingSelf()
 						|| ability.IsTargetingUnit() && targetUnit.HasValue
 					    || ability.IsTargetingPoint() && targetPoint.HasValue) {
-					ability.OnCast(targetPoint, targetUnit);
+					ability.OnCast(transform.gameObject, targetPoint, targetUnit);
 				}
 			}
 
@@ -54,7 +56,7 @@ namespace Units.Player.Combat {
 			}
 			
 			if (QueuedAbility.HasValue && QueuedAbility.Value.GetReason() == AbilityQueueReason.Range && IsInRange(QueuedAbility.Value)) {
-				QueuedAbility.Value.GetAbility().OnCast(QueuedAbility.Value.GetTargetPoint(), QueuedAbility.Value.GetTargetUnit());
+				QueuedAbility.Value.GetAbility().OnCast(transform.gameObject, QueuedAbility.Value.GetTargetPoint(), QueuedAbility.Value.GetTargetUnit());
 				QueuedAbility = Maybe<QueuedPlayerAbility>.None;
 			}
 
@@ -99,16 +101,6 @@ namespace Units.Player.Combat {
 
 		public Maybe<QueuedPlayerAbility> GetQueuedAbility() {
 			return QueuedAbility;
-		}
-
-		public bool IsBasicAttacking() {
-			PlayerAbility basicAttack;
-			if (!AbilityLibrary.TryGetValue(CommandBinding.Command.MoveToMouse, out basicAttack)) {
-				return false;
-			}
-
-			var targetedEnemy = Targeting.GetTargetedEnemy();
-			return CommandStatus.IsActive(CommandBinding.Command.MoveToMouse) && targetedEnemy.HasValue && IsInRange(basicAttack);
 		}
 	}
 }

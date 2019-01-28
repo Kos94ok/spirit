@@ -81,7 +81,6 @@ namespace Units.Player.Movement {
 
 			if (queuedAbility.HasValue && queuedAbility.Value.GetReason() == PlayerCombat.AbilityQueueReason.Range) {
 				SetTargetPositionToSpellTarget(queuedAbility.Value);
-			//} else if (Combat.IsBasicAttacking()) {
 			} else if (CommandStatus.IsAnyActive(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse) && mousePoint.HasValue && !targetEnemy.HasValue) {
 				SetTargetPosition(mousePoint.Value);
 			} else if (CommandStatus.IsAnyStoppedThisFrame(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse)) {

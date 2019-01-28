@@ -93,6 +93,8 @@
     <Compile Include="Assets\Scripts\Units\Common\BasicFollow.cs" />
     <Compile Include="Assets\Scripts\Units\Common\CorpseCleanUp.cs" />
     <Compile Include="Assets\Scripts\Units\Common\HeightIndicator.cs" />
+    <Compile Include="Assets\Scripts\Units\Common\Lightning\LightningAgent.cs" />
+    <Compile Include="Assets\Scripts\Units\Common\Lightning\LightningFragment.cs" />
     <Compile Include="Assets\Scripts\Units\Common\TimedLife.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\CorruptedFire\CorruptedFireAI.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\CorruptedFire\CorruptedFireDeath.cs" />
@@ -112,7 +114,7 @@
     <Compile Include="Assets\Scripts\Units\Enemies\HostileGolem\HostileGolemAttackHitbox.cs" />
     <Compile Include="Assets\Scripts\Units\Enemies\HostileGolem\HostileGolemDeath.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Combat\Abilities\GroundBasicAttack.cs" />
-    <Compile Include="Assets\Scripts\Units\Player\Combat\Abilities\PlayerBasicAttack.cs" />
+    <Compile Include="Assets\Scripts\Units\Player\Combat\Abilities\PlayerBasicAttack\PlayerBasicAttack.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Combat\AbilityTargetType.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Combat\PlayerAbility.cs" />
     <Compile Include="Assets\Scripts\Units\Player\Combat\PlayerCombat.cs" />

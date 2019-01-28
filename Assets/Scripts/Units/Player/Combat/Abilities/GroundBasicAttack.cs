@@ -7,10 +7,13 @@ namespace Units.Player.Combat.Abilities {
 			return true;
 		}
 
-		public override void OnCast(Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
-			Debug.Log("Castingssss");
+		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
+			Debug.Log("Casting Q");
 		}
 
+		public override void Update() {
+		}
+		
 		public override int GetTargetType() {
 			return AbilityTargetType.Point;
 		}

@@ -3,8 +3,9 @@ using UnityEngine;
 
 namespace Units.Player.Combat {
 	public abstract class PlayerAbility {
+		public abstract void Update();
 		public abstract bool IsReady();
-		public abstract void OnCast(Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit);
+		public abstract void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit);
 		public abstract int GetTargetType();
 		public abstract float GetMaximumRange();
 

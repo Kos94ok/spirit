@@ -87,6 +87,10 @@
               <e p="BasicFollow.cs" t="Include" />
               <e p="CorpseCleanUp.cs" t="Include" />
               <e p="HeightIndicator.cs" t="Include" />
+              <e p="Lightning" t="Include">
+                <e p="LightningAgent.cs" t="Include" />
+                <e p="LightningFragment.cs" t="Include" />
+              </e>
               <e p="TimedLife.cs" t="Include" />
             </e>
             <e p="Enemies" t="Include">
@@ -124,7 +128,9 @@
               <e p="Combat" t="Include">
                 <e p="Abilities" t="Include">
                   <e p="GroundBasicAttack.cs" t="Include" />
-                  <e p="PlayerBasicAttack.cs" t="Include" />
+                  <e p="PlayerBasicAttack" t="Include">
+                    <e p="PlayerBasicAttack.cs" t="Include" />
+                  </e>
                 </e>
                 <e p="AbilityTargetType.cs" t="Include" />
                 <e p="PlayerAbility.cs" t="Include" />
