@@ -17,8 +17,12 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 		}
 
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
-			LightningAgent.Create(caster.transform.position, targetUnit.Value.transform.position, 0.0f);
-			cooldown.Start(0.2f);
+			var sourcePosition = caster.transform.position;
+			var targetPosition = targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();
+
+			LightningAgent.Create(sourcePosition, targetPosition, 1000f);
+			LightningAgent.Create(sourcePosition, targetPosition, 1000f);
+			cooldown.Start(0.08f);
 		}
 
 		public override int GetTargetType() {
@@ -26,7 +30,7 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 		}
 
 		public override float GetMaximumRange() {
-			return 2f;
+			return 10f;
 		}
 	}
 }

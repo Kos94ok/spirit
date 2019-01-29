@@ -63,6 +63,6 @@ namespace Misc {
 
 		public float GetFraction() {
 			return Counter / MaxTime;
-		}
+		}		
 	}
 }

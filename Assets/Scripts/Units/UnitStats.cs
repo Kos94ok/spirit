@@ -61,6 +61,7 @@ public sealed class UnitStats : MonoBehaviour {
 	public ShieldsRegenerationType ShieldsRegenMode = ShieldsRegenerationType.OutOfCombatWithDelay;
 
 	public float SelectionRadius = 1.00f;
+	public Vector3 CenterOffset = Vector3.zero;
 
 	private bool IsConfirmedDead;
 
@@ -298,12 +299,7 @@ public sealed class UnitStats : MonoBehaviour {
 		CombatState = CombatState.Out;
 	}
 
-	public override string ToString() {
-		var displayName = "Unnamed unit";
-		if (DebugName != null) {
-			displayName = DebugName;
-		}
-
-		return displayName + ": " + Health + " HP; " + Mana + " MP; " + "Alliance: " + Alliance;
+	public Vector3 GetHitTargetPosition() {
+		return transform.position + CenterOffset;
 	}
 }
