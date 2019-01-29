@@ -1,41 +1,40 @@
-using System;
-using System.Collections;
-using Misc;
 using UnityEngine;
-using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 namespace Units.Common.Lightning {
 	public class LightningFragment {
-		private GameObject FragmentObject;
-		private int Depth;
-		private float CreatedTime;
-		private bool SideBranch;
-
-		public void Init(GameObject fragmentObject, int depth) {
-			FragmentObject = fragmentObject;
-			Depth = depth;
-			SideBranch = false;
-			CreatedTime = Time.time;
-		}
+		public const int VisualDataChildIndex = 0;
+		public const int ConnectingPointChildIndex = 1;
 		
-		public void InitSideBranch(GameObject fragmentObject, int depth) {
+		private GameObject FragmentObject;
+		private Vector3 TargetPoint;
+		private int LinearDepth;
+		private int BranchDepth;
+		private float CreatedTime;
+
+		public void Init(GameObject fragmentObject, Vector3 targetPoint, int linearDepth, int branchDepth) {
 			FragmentObject = fragmentObject;
-			Depth = depth;
-			SideBranch = true;
+			TargetPoint = targetPoint;
+			LinearDepth = linearDepth;
+			BranchDepth = branchDepth;
 			CreatedTime = Time.time;
+			fragmentObject.SetActive(true);
+			fragmentObject.transform.GetChild(VisualDataChildIndex).gameObject.SetActive(true);
 		}
 
 		public GameObject GetGameObject() {
 			return FragmentObject;
 		}
-		
-		public int GetDepth() {
-			return Depth;
+
+		public Vector3 GetTargetPoint() {
+			return TargetPoint;
 		}
-		
-		public bool IsSideBranch() {
-			return SideBranch;
+
+		public int GetLinearDepth() {
+			return LinearDepth;
+		}
+
+		public int GetBranchDepth() {
+			return BranchDepth;
 		}
 
 		public float GetTime() {

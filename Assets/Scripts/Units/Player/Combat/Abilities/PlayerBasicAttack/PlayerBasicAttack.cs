@@ -20,9 +20,15 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 			var sourcePosition = caster.transform.position;
 			var targetPosition = targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();
 
-			LightningAgent.Create(sourcePosition, targetPosition, 1000f);
-			LightningAgent.Create(sourcePosition, targetPosition, 1000f);
-			cooldown.Start(0.08f);
+			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
+				.SetAngularDeviation(50f)
+				.SetSpeed(1000f)
+				.SetBranchingChance(0.2f)
+				.SetBranchingFactor(1.5f)
+				.SetMaximumBranchDepth(3);
+			builder.Create();
+			builder.Create();
+			cooldown.Start(0.5f);
 		}
 
 		public override int GetTargetType() {

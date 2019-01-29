@@ -1,20 +1,22 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-public class TimedLife : MonoBehaviour {
+namespace Units.Common {
+	public class TimedLife : MonoBehaviour {
 
-    public float Timer = 1.00f;
-	// Use this for initialization
-	void Start () {
+		public float Timer = 1.00f;
+		public bool ShouldDestroy = true;
 	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-        Timer -= Time.deltaTime;
-        if (Timer <= 0.00f)
-        {
-            Destroy(gameObject);
-        }
+		private void Update () {
+			Timer -= Time.deltaTime;
+			if (Timer > 0.00f) {
+				return;
+			}
+
+			if (ShouldDestroy) {
+				Destroy(gameObject);
+			} else {
+				gameObject.SetActive(false);
+			}
+		}
 	}
 }

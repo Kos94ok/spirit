@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Units.Common;
 
 public class HeroSoul_Priestess : HeroSoulOffensive_Old
 {

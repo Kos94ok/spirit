@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Units.Common;
 
 public class PlayerInteractorPrompt : MonoBehaviour
 {
@@ -37,16 +38,16 @@ public class PlayerInteractorPrompt : MonoBehaviour
 
     void OnGUI()
     {
-        if (currentAlpha > 0.00f)
-        {
-            Vector3 position = cameraHandle.WorldToScreenPoint(transform.position);
-
-            GUI.BeginGroup(new Rect(position.x - size / 2, cameraHandle.pixelHeight - position.y - size / 2, size, size));
-                GUI.color = new Color(1.00f, 1.00f, 1.00f, currentAlpha);
-                GUI.DrawTexture(new Rect(0, 0, size, size), texture);
-                //GUI.Label(new Rect(promptSize / 4, promptSize / 4, promptSize, promptSize), "E", promptTextStyle);
-            GUI.EndGroup();
-        }
+//        if (currentAlpha > 0.00f)
+//        {
+//            Vector3 position = cameraHandle.WorldToScreenPoint(transform.position);
+//
+//            GUI.BeginGroup(new Rect(position.x - size / 2, cameraHandle.pixelHeight - position.y - size / 2, size, size));
+//                GUI.color = new Color(1.00f, 1.00f, 1.00f, currentAlpha);
+//                GUI.DrawTexture(new Rect(0, 0, size, size), texture);
+//                //GUI.Label(new Rect(promptSize / 4, promptSize / 4, promptSize, promptSize), "E", promptTextStyle);
+//            GUI.EndGroup();
+//        }
     }
     public void Initialize(Texture2D texture, int size)
     {

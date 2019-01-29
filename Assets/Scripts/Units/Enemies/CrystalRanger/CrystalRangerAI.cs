@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Units.Common;
 using Units.Player.Movement;
 
 public class CrystalRangerAI : MonoBehaviour

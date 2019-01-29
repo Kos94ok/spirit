@@ -18,16 +18,16 @@ public class OverheadHealthBar : MonoBehaviour
     }
     void OnGUI()
     {
-        if (Stats.Health < Stats.HealthMax && Stats.Health > 0.00f)
-        {
-            GUI.BeginGroup(new Rect(pos - size / 2 - offset, size));
-
-            GUI.color = new Color(1.0f, 1.0f, 1.0f, 0.50f);
-            GUI.DrawTexture(new Rect(0, 0, size.x, size.y), progressBarEmpty);
-            GUI.DrawTexture(new Rect(0, 0, size.x * (Stats.Health / Stats.HealthMax), size.y), progressBarFull);
-
-            GUI.EndGroup();
-        }
+//        if (Stats.Health < Stats.HealthMax && Stats.Health > 0.00f)
+//        {
+//            GUI.BeginGroup(new Rect(pos - size / 2 - offset, size));
+//
+//            GUI.color = new Color(1.0f, 1.0f, 1.0f, 0.50f);
+//            GUI.DrawTexture(new Rect(0, 0, size.x, size.y), progressBarEmpty);
+//            GUI.DrawTexture(new Rect(0, 0, size.x * (Stats.Health / Stats.HealthMax), size.y), progressBarFull);
+//
+//            GUI.EndGroup();
+//        }
     } 
  
     void Update()

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Units.Common;
 
 public class HeroSoul_Marksman_Arrow : MonoBehaviour
 {

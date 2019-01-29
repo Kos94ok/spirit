@@ -54,8 +54,7 @@ public static class Utility
     }
 
     // Translate mouse position into a point on the plane
-    public static Vector3 GetMouseWorldPosition(Vector3 planePoint)
-    {
+    public static Vector3 GetMouseWorldPosition(Vector3 planePoint) {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         float distance = 0;
         Plane hPlane = new Plane(Vector3.up, planePoint);
