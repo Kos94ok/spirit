@@ -14,6 +14,9 @@ namespace Units.Common.Lightning {
 			private float BranchingChance;
 			private float BranchingFactor = 1f;
 			private int MaximumBranchDepth = 3;
+			private Resource FragmentResource = Resource.LightningEffectFragment;
+			private float FragmentLifeTime = .1f;
+			private float FragmentParticleLifeTime = .5f;
 			
 			public Builder(Vector3 from, Vector3 to) {
 				From = from;
@@ -45,17 +48,30 @@ namespace Units.Common.Lightning {
 				return this;
 			}
 
+			public Builder SetFragmentResource(Resource resource) {
+				FragmentResource = resource;
+				return this;
+			}
+
+			public Builder SetFragmentLifeTime(float lifeTime) {
+				FragmentLifeTime = lifeTime;
+				return this;
+			}
+
+			public Builder SetFragmentParticleLifeTime(float lifeTime) {
+				FragmentParticleLifeTime = lifeTime;
+				return this;
+			}
+
 			public LightningAgent Create() {
 				var lightningContainer = new GameObject();
 				var lightningAgent = lightningContainer.AddComponent<LightningAgent>();
 				lightningContainer.name = "LightningAgent";
 				lightningContainer.AddComponent<TimedLife>().Timer = 5f;
-				lightningAgent.Init(From, To, 1 / Speed, AngularDeviation, BranchingFactor, BranchingChance, MaximumBranchDepth);
+				lightningAgent.Init(From, To, 1 / Speed, AngularDeviation, BranchingFactor, BranchingChance, MaximumBranchDepth, FragmentResource, FragmentLifeTime, FragmentParticleLifeTime);
 				return lightningAgent;
 			}
 		}
-		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
-
 		private readonly ObjectPool ObjectPool = AutowireFactory.GetInstanceOf<ObjectPool>();
 		
 		private float FragmentDelay;
@@ -63,6 +79,9 @@ namespace Units.Common.Lightning {
 		private float BranchingFactor;
 		private float BranchingChance;
 		private float BranchingChanceReduction;
+		private Resource FragmentResource;
+		private float FragmentLifeTime;
+		private float FragmentParticleLifeTime;
 		
 		private void Init(
 				Vector3 from,
@@ -71,23 +90,30 @@ namespace Units.Common.Lightning {
 				float deviation,
 				float branchingFactor,
 				float branchingChance,
-				int maximumBranchDepth) {
+				int maximumBranchDepth,
+				Resource fragmentResource,
+				float fragmentLifeTime,
+				float fragmentParticleLifeTime) {
 			FragmentDelay = delay;
 			AngularDeviation = deviation;
 			BranchingFactor = branchingFactor;
 			BranchingChance = branchingChance;
 			BranchingChanceReduction = branchingChance / maximumBranchDepth;
+			FragmentResource = fragmentResource;
+			FragmentLifeTime = fragmentLifeTime;
+			FragmentParticleLifeTime = fragmentParticleLifeTime;
 
 			AddFragment(from, to, 0, 0, 1);
 		}
 		
-		private void AddSideFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth) {
-			AddFragment(from, from + Random.insideUnitSphere * Random.Range(0.1f, 0.3f * BranchingFactor), linearDepth, branchDepth, Mathf.RoundToInt(Random.Range(1, 4)));
+		private void AddSideFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth, int fragmentCount) {
+			AddFragment(from, from + Random.insideUnitSphere * Random.Range(0.1f, 0.3f * BranchingFactor), linearDepth, branchDepth, fragmentCount);
 		}
 		
 		private void AddFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth, int fragmentCount) {
-			while (fragmentCount > 0 && Vector3.Distance(from, to) > 0.1f) {
-				var fragment = ObjectPool.Obtain(Resource.LightningEffectFragment);
+			var fragmentsRemaining = fragmentCount;
+			while (fragmentsRemaining > 0 && Vector3.Distance(from, to) > 0.1f) {
+				var fragment = ObjectPool.Obtain(FragmentResource);
 				var fragmentController = new LightningFragment();
 				fragmentController.Init(fragment, to, linearDepth, branchDepth);
 				fragment.transform.position = from;
@@ -101,37 +127,37 @@ namespace Units.Common.Lightning {
 				
 				StartCoroutine(FragmentHideVisual(fragment));
 				StartCoroutine(FragmentSelfDestruct(fragment));
-				if (fragmentCount == 1 && linearDepth < 500) {
+				if (fragmentsRemaining == 1 && linearDepth < 500) {
 					StartCoroutine(FragmentSpawning(fragmentController));
 				}
 				
 				if (Random.Range(0f, 1f) <= BranchingChance - branchDepth * BranchingChanceReduction) {
-					AddSideFragment(from, to, linearDepth + 1, branchDepth + 1);
+					AddSideFragment(from, to, linearDepth, branchDepth + 1, fragmentCount);
 				}
 
 				from = fragment.transform.GetChild(LightningFragment.ConnectingPointChildIndex).position;
-				fragmentCount -= 1;
+				fragmentsRemaining -= 1;
 			}
 		}
 		
 		private IEnumerator FragmentHideVisual(GameObject fragment) {
-			yield return new WaitForSeconds(.1f);
+			yield return new WaitForSeconds(FragmentLifeTime);
 			fragment.transform.GetChild(LightningFragment.VisualDataChildIndex).gameObject.SetActive(false);
 		}
 
 		private IEnumerator FragmentSelfDestruct(GameObject fragment) {
-			yield return new WaitForSeconds(FragmentDelay + .5f);
+			yield return new WaitForSeconds(FragmentDelay + FragmentParticleLifeTime);
 			fragment.SetActive(false);
-			ObjectPool.Return(Resource.LightningEffectFragment, fragment);
+			ObjectPool.Return(FragmentResource, fragment);
 		}
 
 		private IEnumerator FragmentSpawning(LightningFragment fragment) {
 			yield return new WaitForSeconds(FragmentDelay);
 			
 			var spawnPosition = fragment.GetGameObject().transform.GetChild(LightningFragment.ConnectingPointChildIndex).position;
-			var projectilesToSpawn = Mathf.FloorToInt(Mathf.Clamp((Time.time - fragment.GetTime()) / FragmentDelay, 1, 150));
-			AddFragment(spawnPosition, fragment.GetTargetPoint(), fragment.GetLinearDepth()+1, fragment.GetBranchDepth(), projectilesToSpawn);
+			var fragmentCount = Mathf.FloorToInt(Mathf.Clamp((Time.time - fragment.GetTime()) / FragmentDelay, 1, 150));
+			AddFragment(spawnPosition, fragment.GetTargetPoint(), fragment.GetLinearDepth() + 1, fragment.GetBranchDepth(), fragmentCount);
 		}
-
+		
 	}
 }

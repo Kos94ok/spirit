@@ -10,6 +10,8 @@ namespace Misc {
 		TargetIndicatorNeutral,
 		TargetIndicatorPosition,
 		LightningEffectFragment,
+		LongLightningEffectFragment,
+		RunningLightningEffectFragment,
 	}
 
 	[UsedImplicitly]
@@ -23,6 +25,8 @@ namespace Misc {
 			Library.Add(Resource.TargetIndicatorNeutral, "Indicators/TargetIndicatorNeutral");
 			Library.Add(Resource.TargetIndicatorPosition, "Indicators/TargetIndicatorPosition");
 			Library.Add(Resource.LightningEffectFragment, "EffectFragments/LightningEffectFragment");
+			Library.Add(Resource.LongLightningEffectFragment, "EffectFragments/LongLightningEffectFragment");
+			Library.Add(Resource.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
 		}
 
 		public Object Get(Resource resource) {

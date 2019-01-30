@@ -79,9 +79,10 @@ namespace Units.Player.Movement {
 			var targetEnemy = Targeting.GetTargetedEnemy();
 			var mousePoint = MouseStatus.GetWalkableWorldPoint();
 
-			if (queuedAbility.HasValue && queuedAbility.Value.GetReason() == PlayerCombat.AbilityQueueReason.Range) {
+			if (queuedAbility.HasValue && queuedAbility.Value.GetReason() != PlayerCombat.AbilityQueueReason.Cast) {
 				SetTargetPositionToSpellTarget(queuedAbility.Value);
-			} else if (CommandStatus.IsAnyActive(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse) && mousePoint.HasValue && !targetEnemy.HasValue) {
+			} else if (CommandStatus.IsAnyActive(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse)
+			           && mousePoint.HasValue && !targetEnemy.HasValue && CommandStatus.IsInactive(CommandBinding.Command.ForceCast)) {
 				SetTargetPosition(mousePoint.Value);
 			} else if (CommandStatus.IsAnyStoppedThisFrame(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse)) {
 				ShowTargetPosition();
@@ -177,7 +178,11 @@ namespace Units.Player.Movement {
 
 		private void SetTargetPositionToSpellTarget(QueuedPlayerAbility queuedPlayerAbility) {
 			var spellTargetPosition = queuedPlayerAbility.GetTargetPosition();
-			var moveTargetPosition = Vector3.MoveTowards(spellTargetPosition, Utility.GetGroundPosition(transform.position), queuedPlayerAbility.GetAbility().GetMaximumRange() - 0.1f);
+			var maxDistanceDelta = 0f;
+			if (queuedPlayerAbility.GetReason() == PlayerCombat.AbilityQueueReason.Range) {
+				maxDistanceDelta = queuedPlayerAbility.GetAbility().GetMaximumCastRange() - 0.1f;
+			}
+			var moveTargetPosition = Vector3.MoveTowards(spellTargetPosition, Utility.GetGroundPosition(transform.position), maxDistanceDelta);
 			SetTargetPosition(moveTargetPosition);
 		}
 		

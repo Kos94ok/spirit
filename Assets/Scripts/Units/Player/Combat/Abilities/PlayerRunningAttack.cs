@@ -2,8 +2,8 @@ using Misc;
 using Units.Common.Lightning;
 using UnityEngine;
 
-namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
-	public class PlayerBasicAttack : PlayerAbility {
+namespace Units.Player.Combat.Abilities {
+	public class PlayerRunningAttack : PlayerAbility {
 		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
 
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
@@ -17,12 +17,12 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 			}
 
 			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
-				.SetAngularDeviation(50f)
-				.SetSpeed(1000f)
-				.SetMaximumBranchDepth(3)
-				.SetFragmentResource(Resource.LightningEffectFragment);
+				.SetAngularDeviation(15f)
+				.SetSpeed(700f)
+				.SetFragmentParticleLifeTime(1f)
+				.SetFragmentResource(Resource.RunningLightningEffectFragment);
 			builder.Create();
-			Cooldown.Start(0.7f);
+			Cooldown.Start(0.3f);
 		}
 
 		public override int GetTargetType() {

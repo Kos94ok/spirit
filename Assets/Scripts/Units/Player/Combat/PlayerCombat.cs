@@ -12,6 +12,7 @@ namespace Units.Player.Combat {
 		public enum AbilityQueueReason {
 			Cast,
 			Range,
+			NoTarget,
 		}
 		
 		private PlayerTargeting Targeting;
@@ -24,7 +25,10 @@ namespace Units.Player.Combat {
 		private void Start() {
 			Targeting = GetComponent<PlayerTargeting>();
 			AbilityLibrary.Add(CommandBinding.Command.MoveToMouse, new PlayerBasicAttack());
-			AbilityLibrary.Add(CommandBinding.Command.AbilityQ, new GroundBasicAttack());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new TestRightClick());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityQ, new TestAoeAttack());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityW, new TestUltraLightning());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityE, new PlayerRunningAttack());
 		}
 
 		private void Update() {
@@ -44,20 +48,26 @@ namespace Units.Player.Combat {
 					continue;
 				}
 
+				if (command != CommandBinding.Command.MoveToMouse && ability.IsTargetingUnit() && !ability.IsTargetingPoint() && !targetUnit.HasValue) {
+					abilityToQueue = CreateQueuedAbility(ability, AbilityQueueReason.NoTarget);
+					continue;
+				}
+
 				if (ability.IsTargetingSelf()
 						|| ability.IsTargetingUnit() && targetUnit.HasValue
 					    || ability.IsTargetingPoint() && targetPoint.HasValue) {
 					ability.OnCast(transform.gameObject, targetPoint, targetUnit);
+					ClearQueuedAbility();
 				}
 			}
 
 			if (CommandStatus.IsAnyIssuedThisFrame(CommandBinding.Command.MoveToMouse, CommandBinding.Command.ForceMoveToMouse)) {
-				QueuedAbility = Maybe<QueuedPlayerAbility>.None;
+				ClearQueuedAbility();
 			}
 			
 			if (QueuedAbility.HasValue && QueuedAbility.Value.GetReason() == AbilityQueueReason.Range && IsInRange(QueuedAbility.Value)) {
 				QueuedAbility.Value.GetAbility().OnCast(transform.gameObject, QueuedAbility.Value.GetTargetPoint(), QueuedAbility.Value.GetTargetUnit());
-				QueuedAbility = Maybe<QueuedPlayerAbility>.None;
+				ClearQueuedAbility();
 			}
 
 			if (abilityToQueue.HasValue) {
@@ -73,7 +83,7 @@ namespace Units.Player.Combat {
 				return false;
 			}
 
-			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= ability.GetMaximumRange();
+			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= ability.GetMaximumCastRange();
 		}
 		
 		private bool IsInRange(QueuedPlayerAbility queuedAbility) {
@@ -83,7 +93,7 @@ namespace Units.Player.Combat {
 			if (!targetPoint.HasValue) {
 				return false;
 			}
-			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= queuedAbility.GetAbility().GetMaximumRange();
+			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= queuedAbility.GetAbility().GetMaximumCastRange();
 		}
 
 		private Maybe<QueuedPlayerAbility> CreateQueuedAbility(PlayerAbility ability, AbilityQueueReason reason) {
@@ -97,6 +107,10 @@ namespace Units.Player.Combat {
 				return Maybe<QueuedPlayerAbility>.Some(new QueuedPlayerAbility(ability, targetPoint.Value, reason));
 			}
 			return Maybe<QueuedPlayerAbility>.None;
+		}
+
+		private void ClearQueuedAbility() {
+			QueuedAbility = Maybe<QueuedPlayerAbility>.None;
 		}
 
 		public Maybe<QueuedPlayerAbility> GetQueuedAbility() {
