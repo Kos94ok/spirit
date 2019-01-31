@@ -1,9 +1,12 @@
+using System;
 using System.Collections;
 using Misc;
 using Misc.ObjectPool;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using Object = System.Object;
+using Random = UnityEngine.Random;
 
 namespace Units.Common.Lightning {
 	public class LightningAgent : MonoBehaviour {
@@ -16,10 +19,12 @@ namespace Units.Common.Lightning {
 			private float BranchingChance;
 			private float BranchingFactor = 1f;
 			private int MaximumBranchDepth = 3;
-			private Resource FragmentResource = Resource.LightningEffectFragment;
+			private Prefab FragmentPrefab = Prefab.LightningEffectFragment;
 			private float FragmentLifeTime = .1f;
 			private float FragmentParticleLifeTime = .5f;
 			private float SmoothFactor = .5f;
+			private Maybe<Action<object>> TargetReachedCallback = Maybe<Action<object>>.None;
+			private Maybe<object> TargetReachedCallbackPayload = Maybe<object>.None;
 			
 			public Builder(Vector3 from, Vector3 to) {
 				From = from;
@@ -51,8 +56,8 @@ namespace Units.Common.Lightning {
 				return this;
 			}
 
-			public Builder SetFragmentResource(Resource resource) {
-				FragmentResource = resource;
+			public Builder SetFragmentResource(Prefab prefab) {
+				FragmentPrefab = prefab;
 				return this;
 			}
 
@@ -71,12 +76,20 @@ namespace Units.Common.Lightning {
 				return this;
 			}
 
+			public Builder SetTargetReachedCallback(Action<object> callback, object payload) {
+				TargetReachedCallback = Maybe<Action<object>>.Some(callback);
+				TargetReachedCallbackPayload = Maybe<object>.Some(payload);
+				return this;
+			}
+
 			public LightningAgent Create() {
 				var lightningContainer = new GameObject();
 				var lightningAgent = lightningContainer.AddComponent<LightningAgent>();
 				lightningContainer.name = "LightningAgent";
 				lightningContainer.AddComponent<TimedLife>().Timer = 5f;
-				lightningAgent.Init(From, To, 1 / Speed, AngularDeviation, BranchingFactor, BranchingChance, MaximumBranchDepth, FragmentResource, FragmentLifeTime, FragmentParticleLifeTime, SmoothFactor);
+				lightningAgent.Init(From, To, 1 / Speed, AngularDeviation, BranchingFactor,
+					BranchingChance, MaximumBranchDepth, FragmentPrefab, FragmentLifeTime,
+					FragmentParticleLifeTime, SmoothFactor, TargetReachedCallback, TargetReachedCallbackPayload);
 				return lightningAgent;
 			}
 		}
@@ -89,10 +102,12 @@ namespace Units.Common.Lightning {
 		private float BranchingFactor;
 		private float BranchingChance;
 		private float BranchingChanceReduction;
-		private Resource FragmentResource;
+		private Prefab FragmentPrefab;
 		private float FragmentLifeTime;
 		private float FragmentParticleLifeTime;
 		private float Sharpness;
+		private Maybe<Action<object>> TargetReachedCallback;
+		private Maybe<object> TargetReachedCallbackPayload;
 		
 		private float FloorLevel;
 		private float TerminationDistance; 
@@ -105,26 +120,30 @@ namespace Units.Common.Lightning {
 				float branchingFactor,
 				float branchingChance,
 				int maximumBranchDepth,
-				Resource fragmentResource,
+				Prefab fragmentPrefab,
 				float fragmentLifeTime,
 				float fragmentParticleLifeTime,
-				float smoothFactor) {
+				float smoothFactor,
+				Maybe<Action<object>> targetReachedCallback,
+				Maybe<object> targetReachedCallbackPayload) {
 			StartingDistance = Vector3.Distance(from, to);
 			FragmentDelay = delay;
 			AngularDeviation = deviation;
 			BranchingFactor = branchingFactor;
 			BranchingChance = branchingChance;
 			BranchingChanceReduction = branchingChance / maximumBranchDepth;
-			FragmentResource = fragmentResource;
+			FragmentPrefab = fragmentPrefab;
 			FragmentLifeTime = fragmentLifeTime;
 			FragmentParticleLifeTime = fragmentParticleLifeTime;
 			Sharpness = 1 - Mathf.Clamp(smoothFactor, 0, 1);
+			TargetReachedCallback = targetReachedCallback;
+			TargetReachedCallbackPayload = targetReachedCallbackPayload;
 			
 			FloorLevel = Mathf.Min(Utility.GetGroundPosition(from).y, Utility.GetGroundPosition(to).y);
 
-			var fragmentObject = ObjectPool.Obtain(FragmentResource);
+			var fragmentObject = ObjectPool.Obtain(FragmentPrefab);
 			TerminationDistance = fragmentObject.transform.GetChild(LightningFragment.ConnectingPointChildIndex).transform.localPosition.y;
-			ObjectPool.Return(FragmentResource, fragmentObject);
+			ObjectPool.Return(FragmentPrefab, fragmentObject);
 
 			AddFragment(from, to, 0, 0, 1, Vector3.zero);
 		}
@@ -141,7 +160,7 @@ namespace Units.Common.Lightning {
 		private void AddFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth, int fragmentCount, Vector3 previousOffset) {
 			var fragmentsRemaining = fragmentCount;
 			while (fragmentsRemaining > 0 && Vector3.Distance(from, to) > TerminationDistance) {
-				var fragment = ObjectPool.Obtain(FragmentResource);
+				var fragment = ObjectPool.Obtain(FragmentPrefab);
 				var fragmentController = new LightningFragment();
 				fragmentController.Init(fragment, to, linearDepth, branchDepth);
 				fragment.transform.position = from;
@@ -175,6 +194,10 @@ namespace Units.Common.Lightning {
 				from = connectingPointObject.position;
 				fragmentsRemaining -= 1;
 			}
+
+			if (TargetReachedCallback.HasValue && Vector3.Distance(from, to) <= TerminationDistance) {
+				TargetReachedCallback.Value(TargetReachedCallbackPayload.Value);
+			}
 		}
 
 		private Vector3 RotateToRandomGaussianOffset(GameObject fragment, Quaternion preOffsetRotation, float minAngle, float maxAngle, Vector3 previousOffset, float sharpness) {
@@ -195,7 +218,7 @@ namespace Units.Common.Lightning {
 		private IEnumerator FragmentSelfDestruct(GameObject fragment) {
 			yield return new WaitForSeconds(FragmentDelay + FragmentParticleLifeTime);
 			
-			ObjectPool.Return(FragmentResource, fragment);
+			ObjectPool.Return(FragmentPrefab, fragment);
 		}
 
 		private IEnumerator FragmentSpawning(LightningFragment fragment) {

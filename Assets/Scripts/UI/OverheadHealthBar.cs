@@ -1,41 +1,49 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Misc;
+using UnityEngine;
+using Texture = Misc.Texture;
 
-public class OverheadHealthBar : MonoBehaviour
-{
-    UnitStats Stats;
+namespace UI {
+    public class OverheadHealthBar : MonoBehaviour
+    {
+        private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
 
-    public Vector2 pos = new Vector2(0, 0);
-    public Vector2 size = new Vector2(60, 10);
-    public Texture2D progressBarEmpty;
-    public Texture2D progressBarFull;
-    Vector2 offset;
+        public Vector2 Size = new Vector2(60, 10);
+        public Vector3 OffsetFromCenter = new Vector3(0, 0, 0);
 
-    void Start()
-    {
-        Stats = GetComponent<UnitStats>();
-        offset = pos;
-    }
-    void OnGUI()
-    {
-//        if (Stats.Health < Stats.HealthMax && Stats.Health > 0.00f)
-//        {
-//            GUI.BeginGroup(new Rect(pos - size / 2 - offset, size));
-//
-//            GUI.color = new Color(1.0f, 1.0f, 1.0f, 0.50f);
-//            GUI.DrawTexture(new Rect(0, 0, size.x, size.y), progressBarEmpty);
-//            GUI.DrawTexture(new Rect(0, 0, size.x * (Stats.Health / Stats.HealthMax), size.y), progressBarFull);
-//
-//            GUI.EndGroup();
-//        }
-    } 
- 
-    void Update()
-    {
-        if (Stats.Health < Stats.HealthMax && Stats.Health > 0.00f)
-        {
-            pos = Camera.main.WorldToScreenPoint(transform.position);
-            pos.y = Screen.height - pos.y;
+        private float CurrentPercentage;
+        private Vector2 CurrentPosition;
+        
+        private UnitStats Stats;
+        private Camera MainCamera;
+        private Texture2D HealthBarEmpty;
+        private Texture2D HealthBarFull;
+
+        private void Start() {
+            CurrentPosition = OffsetFromCenter;
+            
+            Stats = GetComponent<UnitStats>();
+            MainCamera = Camera.main;
+            HealthBarEmpty = Assets.Get(Texture.HealthBarEmpty);
+            HealthBarFull = Assets.Get(Texture.HealthBarFull);
+        }
+        private void Update() {
+            if (Stats.IsAlive() && Stats.Health < Stats.HealthMax) {
+                CurrentPercentage = Stats.Health / Stats.HealthMax;
+                CurrentPosition = MainCamera.WorldToScreenPoint(Stats.GetHitTargetPosition() + OffsetFromCenter);
+                CurrentPosition.y = Screen.height - CurrentPosition.y;
+            } else {
+                CurrentPercentage = 1;
+            }
+        }
+
+        private void OnGUI() {
+            GUI.BeginGroup(new Rect(CurrentPosition - Size / 2, Size));
+
+            GUI.color = new Color(1.0f, 1.0f, 1.0f, 0.50f);
+            GUI.DrawTexture(new Rect(0, 0, Size.x, Size.y), HealthBarEmpty);
+            GUI.DrawTexture(new Rect(0, 0, Size.x * CurrentPercentage, Size.y), HealthBarFull);
+
+            GUI.EndGroup();
         }
     }
 }

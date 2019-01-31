@@ -20,7 +20,7 @@ namespace Units.Player.Combat.Abilities {
 				.SetAngularDeviation(15f)
 				.SetSpeed(700f)
 				.SetFragmentParticleLifeTime(1f)
-				.SetFragmentResource(Resource.RunningLightningEffectFragment);
+				.SetFragmentResource(Prefab.RunningLightningEffectFragment);
 			builder.Create();
 			Cooldown.Start(0.3f);
 		}

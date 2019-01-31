@@ -12,13 +12,13 @@ namespace Units.Player.Targeting {
 			Stats = GetComponent<UnitStats>();
 			switch (Stats.Alliance) {
 				case UnitAlliance.Ally:
-					SelectionCircle = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorAlly));
+					SelectionCircle = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorAlly));
 					break;
 				case UnitAlliance.Enemy:
-					SelectionCircle = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorEnemy));
+					SelectionCircle = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorEnemy));
 					break;
 				default:
-					SelectionCircle = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorNeutral));
+					SelectionCircle = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorNeutral));
 					break;
 			}
 			SelectionCircle.transform.localScale = new Vector3(Stats.SelectionRadius * 2, 0.001f, Stats.SelectionRadius * 2);

@@ -25,7 +25,7 @@ namespace Units.Player.Combat.Abilities {
 				.SetBranchingFactor(0.5f)
 				.SetSmoothFactor(0.65f)
 				.SetMaximumBranchDepth(3)
-				.SetFragmentResource(Resource.LongLightningEffectFragment);
+				.SetFragmentResource(Prefab.LongLightningEffectFragment);
 			builder.Create();
 			Cooldown.Start(0.3f);
 		}

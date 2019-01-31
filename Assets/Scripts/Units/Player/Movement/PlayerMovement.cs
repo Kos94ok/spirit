@@ -43,7 +43,7 @@ namespace Units.Player.Movement {
 			Targeting = GetComponent<PlayerTargeting>();
 			Equipment = GetComponent<PlayerEquipment>();
 			MovementController = GetComponent<CharacterController>();
-			var targetPositionIndicatorAgent = (GameObject) Instantiate(Assets.Get(Resource.TargetIndicatorPosition));
+			var targetPositionIndicatorAgent = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorPosition));
 			TargetPositionIndicator = targetPositionIndicatorAgent.GetComponent<PlayerTargetPositionIndicator>();
 		}
 

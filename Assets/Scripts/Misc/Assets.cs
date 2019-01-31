@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 using UnityEngine;
 
 namespace Misc {
-	public enum Resource {
+	public enum Prefab {
 		HeightIndicator,
 		TargetIndicatorAlly,
 		TargetIndicatorEnemy,
@@ -15,33 +15,55 @@ namespace Misc {
 		RunningLightningEffectFragment,
 	}
 
+	public enum Texture {
+		HealthBarEmpty,
+		HealthBarFull,
+	}
+
 	[UsedImplicitly]
 	public class Assets {
-		private readonly Dictionary<Resource, string> Library = new Dictionary<Resource, string>();
+		private readonly Dictionary<Prefab, string> Library = new Dictionary<Prefab, string>();
+		private readonly Dictionary<Texture, string> TextureLibrary = new Dictionary<Texture, string>();
 
 		public Assets() {
-			Library.Add(Resource.HeightIndicator, "Indicators/HeightIndicator");
-			Library.Add(Resource.TargetIndicatorAlly, "Indicators/TargetIndicatorAlly");
-			Library.Add(Resource.TargetIndicatorEnemy, "Indicators/TargetIndicatorEnemy");
-			Library.Add(Resource.TargetIndicatorNeutral, "Indicators/TargetIndicatorNeutral");
-			Library.Add(Resource.TargetIndicatorPosition, "Indicators/TargetIndicatorPosition");
-			Library.Add(Resource.LightningEffectFragment, "EffectFragments/LightningEffectFragment");
-			Library.Add(Resource.LongLightningEffectFragment, "EffectFragments/LongLightningEffectFragment");
-			Library.Add(Resource.PinkLongLightningEffectFragment, "EffectFragments/PinkLongLightningEffectFragment");
-			Library.Add(Resource.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
+			Library.Add(Prefab.HeightIndicator, "Indicators/HeightIndicator");
+			Library.Add(Prefab.TargetIndicatorAlly, "Indicators/TargetIndicatorAlly");
+			Library.Add(Prefab.TargetIndicatorEnemy, "Indicators/TargetIndicatorEnemy");
+			Library.Add(Prefab.TargetIndicatorNeutral, "Indicators/TargetIndicatorNeutral");
+			Library.Add(Prefab.TargetIndicatorPosition, "Indicators/TargetIndicatorPosition");
+			Library.Add(Prefab.LightningEffectFragment, "EffectFragments/LightningEffectFragment");
+			Library.Add(Prefab.LongLightningEffectFragment, "EffectFragments/LongLightningEffectFragment");
+			Library.Add(Prefab.PinkLongLightningEffectFragment, "EffectFragments/PinkLongLightningEffectFragment");
+			Library.Add(Prefab.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
+			
+			TextureLibrary.Add(Texture.HealthBarEmpty, "HealthBarBackground");
+			TextureLibrary.Add(Texture.HealthBarFull, "HealthBarForeground");
 		}
 
-		public Object Get(Resource resource) {
-			return Resources.Load(GetPath(resource));
+		public Object Get(Prefab prefab) {
+			return Resources.Load(GetPath(prefab));
 		}
 		
-		public string GetPath(Resource resource) {
+		public string GetPath(Prefab prefab) {
 			string path;
-			if (Library.TryGetValue(resource, out path)) {
+			if (Library.TryGetValue(prefab, out path)) {
 				return path;
 			}
 
-			return resource.ToString();
+			return prefab.ToString();
+		}
+		
+		public Texture2D Get(Texture texture) {
+			return Resources.Load(GetPath(texture)) as Texture2D;
+		}
+
+		public string GetPath(Texture texture) {
+			string path;
+			if (TextureLibrary.TryGetValue(texture, out path)) {
+				return path;
+			}
+
+			return texture.ToString();
 		}
 	}
 }
