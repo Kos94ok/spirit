@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Units.Player.Combat {
 	public abstract class PlayerAbility {
-		protected Timer Cooldown = new Timer();
+		protected readonly Timer Cooldown = new Timer();
 		protected readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 		public abstract void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit);
 		public abstract int GetTargetType();

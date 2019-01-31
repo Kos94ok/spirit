@@ -197,6 +197,7 @@ namespace Units.Common.Lightning {
 
 			if (TargetReachedCallback.HasValue && Vector3.Distance(from, to) <= TerminationDistance) {
 				TargetReachedCallback.Value(TargetReachedCallbackPayload.Value);
+				TargetReachedCallback = Maybe<Action<object>>.None;
 			}
 		}
 
