@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Misc;
 using Settings;
+using UI.ChatLog;
 using UI.UserInput;
 using Units.Player.Combat.Abilities;
 using Units.Player.Combat.Abilities.PlayerBasicAttack;
@@ -12,10 +13,10 @@ namespace Units.Player.Combat {
 		public enum AbilityQueueReason {
 			Cast,
 			Range,
-			NoTarget,
 		}
 		
 		private PlayerTargeting Targeting;
+		private readonly ChatLog ChatLog = AutowireFactory.GetInstanceOf<ChatLog>();
 		private readonly MouseStatus MouseStatus = AutowireFactory.GetInstanceOf<MouseStatus>();
 		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 
@@ -48,8 +49,8 @@ namespace Units.Player.Combat {
 					continue;
 				}
 
-				if (command != CommandBinding.Command.MoveToMouse && ability.IsTargetingUnit() && !ability.IsTargetingPoint() && !targetUnit.HasValue) {
-					abilityToQueue = CreateQueuedAbility(ability, AbilityQueueReason.NoTarget);
+				if (CommandStatus.IsIssuedThisFrame(command) && command != CommandBinding.Command.MoveToMouse && ability.IsTargetingUnit() && !ability.IsTargetingPoint() && !targetUnit.HasValue) {
+					ChatLog.Post("error_noTarget");
 					continue;
 				}
 
@@ -115,6 +116,10 @@ namespace Units.Player.Combat {
 
 		public Maybe<QueuedPlayerAbility> GetQueuedAbility() {
 			return QueuedAbility;
+		}
+
+		public Dictionary<CommandBinding.Command, PlayerAbility> GetLibrary() {
+			return AbilityLibrary;
 		}
 	}
 }

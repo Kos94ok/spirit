@@ -53,7 +53,6 @@ namespace UI.ChatLog {
 		}
 
 		private void OnGUI() {
-			return;
 			var toDraw = false;
 			foreach (var message in MessageList) {
 				if (!message.IsAlive()) {

@@ -37,6 +37,7 @@ namespace UI {
             library[en].Add("soulEquipped_marksman", "Marksman's soul equipped");
             library[en].Add("soulEquipped_priestess", "Priestess's soul equipped");
             library[en].Add("soulEquipped_shieldmaiden", "Shieldmaiden's soul equipped");
+            library[en].Add("error_noTarget", "No target selected");
 
             //=================================================================================================================
             // Russian library
@@ -56,7 +57,7 @@ namespace UI {
             library[ru].Add("soulEquipped_berserker", "Экипирован дух берсерка");
             library[ru].Add("soulEquipped_marksman", "Экипирован дух стрелка");
             library[ru].Add("soulEquipped_priestess", "Экипирован дух жрицы");
-            library[ru].Add("soulEquipped_shieldmaiden", "Экипирован дух защитницы");
+            library[ru].Add("error_noTarget", "Нет цели");
         }
 
         private static Language GetCurrentLanguage() {

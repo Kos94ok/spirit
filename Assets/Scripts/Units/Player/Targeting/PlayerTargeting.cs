@@ -1,17 +1,25 @@
 using Misc;
 using Settings;
 using UI.UserInput;
+using Units.Player.Combat;
 using UnityEngine;
 
 namespace Units.Player.Targeting {
 	public class PlayerTargeting : MonoBehaviour {
+		private PlayerCombat PlayerCombat; 
+		
 		private readonly MouseStatus MouseStatus = AutowireFactory.GetInstanceOf<MouseStatus>();
 		private readonly CommandStatus CommandStatus = AutowireFactory.GetInstanceOf<CommandStatus>();
 
 		private Maybe<GameObject> LockedTarget;
+		private Maybe<CommandBinding.Command> LockedTargetCommand;
 		private Maybe<GameObject> HoveredTarget;
 		private Maybe<TargetedEnemy> TargetedEnemy;
 
+		private void Start() {
+			PlayerCombat = GetComponent<PlayerCombat>();
+		}
+		
 		private void Update() {
 			var hoveredEnemy = MouseStatus.GetHoveredEnemy();
 
@@ -20,11 +28,20 @@ namespace Units.Player.Targeting {
 			} else {
 				HoveredTarget = Maybe<GameObject>.None;
 			}
-			
-			if (hoveredEnemy.HasValue && CommandStatus.IsIssuedThisFrame(CommandBinding.Command.MoveToMouse)) {
-				LockedTarget = Maybe<GameObject>.Some(hoveredEnemy.Value);
-			} else if (CommandStatus.IsInactive(CommandBinding.Command.MoveToMouse)) {
+
+			var abilityLibrary = PlayerCombat.GetLibrary();
+			foreach (var entry in abilityLibrary) {
+				var command = entry.Key;
+				var ability = entry.Value;
+				if (hoveredEnemy.HasValue && ability.IsTargetingUnit() && CommandStatus.IsIssuedThisFrame(command)) {
+					LockedTarget = hoveredEnemy;
+					LockedTargetCommand = Maybe<CommandBinding.Command>.Some(command);
+				}
+			}
+
+			if (LockedTargetCommand.HasValue && CommandStatus.IsInactive(LockedTargetCommand.Value)) {
 				LockedTarget = Maybe<GameObject>.None;
+				LockedTargetCommand = Maybe<CommandBinding.Command>.None;
 			}
 			
 			UpdateTargetedEnemy();

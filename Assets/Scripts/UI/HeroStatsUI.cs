@@ -17,7 +17,6 @@ public class HeroStatsUI : MonoBehaviour
 	}
     void OnGUI()
     {
-        return;
         // Health
         GUI.BeginGroup(new Rect(pos, size));
             GUI.DrawTexture(new Rect(0, 0, size.x, size.y), healthBarEmpty);
