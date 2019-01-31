@@ -10,6 +10,7 @@ namespace Units.Common.Lightning {
 		private int LinearDepth;
 		private int BranchDepth;
 		private float CreatedTime;
+		private Vector3 OffsetFromTarget;
 
 		public void Init(GameObject fragmentObject, Vector3 targetPoint, int linearDepth, int branchDepth) {
 			FragmentObject = fragmentObject;
@@ -39,6 +40,14 @@ namespace Units.Common.Lightning {
 
 		public float GetTime() {
 			return CreatedTime;
+		}
+
+		public void SetOffsetFromTarget(Vector3 offsetFromTarget) {
+			OffsetFromTarget = offsetFromTarget;
+		}
+
+		public Vector3 GetOffsetFromTarget() {
+			return OffsetFromTarget;
 		}
 	}
 }

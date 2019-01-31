@@ -28,7 +28,7 @@ namespace Units.Player.Combat {
 			AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new TestRightClick());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityQ, new TestAoeAttack());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityW, new TestUltraLightning());
-			AbilityLibrary.Add(CommandBinding.Command.AbilityE, new PlayerRunningAttack());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityE, new TestPinkLightning());
 		}
 
 		private void Update() {

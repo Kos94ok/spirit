@@ -2,10 +2,8 @@ using Misc;
 using Units.Common.Lightning;
 using UnityEngine;
 
-namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
-	public class PlayerBasicAttack : PlayerAbility {
-		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
-
+namespace Units.Player.Combat.Abilities {
+	public class TestPinkLightning : PlayerAbility {
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
 			var sourcePosition = caster.transform.position;
 			Vector3 targetPosition;
@@ -17,13 +15,17 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 			}
 
 			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
-				.SetAngularDeviation(50f)
-				.SetSpeed(1000f)
-				.SetSmoothFactor(0.6f)
+				.SetAngularDeviation(120f)
+				.SetSpeed(300f)
+				.SetFragmentLifeTime(0.12f)
+				.SetFragmentParticleLifeTime(2f)
+				.SetBranchingChance(0.00f)
+				.SetBranchingFactor(0.5f)
+				.SetSmoothFactor(0.65f)
 				.SetMaximumBranchDepth(3)
-				.SetFragmentResource(Resource.LightningEffectFragment);
+				.SetFragmentResource(Resource.PinkLongLightningEffectFragment);
 			builder.Create();
-			Cooldown.Start(0.7f);
+			Cooldown.Start(0.3f);
 		}
 
 		public override int GetTargetType() {

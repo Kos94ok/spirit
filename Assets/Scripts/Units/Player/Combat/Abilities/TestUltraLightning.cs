@@ -17,15 +17,17 @@ namespace Units.Player.Combat.Abilities {
 			}
 
 			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
-				.SetAngularDeviation(70f)
-				.SetSpeed(1000f)
-				.SetBranchingChance(0.20f)
-				.SetBranchingFactor(3.50f)
-				.SetMaximumBranchDepth(4)
-				.SetFragmentResource(Resource.LongLightningEffectFragment)
-				.SetFragmentParticleLifeTime(2f);
+				.SetAngularDeviation(120f)
+				.SetSpeed(300f)
+				.SetFragmentLifeTime(0.12f)
+				.SetFragmentParticleLifeTime(2f)
+				.SetBranchingChance(0.00f)
+				.SetBranchingFactor(0.5f)
+				.SetSmoothFactor(0.65f)
+				.SetMaximumBranchDepth(3)
+				.SetFragmentResource(Resource.LongLightningEffectFragment);
 			builder.Create();
-			Cooldown.Start(1f);
+			Cooldown.Start(0.3f);
 		}
 
 		public override int GetTargetType() {

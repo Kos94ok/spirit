@@ -11,6 +11,7 @@ namespace Misc {
 		TargetIndicatorPosition,
 		LightningEffectFragment,
 		LongLightningEffectFragment,
+		PinkLongLightningEffectFragment,
 		RunningLightningEffectFragment,
 	}
 
@@ -26,6 +27,7 @@ namespace Misc {
 			Library.Add(Resource.TargetIndicatorPosition, "Indicators/TargetIndicatorPosition");
 			Library.Add(Resource.LightningEffectFragment, "EffectFragments/LightningEffectFragment");
 			Library.Add(Resource.LongLightningEffectFragment, "EffectFragments/LongLightningEffectFragment");
+			Library.Add(Resource.PinkLongLightningEffectFragment, "EffectFragments/PinkLongLightningEffectFragment");
 			Library.Add(Resource.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
 		}
 

@@ -11,14 +11,16 @@ namespace Units.Player.Combat.Abilities {
 			var targetPosition = targetUnit.HasValue ? targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition() : targetPoint.Value;
 
 			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
-				.SetAngularDeviation(50f)
-				.SetBranchingChance(0.2f)
+				.SetAngularDeviation(70f)
+				.SetFragmentLifeTime(0.12f)
+				.SetBranchingChance(0.00f)
 				.SetBranchingFactor(0.5f)
+				.SetSmoothFactor(0.8f)
 				.SetMaximumBranchDepth(3);
 			builder.Create();
 			builder.Create();
 			builder.Create();
-			Cooldown.Start(0.15f);
+			Cooldown.Start(0.16f);
 		}
 
 		public override int GetTargetType() {

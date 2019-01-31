@@ -19,14 +19,13 @@ namespace Units.Player.Movement {
 		private float MovementSpeed;
 		private float LastDecelerationModifier;
 		private Vector3 MovementDirection;
-		private Vector3? TargetPosition;
+		private Maybe<Vector3> TargetPosition = Maybe<Vector3>.None;
 		private PlayerTargetPositionIndicator TargetPositionIndicator;
 		private bool IsSprinting;
-		private bool IsMovingToSpellTarget;
 
 		private const float ExpectedFloatingHeight = 0.6f;
 
-		private float LastNonDeceleratingSpeed;
+		private float LastNonDeceleratingSpeed = MaximumSpeed;
 		private Vector3 LastGroundedPosition;
 
 		private UnitStats Stats;
@@ -56,9 +55,9 @@ namespace Units.Player.Movement {
 			if (Stats.IsDead()) { return; }
 
 			var isSprintKeyDown = CommandStatus.IsActive(CommandBinding.Command.Sprint);
-			if (isSprintKeyDown && TargetPosition != null && Stats.HasMana(SprintManaBuffer)) {
+			if (isSprintKeyDown && TargetPosition.HasValue && Stats.HasMana(SprintManaBuffer)) {
 				IsSprinting = true;
-			} else if (!isSprintKeyDown || TargetPosition == null || !Stats.HasMana(SprintManaCost * Time.deltaTime)) {
+			} else if (!isSprintKeyDown || !TargetPosition.HasValue || !Stats.HasMana(SprintManaCost * Time.deltaTime)) {
 				IsSprinting = false;
 			}
 
@@ -90,17 +89,20 @@ namespace Units.Player.Movement {
 			
 			Vector3 updatedMovementDirection;
 			var position = transform.position;
-			if (TargetPosition != null && Vector3.Distance(TargetPosition.Value, position) > 0.01f) {
+			if (TargetPosition.HasValue && Vector3.Distance(TargetPosition.Value, position) > 0.01f) {
 				updatedMovementDirection = Vector3.Normalize(TargetPosition.Value - position);
 				var decelerationModifier = Mathf.Pow(Mathf.Min(1.00f, Vector3.Distance(position, TargetPosition.Value) / DecelerationDistance), 0.5f);
+				MovementSpeed += (maximumSpeed - MovementSpeed) * acceleration * Time.deltaTime;
 				if (decelerationModifier >= 1.00f) {
-					MovementSpeed += (maximumSpeed - MovementSpeed) * acceleration * Time.deltaTime;
 					LastNonDeceleratingSpeed = MovementSpeed;
 				} else {
-					MovementSpeed = LastNonDeceleratingSpeed * decelerationModifier;
+					var targetSpeed = LastNonDeceleratingSpeed * decelerationModifier;
+					if (MovementSpeed > targetSpeed) {
+						MovementSpeed = targetSpeed;
+					}
 				}
 				
-			} else if (TargetPosition != null) {
+			} else if (TargetPosition.HasValue) {
 				MovementSpeed = 0f;
 				updatedMovementDirection = Vector3.zero;
 				MovementController.Move(TargetPosition.Value - position);
@@ -109,6 +111,7 @@ namespace Units.Player.Movement {
 			} else {
 				MovementSpeed = 0f;
 				updatedMovementDirection = Vector3.zero;
+				ResetTargetPosition();
 			}
 			
 			MovementDirection = Vector3.Lerp(MovementDirection, updatedMovementDirection, AngularAcceleration * Time.deltaTime);
@@ -187,15 +190,14 @@ namespace Units.Player.Movement {
 		}
 		
 		private void SetTargetPosition(Vector3 target) {
-			TargetPosition = new Vector3(target.x, target.y + ExpectedFloatingHeight, target.z);
+			TargetPosition = Maybe<Vector3>.Some(new Vector3(target.x, target.y + ExpectedFloatingHeight, target.z));
 			TargetPositionIndicator.MoveTo(target);
 			TargetPositionIndicator.Hide();
 		}
 
 		private void ResetTargetPosition() {
-			TargetPosition = null;
+			TargetPosition = Maybe<Vector3>.None;
 			TargetPositionIndicator.Hide();
-			IsMovingToSpellTarget = false;
 		}
 
 		private void OnDestroy() {

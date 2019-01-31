@@ -8,14 +8,17 @@ namespace Misc.ObjectPool {
 	public class ObjectPool {
 
 		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
-		
+	
 		private readonly Dictionary<Resource, ConcurrentBag<GameObject>> Data = new Dictionary<Resource, ConcurrentBag<GameObject>>();
 		
 		public GameObject Obtain(Resource resource) {
-			return FetchOrCreateObject(resource, FetchOrCreateBag(resource));
+			var gameObject = FetchOrCreateObject(resource, FetchOrCreateBag(resource));
+			gameObject.SetActive(true);
+			return gameObject;
 		}
 		
 		public void Return(Resource resource, GameObject gameObject) {
+			gameObject.SetActive(false);
 			FetchOrCreateBag(resource).Add(gameObject);
 		}
 

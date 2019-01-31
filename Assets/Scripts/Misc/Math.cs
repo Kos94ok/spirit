@@ -67,7 +67,7 @@ public static class Utility
     public static Vector3 GetGroundPosition(Vector3 fromPosition) {
         RaycastHit hit;
         const int walkableLayerMask = 1 << 9;
-        var ray = new Ray(fromPosition, Vector3.down);
+        var ray = new Ray(fromPosition + Vector3.up * 0.5f, Vector3.down);
 
         if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayerMask)) {
             return hit.point;
