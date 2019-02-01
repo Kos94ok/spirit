@@ -9,7 +9,7 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 			public Maybe<GameObject> TargetUnit;
 		}
 		
-		private const float Damage = 25;
+		private const float Damage = 10;
 		
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
 			var sourcePosition = caster.transform.position;
@@ -56,7 +56,7 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 		}
 
 		public override float GetMaximumCastRange() {
-			return 10f;
+			return 3f;
 		}
 	}
 }

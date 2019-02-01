@@ -11,6 +11,7 @@ namespace Units.Player.Combat.Abilities {
 			Vector3 targetPosition;
 			if (targetUnit.HasValue) {
 				targetPosition = targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();
+				targetPosition.y = sourcePosition.y;
 			} else {
 				targetPosition = targetPoint.Value;
 				targetPosition.y = sourcePosition.y;

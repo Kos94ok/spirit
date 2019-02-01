@@ -4,23 +4,47 @@ using UnityEngine;
 
 namespace Units.Player.Combat.Abilities {
 	public class TestRightClick : PlayerAbility {
-		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
+		public class Data {
+			public Maybe<GameObject> TargetUnit;
+		}
+
+		private const float Damage = 10;
 
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
 			var sourcePosition = caster.transform.position;
 			var targetPosition = targetUnit.HasValue ? targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition() : targetPoint.Value;
 
+			var callbackPayload = new Data {
+				TargetUnit = targetUnit
+			};
+
 			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
-				.SetAngularDeviation(70f)
-				.SetFragmentLifeTime(0.12f)
+				.SetAngularDeviation(90f)
+				.SetFragmentLifeTime(0.05f)
 				.SetBranchingChance(0.00f)
 				.SetBranchingFactor(0.5f)
 				.SetSmoothFactor(0.8f)
-				.SetMaximumBranchDepth(3);
+				.SetMaximumBranchDepth(3)
+				.SetTargetReachedCallback(OnTargetReached, callbackPayload);
 			builder.Create();
 			builder.Create();
 			builder.Create();
-			Cooldown.Start(0.16f);
+			Cooldown.Start(0.5f);
+		}
+		
+		private void OnTargetReached(object rawPayload) {
+			var payload = (Data) rawPayload;
+			if (!payload.TargetUnit.HasValue || payload.TargetUnit.Value == null) {
+				return;
+			}
+
+			var targetUnit = payload.TargetUnit.Value;
+			var stats = targetUnit.GetComponent<UnitStats>();
+			if (stats == null) {
+				return;
+			}
+
+			stats.DealDamage(Damage);
 		}
 
 		public override int GetTargetType() {
