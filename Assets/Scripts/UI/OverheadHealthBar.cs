@@ -37,6 +37,9 @@ namespace UI {
         }
 
         private void OnGUI() {
+            if (CurrentPercentage >= 1) {
+                return;
+            }
             GUI.BeginGroup(new Rect(CurrentPosition - Size / 2, Size));
 
             GUI.color = new Color(1.0f, 1.0f, 1.0f, 0.50f);

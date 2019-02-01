@@ -12,10 +12,6 @@ namespace Settings {
 		public enum Command {
 			MoveToMouse,
 			ForceMoveToMouse,
-			MoveUp,
-			MoveDown,
-			MoveLeft,
-			MoveRight,
 			Sprint,
 			Blink,
 			GalvanizeChatLog,
@@ -25,6 +21,7 @@ namespace Settings {
 			AbilityR,
 			AbilityRightClick,
 			ForceCast,
+			ToggleFpsCounter,
 		}
 
 		private readonly Dictionary<Command, CommandMapping> Library = new Dictionary<Command, CommandMapping>();
@@ -32,10 +29,6 @@ namespace Settings {
 		public CommandBinding() {
 			Library.Add(Command.MoveToMouse, CommandMapping.Mouse(MouseStatus.Button.Left));
 			Library.Add(Command.ForceMoveToMouse, CommandMapping.Mouse(MouseStatus.Button.Middle));
-			Library.Add(Command.MoveUp, CommandMapping.Keyboard(KeyCode.W));
-			Library.Add(Command.MoveDown, CommandMapping.Keyboard(KeyCode.S));
-			Library.Add(Command.MoveLeft, CommandMapping.Keyboard(KeyCode.A));
-			Library.Add(Command.MoveRight, CommandMapping.Keyboard(KeyCode.D));
 			Library.Add(Command.Sprint, CommandMapping.Keyboard(KeyCode.RightShift));
 			Library.Add(Command.ForceCast, CommandMapping.Keyboard(KeyCode.LeftShift));
 			Library.Add(Command.Blink, CommandMapping.Keyboard(KeyCode.Space));
@@ -45,6 +38,7 @@ namespace Settings {
 			Library.Add(Command.AbilityE, CommandMapping.Keyboard(KeyCode.E));
 			Library.Add(Command.AbilityR, CommandMapping.Keyboard(KeyCode.R));
 			Library.Add(Command.AbilityRightClick, CommandMapping.Mouse(MouseStatus.Button.Right));
+			Library.Add(Command.ToggleFpsCounter, CommandMapping.Keyboard(KeyCode.F11));
 		}
 	
 		public CommandMapping Get(Command command) {
