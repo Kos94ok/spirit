@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Misc;
+using Units.Enemies;
 
 public enum UnitAlliance {
 	Neutral,

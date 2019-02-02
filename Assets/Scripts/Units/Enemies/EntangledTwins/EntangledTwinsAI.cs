@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Units.Enemies;
 
 [RequireComponent(typeof(LineRenderer))]
 public class EntangledTwinsAI : EnemyAI

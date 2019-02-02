@@ -1,182 +1,167 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Misc;
+using UnityEngine;
+using UnityEngine.AI;
 
-public class CorruptedFireAI : MonoBehaviour
-{
-    public float contactDamage;
-    public float chargeDamage;
-    public float contactDamageRadius;
-    public float chargeDamageRadius;
+namespace Units.Enemies.CorruptedFire {
+	public class CorruptedFireAI : EnemyAI {
+		private const float ContactDamage = 1;
+		private const float ChargeDamage = 1;
+		private const float ContactDamageRadius = .5f;
+		private const float ChargeDamageRadius = .5f;
 
-    public float chargeRange;
-    public float chargeDelay;
-    public float chargeDuration;
-    public float chargeCooldown;
-    public float chargeSpeed;
+		private const float ChargeRange = 5;
+		private const float ChargeWarmUp = 1.75f;
+		private const float ChargeCooldown = 2;
+		private const float ChargeSpeed = 25;
+		private const float ChargeOvershoot = 2;
 
-    public float combatEngageRange;
-    public float combatDisengageRange;
+		private const float CombatEngageRange = 10;
+		private const float CombatDisengageRange = 15;
 
-    bool isChasing = false;
-    bool charging = false;
+		private bool IsChasing;
+		private bool ChargeWarmingUp;
+		private bool ChargeInProgress;
 
-    float movementSpeed;
-    float movementAccel;
-    float movementAngularSpeed;
+		private float AgentRadius;
+		private float MovementSpeed;
+		private float MovementAcceleration;
+		private float MovementAngularSpeed;
 
-    float chargeDelayTimer = 0.00f;
-    float chargeDurationTimer = 0.00f;
-    float chargeCooldownTimer = 0.00f;
-    Vector3 chargeTargetPoint;
-    GameObject chargeCastPE;
-    List<GameObject> chargeHitObjectsList = new List<GameObject>();
+		private readonly Timer ChargeWarmUpTimer = new Timer();
+		private readonly Timer ChargeCooldownTimer = new Timer();
+		private Vector3 ChargeTargetPoint;
+		private GameObject ChargeCastPe;
+		private readonly List<GameObject> ChargeHitObjectsList = new List<GameObject>();
 
-    GameObject player;
-    UnityEngine.AI.NavMeshAgent agent;
-	void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player");
-        agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-        agent.updateRotation = true;
+		private GameObject Player;
+		private UnitStats Stats;
+		private UnitStats PlayerStats;
+		private NavMeshAgent Agent;
 
-        movementSpeed = agent.speed;
-        movementAccel = agent.acceleration;
-        movementAngularSpeed = agent.angularSpeed;
-        
+		private void Start() {
+			Player = GameObject.FindGameObjectWithTag("Player");
+			Stats = GetComponent<UnitStats>();
+			PlayerStats = Player.GetComponent<UnitStats>();
+			Agent = GetComponent<NavMeshAgent>();
+			Agent.updateRotation = true;
+
+			AgentRadius = Agent.radius;
+			MovementSpeed = Agent.speed;
+			MovementAcceleration = Agent.acceleration;
+			MovementAngularSpeed = Agent.angularSpeed;
+		}
+
+		public override void OnHit(float damage, GameObject source = null) {
+			if (ChargeInProgress) {
+				Stats.DealDamage(damage * 9, source);
+			}
+		}
+
+		private void Update() {
+			ChargeCooldownTimer.Tick();
+			
+			var distanceToPlayer = Vector3.Distance(Player.transform.position, transform.position);
+			if (distanceToPlayer <= CombatEngageRange && !IsChasing || distanceToPlayer < CombatDisengageRange && IsChasing || ChargeInProgress) {
+				IsChasing = true;
+				if (!ChargeWarmingUp && !ChargeInProgress) {
+					Agent.SetDestination(Player.transform.position);
+				}
+
+				if (ChargeCooldownTimer.IsDone()) {
+					Agent.speed = MovementSpeed;
+				}
+
+				// Contact damage
+				if (Vector3.Distance(Player.transform.position, transform.position) <= ContactDamageRadius) {
+					PlayerStats.DealDamage(ContactDamage * Time.deltaTime, gameObject);
+					var playerHitPe = (GameObject) Instantiate(Resources.Load("CorruptedFirePEOnPlayerHitSmall"));
+					playerHitPe.transform.position = Player.transform.position;
+				}
+
+				// Start charge ability warm-up
+				if (distanceToPlayer <= ChargeRange && !ChargeWarmingUp && !ChargeInProgress && ChargeCooldownTimer.IsDone()
+						&& !Utility.IsTargetObstructed(transform.position, Player.transform.position, AgentRadius)) {
+					ChargeWarmingUp = true;
+					Agent.acceleration = 1000.00f;
+					Agent.angularSpeed = 1000.00f;
+					Agent.SetDestination(transform.position);
+					ChargeWarmUpTimer.Start(ChargeWarmUp);
+					ResetHitObjectsList();
+
+					ChargeCastPe = (GameObject) Instantiate(Resources.Load("CorruptedFirePEChargeCast"));
+					ChargeCastPe.transform.position = transform.GetChild(0).position;
+				}
+
+			
+				// Charge warm up
+				ChargeWarmUpTimer.Tick();
+				if (ChargeWarmingUp && ChargeWarmUpTimer.IsDone()) {
+					if (Utility.IsTargetObstructed(transform.position, Player.transform.position, AgentRadius)) {
+						StopCharge();
+						ChargeCastPe.GetComponent<ParticleSystem>().enableEmission = false;
+					} else {
+						Agent.acceleration = 0.00f;
+						Agent.angularSpeed = 0.0f;
+						Agent.speed = 0.00f;
+
+						var position = transform.position;
+						var playerPosition = Player.transform.position;
+						playerPosition.y = position.y;
+						var targetDirection = (playerPosition - position).normalized;
+						ChargeTargetPoint = Vector3.MoveTowards(position, playerPosition, ChargeRange) + targetDirection * ChargeOvershoot;
+
+						ChargeWarmingUp = false;
+						ChargeInProgress = true;
+						Agent.SetDestination(ChargeTargetPoint);
+					}
+				}
+
+				// Charge in progress
+				if (ChargeInProgress) {
+					var oldPos = transform.position;
+					var distanceToMove = ChargeSpeed * Time.deltaTime;
+
+					Agent.Move((ChargeTargetPoint - oldPos).normalized * distanceToMove);
+
+					if (!ChargeHitObjectsList.Contains(Player) && Math.GetDistance2D(transform.position, Player.transform.position) <= ChargeDamageRadius) {
+						Player.GetComponent<UnitStats>().DealDamage(ChargeDamage, gameObject);
+						ChargeHitObjectsList.Add(Player);
+						var playerBlood = (GameObject) Instantiate(Resources.Load("CorruptedFirePEOnPlayerHit"));
+						var playerPosition = Player.transform.position;
+						var adjustedChargeTargetPoint = ChargeTargetPoint;
+						adjustedChargeTargetPoint.y = playerPosition.y;
+						playerBlood.transform.position = playerPosition;
+						playerBlood.transform.Rotate(Vector3.down, 180 + Math.GetAngle(playerPosition, adjustedChargeTargetPoint));
+					}
+
+					var newPos = transform.position;
+					if (Vector3.Distance(ChargeTargetPoint, newPos) <= distanceToMove || Vector3.Distance(oldPos, newPos) < distanceToMove / 2) {
+						StopCharge();
+					}
+				}
+
+			} else if (distanceToPlayer >= CombatDisengageRange) {
+				IsChasing = false;
+			}
+		}
+
+
+		private void StopCharge() {
+			Agent.SetDestination(transform.position);
+			ChargeWarmingUp = false;
+			ChargeInProgress = false;
+			ChargeWarmUpTimer.Stop();
+			ChargeCooldownTimer.Start(ChargeCooldown);
+
+			Agent.speed = MovementSpeed / 2;
+			Agent.acceleration = MovementAcceleration;
+			Agent.angularSpeed = MovementAngularSpeed;
+		}
+
+		private void ResetHitObjectsList()
+		{
+			ChargeHitObjectsList.Clear();
+		}
 	}
-    void Update()
-    {
-        // Data update
-        if (player == null)
-            player = GameObject.FindGameObjectWithTag("Player");
-        if (agent == null)
-            agent = GetComponent<UnityEngine.AI.NavMeshAgent>();
-
-        // Objects not found
-        if (player == null || agent == null)
-            return;
-
-        // Movement
-        float Distance = Vector3.Distance(player.transform.position, transform.position);
-        if ((Distance <= combatEngageRange && !isChasing) || (Distance < combatDisengageRange && isChasing) || charging)
-        {
-            isChasing = true;
-            // If not charging - follow normally
-            if (charging == false)
-            {
-                agent.SetDestination(player.transform.position);
-            }
-
-            // Check for contact damage
-            if (Math.GetDistance2D(player.transform.position, agent.transform.position) <= contactDamageRadius)
-            {
-                player.GetComponent<UnitStats>().DealDamage(contactDamage * Time.deltaTime, gameObject);
-                GameObject playerHitPE = Instantiate(Resources.Load("CorruptedFirePEOnPlayerHitSmall")) as GameObject;
-                playerHitPE.transform.position = player.transform.position;
-            }
-
-            // Charge initialize
-            if (Distance <= chargeRange && charging == false && chargeCooldownTimer == 0.00f && !Utility.IsTargetObstructed(agent.transform.position, player.transform.position))
-            {
-                charging = true;
-                agent.acceleration = 1000.00f;
-                agent.angularSpeed = 1000.00f;
-                agent.SetDestination(agent.transform.position);
-                //agent.Stop();
-                chargeDelayTimer = chargeDelay;
-                ResetHitObjectsList();
-
-                chargeCastPE = Instantiate(Resources.Load("CorruptedFirePEChargeCast")) as GameObject;
-                chargeCastPE.transform.position = agent.transform.GetChild(0).position;
-            }
-
-            
-            // Charge prepare
-            else if (charging == true && chargeDelayTimer > 0.00f)
-            {
-                chargeDelayTimer -= Time.deltaTime;
-                if (agent.acceleration > 0.00f) { agent.acceleration = 0.00f; }
-
-                if (Utility.IsTargetObstructed(agent.transform.position, player.transform.position))
-                {
-                    chargeDelayTimer = 0.00f;
-                    StopAllCharge();
-                    chargeCastPE.GetComponent<ParticleSystem>().enableEmission = false;
-                }
-                else if (chargeDelayTimer <= 0.00f)
-                {
-                    chargeDelayTimer = 0.00f;
-                    // Chaaaaaaaaaaaaarge
-                    agent.acceleration = 0.00f;
-                    agent.angularSpeed = 0.0f;
-                    agent.speed = 0.00f;
-
-                    chargeTargetPoint = player.transform.position + (player.transform.position - agent.transform.position).normalized * 3.00f;
-
-                    agent.SetDestination(chargeTargetPoint);
-
-                    chargeDurationTimer = chargeDuration;
-                }
-            }
-
-            // Charge in progress
-            else if (charging == true && chargeDelayTimer == 0.00f && chargeDurationTimer > 0.00f)
-            {
-                chargeDurationTimer -= Time.deltaTime;
-                Vector3 oldPos = agent.transform.position;
-
-                // Move the unit
-                agent.Move((chargeTargetPoint - agent.transform.position).normalized * chargeSpeed * Time.deltaTime);
-
-                // Check for collision
-                if (!chargeHitObjectsList.Contains(player) && Math.GetDistance2D(agent.transform.position, player.transform.position) <= chargeDamageRadius)
-                {
-                    player.GetComponent<UnitStats>().DealDamage(chargeDamage, gameObject);
-                    chargeHitObjectsList.Add(player);
-                    GameObject playerBlood = Instantiate(Resources.Load("CorruptedFirePEOnPlayerHit")) as GameObject;
-                    playerBlood.transform.position = player.transform.position;
-
-                    // Please don't ask me why it has to be like that...
-                    playerBlood.transform.RotateAround(Vector3.down, (180 + Math.GetAngle(player.transform.position, chargeTargetPoint)) * Mathf.Deg2Rad);
-                }
-
-                // Check for stop conditions
-                if (chargeDurationTimer <= 0.00f || (Vector3.Distance(oldPos, agent.transform.position) < (chargeSpeed * Time.deltaTime) * 0.50f))
-                {
-                    chargeDurationTimer = 0.00f;
-                    StopAllCharge();
-                }
-            }
-
-            // Charge in cooldown
-            else if (chargeCooldownTimer > 0.00f)
-            {
-                chargeCooldownTimer -= Time.deltaTime;
-                if (chargeCooldownTimer < 0.00f) { chargeCooldownTimer = 0.00f; }
-            }
-        }
-        else if (Distance >= combatDisengageRange)
-        {
-            isChasing = false;
-        }
-
-	}
-
-    
-
-    void StopAllCharge()
-    {
-        charging = false;
-        chargeDurationTimer = 0.00f;
-        chargeCooldownTimer = chargeCooldown;
-
-        agent.speed = movementSpeed;
-        agent.acceleration = movementAccel;
-        agent.angularSpeed = movementAngularSpeed;
-    }
-
-    void ResetHitObjectsList()
-    {
-        chargeHitObjectsList.Clear();
-    }
 }

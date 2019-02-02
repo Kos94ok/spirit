@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Misc;
 
 public class Math : MonoBehaviour
 {
@@ -88,57 +89,32 @@ public static class Utility
         return 1000.00f;
     }
 
-    // Returns the distance to the first obstacle from position to a specified direction
-    public static float GetDistanceToObstacle(Vector3 fromPosition, Vector3 direction)
-    {
-        Ray ray = new Ray(fromPosition, direction);
-        RaycastHit[] hits = Physics.RaycastAll(ray);
+    public static float GetDistanceToObstacle(Vector3 fromPosition, Vector3 direction) {
+        RaycastHit hit;
+        if (Physics.Raycast(fromPosition, direction, out hit, Layers.Walkable | Layers.LevelGeometry)) {
+            return Vector3.Distance(fromPosition, hit.point);
+        }
 
-        float closestDist = 1000.00f;
-        RaycastHit closestHit = new RaycastHit();
-        foreach (RaycastHit hit in hits)
-        {
-            if (hit.transform.tag == "Geometry" && hit.distance < closestDist)
-            {
-                closestHit = hit;
-                closestDist = hit.distance;
-            }
-        }
-        if (closestDist < 1000.00f)
-        {
-            return closestDist;
-        }
-        else
-            return 1000.00f;
+        return 1000f;
     }
 
-    // Checks if the target is visible from the start point
-    public static bool IsTargetObstructed(Vector3 start, Vector3 target)
-    {
-        // Raycast to check for obstacles
-        Ray ray = new Ray(start, target - start);
-        RaycastHit[] hits = Physics.RaycastAll(ray, Vector3.Distance(start, target));
-        foreach (RaycastHit hit in hits)
-        {
-            // If a static object is hit, return
-            if (hit.transform.tag == "Geometry")
-            {
-                return true;
-            }
-        }
-        return false;
+    public static bool IsTargetObstructed(Vector3 start, Vector3 target, int layerMask = Layers.LevelGeometry) {
+        return Physics.Raycast(start, target - start, Vector3.Distance(start, target), layerMask);
+    }
+    
+    public static bool IsTargetObstructed(Vector3 start, Vector3 target, float sphereRadius, int layerMask = Layers.LevelGeometry) {
+        var ray = new Ray(start, target - start);
+        return Physics.SphereCast(ray, sphereRadius, Vector3.Distance(start, target), layerMask);
     }
 
-    public static List<string> ColorStringList = new List<string>()
-    {
+    private static readonly List<string> ColorStringList = new List<string> {
         "aqua",   "black",  "blue",      "brown",  "cyan",    "darkblue", "fuchsia", "green",
         "gray",   "grey",   "lightblue", "lime",   "magenta", "maroon",   "navy",    "olive",
         "orange", "purple", "red",       "silver", "teal",    "white",    "yellow"
     };
-    public static string ColorStringToHex(string input)
-    {
-        switch (input)
-        {
+
+    private static string ColorStringToHex(string input) {
+        switch (input) {
             case "aqua":        return "#00ffffff";
             case "black":       return "#000000ff";
             case "blue":        return "#0000ffff";
@@ -166,19 +142,16 @@ public static class Utility
         return input;
     }
 
-    // Converts all colors from "yellow" to "#ffff00ff"
-    public static string ConvertColorStrings(string input)
-    {
-        string output = input;
+    public static string ConvertColorStrings(string input) {
+        var output = input;
 
-        for (int i = 0; i < ColorStringList.Count; i++)
-        {
-            output = output.Replace("<color=" + ColorStringList[i], "<color=" + ColorStringToHex(ColorStringList[i]));
+        foreach (var color in ColorStringList) {
+            output = output.Replace("<color=" + color, "<color=" + ColorStringToHex(color));
         }
         return output;
     }
 
-    // Daniel Brauer, big fucking thanks :D
+    // Credit: Daniel Brauer
     public static float FirstOrderInterceptTime(float projectileSpeed, Vector3 targetRelativePosition, Vector3 targetRelativeVelocity)
     {
         float velocitySquared = targetRelativeVelocity.sqrMagnitude;
