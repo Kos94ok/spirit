@@ -159,8 +159,7 @@ namespace Units.Enemies.WanderingFlame {
 			Agent.angularSpeed = MovementAngularSpeed;
 		}
 
-		private void ResetHitObjectsList()
-		{
+		private void ResetHitObjectsList() {
 			ChargeHitObjectsList.Clear();
 		}
 	}
