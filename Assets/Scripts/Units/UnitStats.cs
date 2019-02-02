@@ -1,4 +1,6 @@
 ﻿using Misc;
+using Settings;
+using UI.UserInput;
 using Units.Buffs;
 using Units.Enemies;
 using UnityEngine;
@@ -165,11 +167,11 @@ namespace Units {
 		}
 	
 		public bool HasHealth(float amount, float buffer = 1.00f) {
-			return Health >= amount + buffer;
+			return Health >= amount + buffer || Buffs.Has(Buff.Invulnerable) || Buffs.Has(Buff.GodMode);
 		}
 	
 		public float DealDamage(float amount, GameObject source = null) {
-			if (IsDead() || amount <= 0.00f)
+			if (IsDead() || amount <= 0.00f || Buffs.Has(Buff.Invulnerable) || Buffs.Has(Buff.GodMode))
 				return 0f;
 
 			EngageCombat();
@@ -205,11 +207,11 @@ namespace Units {
 		}
 	
 		public bool HasMana(float amount) {
-			return Mana >= amount;
+			return Mana >= amount || Buffs.Has(Buff.UnlimitedMana) || Buffs.Has(Buff.GodMode);
 		}
 	
 		public float DrainMana(float amount) {
-			if (amount <= 0f)
+			if (amount <= 0f || Buffs.Has(Buff.UnlimitedMana) || Buffs.Has(Buff.GodMode))
 				return 0f;
 
 			var overflow = 0f;

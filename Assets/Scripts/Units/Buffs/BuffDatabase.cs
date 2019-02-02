@@ -17,6 +17,9 @@ namespace Units.Buffs {
     public enum Buff {
         ManaShield,
         DrawingBow,
+        Invulnerable,
+        UnlimitedMana,
+        GodMode,
     }
 
     internal class BuffData {
@@ -35,10 +38,12 @@ namespace Units.Buffs {
     public class BuffDatabase : MonoBehaviour {
         private static readonly Dictionary<Buff, BuffData> BuffLibrary = new Dictionary<Buff, BuffData>();
 
-        // Registration
         private void Start() {
             Register(Buff.ManaShield, BuffStackType.NoStacks, 1, 0.1f, BuffAlignment.Positive);
             Register(Buff.DrawingBow, BuffStackType.NoStacks, 1, 999f, BuffAlignment.Neutral);
+            Register(Buff.Invulnerable, BuffStackType.NoStacks, 1, 999f, BuffAlignment.Positive);
+            Register(Buff.UnlimitedMana, BuffStackType.NoStacks, 1, 999f, BuffAlignment.Positive);
+            Register(Buff.GodMode, BuffStackType.NoStacks, 1, 999f, BuffAlignment.Positive);
 
             // Register all the remaining buffs
             foreach (Buff id in System.Enum.GetValues(typeof(Buff))) {

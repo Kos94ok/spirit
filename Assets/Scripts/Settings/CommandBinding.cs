@@ -22,6 +22,7 @@ namespace Settings {
 			AbilityRightClick,
 			ForceCast,
 			ToggleFpsCounter,
+			CheatGodMode,
 		}
 
 		private readonly Dictionary<Command, CommandMapping> Library = new Dictionary<Command, CommandMapping>();
@@ -39,6 +40,7 @@ namespace Settings {
 			Library.Add(Command.AbilityR, CommandMapping.Keyboard(KeyCode.R));
 			Library.Add(Command.AbilityRightClick, CommandMapping.Mouse(MouseStatus.Button.Right));
 			Library.Add(Command.ToggleFpsCounter, CommandMapping.Keyboard(KeyCode.F11));
+			Library.Add(Command.CheatGodMode, CommandMapping.Keyboard(KeyCode.F12));
 		}
 	
 		public CommandMapping Get(Command command) {
