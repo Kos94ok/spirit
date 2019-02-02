@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Units;
 
 public class HeroSoul_Berserker_Projectile : MonoBehaviour
 {

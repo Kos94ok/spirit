@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Units;
+using UnityEngine;
 
 public class HeroSoulController : MonoBehaviour
 {

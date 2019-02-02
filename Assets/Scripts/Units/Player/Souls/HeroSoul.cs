@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using Units;
+using Units.Buffs;
 
 public enum AbilitySlot {
     LeftClick,

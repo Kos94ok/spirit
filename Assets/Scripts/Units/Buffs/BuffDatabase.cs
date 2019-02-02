@@ -1,73 +1,62 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
-public enum BuffAlignment
-{
-    Positive,
-    Neutral,
-    Negative,
-}
+namespace Units.Buffs {
+    public enum BuffAlignment {
+        Positive,
+        Neutral,
+        Negative,
+    }
 
-public enum BuffStackType
-{
-    NoStacks,
-    StacksDuration,
-    StacksIntensity,
-}
+    public enum BuffStackType {
+        NoStacks,
+        StacksDuration,
+        StacksIntensity,
+    }
 
-public enum Buff
-{
-    ManaShield,
-    DrawingBow,
-    Slowed,
-    Incapacitated,
-    PhasedOut,
-    Burning,
-    Cursed,
-}
+    public enum Buff {
+        ManaShield,
+        DrawingBow,
+    }
 
-public class BuffDatabase : MonoBehaviour
-{
-    // Data
-    static List<Buff> registeredBuffList = new List<Buff>();
-    static Dictionary<Buff, BuffStackType> buffStackType = new Dictionary<Buff, BuffStackType>();
-    static Dictionary<Buff, int> buffDefaultStacks = new Dictionary<Buff, int>();
-    static Dictionary<Buff, float> buffDefaultDuration = new Dictionary<Buff, float>();
-    static Dictionary<Buff, BuffAlignment> buffAlignment = new Dictionary<Buff, BuffAlignment>();
-
-    // Registration
-    void Start()
-    {
-        Register(Buff.ManaShield, BuffStackType.NoStacks, 1, 0.1f, BuffAlignment.Positive);
-        Register(Buff.DrawingBow, BuffStackType.NoStacks, 1, 999f, BuffAlignment.Neutral);
-        Register(Buff.Slowed, BuffStackType.StacksIntensity, 1, 5f, BuffAlignment.Negative);
-        Register(Buff.Incapacitated, BuffStackType.StacksDuration, 1, 5f, BuffAlignment.Negative);
-        Register(Buff.PhasedOut, BuffStackType.StacksDuration, 1, 5f, BuffAlignment.Negative);
-        Register(Buff.Burning, BuffStackType.StacksIntensity, 1, 5f, BuffAlignment.Negative);
-        Register(Buff.Cursed, BuffStackType.StacksIntensity, 1, 5f, BuffAlignment.Negative);
-
-        // Register all the remaining buffs
-        foreach (Buff id in System.Enum.GetValues(typeof(Buff)))
-        {
-            if (!buffStackType.ContainsKey(id))
-            {
-                Register(id, BuffStackType.NoStacks, 1, 1f, BuffAlignment.Neutral);
-            }
+    internal class BuffData {
+        public int DefaultStacks { get; }
+        public float DefaultDuration { get; }
+        public BuffAlignment Alignment { get; }
+        public BuffStackType StackType { get; }
+        public BuffData(int defaultStacks, float defaultDuration, BuffAlignment alignment, BuffStackType stackType) {
+            DefaultStacks = defaultStacks;
+            DefaultDuration = defaultDuration;
+            Alignment = alignment;
+            StackType = stackType;
         }
     }
 
-    void Register(Buff id, BuffStackType stackType, int defaultStacks, float defaultDuration, BuffAlignment alignment)
-    {
-        registeredBuffList.Add(id);
-        buffStackType.Add(id, stackType);
-        buffDefaultStacks.Add(id, defaultStacks);
-        buffDefaultDuration.Add(id, defaultDuration);
-        buffAlignment.Add(id, alignment);
-    }
+    public class BuffDatabase : MonoBehaviour {
+        private static readonly Dictionary<Buff, BuffData> BuffLibrary = new Dictionary<Buff, BuffData>();
 
-    // Public API
-    public static BuffStackType GetStackType(Buff id) { return buffStackType[id]; }
-    public static int GetDefaultStacks(Buff id) { return buffDefaultStacks[id]; }
-    public static float GetDefaultDuration(Buff id) { return buffDefaultDuration[id]; }
-    public static BuffAlignment GetAlignment(Buff id) { return buffAlignment[id]; }
+        // Registration
+        private void Start() {
+            Register(Buff.ManaShield, BuffStackType.NoStacks, 1, 0.1f, BuffAlignment.Positive);
+            Register(Buff.DrawingBow, BuffStackType.NoStacks, 1, 999f, BuffAlignment.Neutral);
+
+            // Register all the remaining buffs
+            foreach (Buff id in System.Enum.GetValues(typeof(Buff))) {
+                if (!BuffLibrary.ContainsKey(id)) {
+                    Register(id, BuffStackType.NoStacks, 1, 1f, BuffAlignment.Neutral);
+                }
+            }
+        }
+
+        private void Register(Buff id, BuffStackType stackType, int defaultStacks, float defaultDuration, BuffAlignment alignment) {
+            var buffData = new BuffData(defaultStacks, defaultDuration, alignment, stackType);
+            BuffLibrary.Add(id, buffData);
+        }
+
+        // Public API
+        public static int GetDefaultStacks(Buff id) { return BuffLibrary[id].DefaultStacks; }
+        public static float GetDefaultDuration(Buff id) { return BuffLibrary[id].DefaultDuration; }
+        public static BuffAlignment GetAlignment(Buff id) { return BuffLibrary[id].Alignment; }
+        public static BuffStackType GetStackType(Buff id) { return BuffLibrary[id].StackType; }
+    }
 }

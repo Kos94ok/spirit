@@ -17,6 +17,9 @@ namespace Units.Common.HeightIndicator {
 			var stats = GetComponent<UnitStats>();
 
 			switch (stats.Alliance) {
+				case UnitAlliance.Ally:
+					Indicator.GetComponent<SkinnedMeshRenderer>().material.SetColor(Emission, new Color(0, 1, 0, 0));
+					break;
 				case UnitAlliance.Enemy:
 					Indicator.GetComponent<SkinnedMeshRenderer>().material.SetColor(Emission, new Color(1, 0, 1, 0));
 					break;

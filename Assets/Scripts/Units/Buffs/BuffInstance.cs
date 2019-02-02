@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Units.Buffs;
 
 public class BuffInstance
 {
