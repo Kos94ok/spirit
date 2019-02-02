@@ -3,8 +3,8 @@ using Misc;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Units.Enemies.CorruptedFire {
-	public class CorruptedFireAI : EnemyAI {
+namespace Units.Enemies.WanderingFlame {
+	public class WanderingFlameAI : EnemyAI {
 		private const float ContactDamage = 1;
 		private const float ChargeDamage = 1;
 		private const float ContactDamageRadius = .5f;
