@@ -9,11 +9,19 @@ namespace Units.Player.Combat.Abilities {
 		}
 
 		private const float Damage = 10;
+		private const float AutoTargetWidth = .2f;
 
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
 			var sourcePosition = caster.transform.position;
 			var targetPosition = targetUnit.HasValue ? targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition() : targetPoint.Value;
 
+			RaycastHit raycastHit;
+			var ray = new Ray(sourcePosition, targetPosition - sourcePosition);
+			if (Physics.SphereCast(ray, AutoTargetWidth, out raycastHit, GetMaximumCastRange(), Layers.EnemyHitbox)) {
+				targetUnit = Maybe<GameObject>.Some(raycastHit.transform.parent.gameObject);
+				targetPosition = targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();
+			}
+			
 			var callbackPayload = new Data {
 				TargetUnit = targetUnit
 			};

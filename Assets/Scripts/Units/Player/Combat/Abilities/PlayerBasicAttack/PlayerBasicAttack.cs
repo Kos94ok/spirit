@@ -21,6 +21,12 @@ namespace Units.Player.Combat.Abilities.PlayerBasicAttack {
 				targetPosition.y = sourcePosition.y;
 			}
 
+			RaycastHit raycastHit;
+			if (Physics.Raycast(sourcePosition, targetPosition - sourcePosition, out raycastHit, GetMaximumCastRange(), Layers.EnemyHitbox)) {
+				targetUnit = Maybe<GameObject>.Some(raycastHit.transform.parent.gameObject);
+				targetPosition = targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();
+			}
+
 			var callbackPayload = new Data {
 				TargetUnit = targetUnit
 			};
