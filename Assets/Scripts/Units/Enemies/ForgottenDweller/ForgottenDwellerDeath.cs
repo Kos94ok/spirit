@@ -6,7 +6,7 @@ namespace Units.Enemies.ForgottenDweller {
         public override void OnDeath() {
             // Add burst decay particle emitter
             var decayPE = (GameObject) Instantiate(Resources.Load("ParticleEmitters/ForgottenDwellerPEDeath"));
-            decayPE.transform.position = transform.position;
+            decayPE.transform.position = GetComponent<UnitStats>().GetHitTargetPosition();
             decayPE.transform.rotation = transform.rotation;
             decayPE.transform.Rotate(Vector3.up, -90, Space.World);
 

@@ -22,8 +22,9 @@ namespace Units.Player.Targeting {
 					break;
 			}
 			SelectionCircle.transform.localScale = new Vector3(Stats.SelectionRadius * 2, 0.001f, Stats.SelectionRadius * 2);
-			SelectionCircle.transform.parent = transform;
-			SelectionCircle.transform.localPosition = Vector3.zero;
+			var parentTransform = transform;
+			SelectionCircle.transform.parent = parentTransform;
+			SelectionCircle.transform.position = Utility.GetGroundPosition(parentTransform.position);
 		}
 
 		private void Update() {
