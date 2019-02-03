@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Misc;
 using Misc.ObjectPool;
 using Unity.Collections;
@@ -23,6 +24,7 @@ namespace Units.Common.Lightning {
 			private float FragmentLifeTime = .1f;
 			private float FragmentParticleLifeTime = .5f;
 			private float SmoothFactor = .5f;
+			private Vector3 StartingOffset = Vector3.zero;
 			private Maybe<Action<object>> TargetReachedCallback = Maybe<Action<object>>.None;
 			private Maybe<object> TargetReachedCallbackPayload = Maybe<object>.None;
 			
@@ -76,6 +78,11 @@ namespace Units.Common.Lightning {
 				return this;
 			}
 
+			public Builder SetStartingOffset(Vector3 offset) {
+				StartingOffset = offset;
+				return this;
+			}
+
 			public Builder SetTargetReachedCallback(Action<object> callback, object payload) {
 				TargetReachedCallback = Maybe<Action<object>>.Some(callback);
 				TargetReachedCallbackPayload = Maybe<object>.Some(payload);
@@ -86,10 +93,10 @@ namespace Units.Common.Lightning {
 				var lightningContainer = new GameObject();
 				var lightningAgent = lightningContainer.AddComponent<LightningAgent>();
 				lightningContainer.name = "LightningAgent";
-				lightningContainer.AddComponent<TimedLife>().Timer = 5f;
 				lightningAgent.Init(From, To, 1 / Speed, AngularDeviation, BranchingFactor,
 					BranchingChance, MaximumBranchDepth, FragmentPrefab, FragmentLifeTime,
-					FragmentParticleLifeTime, SmoothFactor, TargetReachedCallback, TargetReachedCallbackPayload);
+					FragmentParticleLifeTime, SmoothFactor, StartingOffset, 
+					TargetReachedCallback, TargetReachedCallbackPayload);
 				return lightningAgent;
 			}
 		}
@@ -112,6 +119,8 @@ namespace Units.Common.Lightning {
 		private float FloorLevel;
 		private float TerminationDistance; 
 		
+		private List<LightningFragment> RegisteredFragments = new List<LightningFragment>();
+		
 		private void Init(
 				Vector3 from,
 				Vector3 to,
@@ -124,6 +133,7 @@ namespace Units.Common.Lightning {
 				float fragmentLifeTime,
 				float fragmentParticleLifeTime,
 				float smoothFactor,
+				Vector3 startingOffset,
 				Maybe<Action<object>> targetReachedCallback,
 				Maybe<object> targetReachedCallbackPayload) {
 			StartingDistance = Vector3.Distance(from, to);
@@ -145,7 +155,8 @@ namespace Units.Common.Lightning {
 			TerminationDistance = fragmentObject.transform.GetChild(LightningFragment.ConnectingPointChildIndex).transform.localPosition.y;
 			ObjectPool.Return(FragmentPrefab, fragmentObject);
 
-			AddFragment(from, to, 0, 0, 1, Vector3.zero);
+			AddFragment(from, to, 0, 0, 1, startingOffset);
+			StartCoroutine(AgentSelfDestruct());
 		}
 		
 		private void AddSideFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth, int fragmentCount, Vector3 previousOffset) {
@@ -166,6 +177,7 @@ namespace Units.Common.Lightning {
 				fragment.transform.position = from;
 				fragment.transform.LookAt(to);
 				fragment.transform.Rotate(Vector3.right, 90f);
+				RegisteredFragments.Add(fragmentController);
 
 				var vectorToTarget = to - from;
 				var distanceToTarget = vectorToTarget.magnitude;
@@ -181,9 +193,9 @@ namespace Units.Common.Lightning {
 				fragment.transform.localScale = new Vector3(scaleMod, 1f, scaleMod);
 				fragment.GetComponentInChildren<Light>().intensity = 0.5f * scaleMod;
 				
-				StartCoroutine(FragmentHideVisual(fragment));
-				StartCoroutine(FragmentSelfDestruct(fragment));
-				if (fragmentsRemaining == 1 && linearDepth < 500) {
+				StartCoroutine(FragmentHideVisual(fragmentController));
+				StartCoroutine(FragmentSelfDestruct(fragmentController));
+				if (fragmentsRemaining == 1 && linearDepth < 100) {
 					StartCoroutine(FragmentSpawning(fragmentController));
 				}
 				
@@ -211,15 +223,25 @@ namespace Units.Common.Lightning {
 			return offset;
 		}
 		
-		private IEnumerator FragmentHideVisual(GameObject fragment) {
+		private IEnumerator FragmentHideVisual(LightningFragment fragment) {
 			yield return new WaitForSeconds(FragmentLifeTime);
-			fragment.transform.GetChild(LightningFragment.VisualDataChildIndex).gameObject.SetActive(false);
+			fragment.GetGameObject().transform.GetChild(LightningFragment.VisualDataChildIndex).gameObject.SetActive(false);
 		}
 
-		private IEnumerator FragmentSelfDestruct(GameObject fragment) {
+		private IEnumerator FragmentSelfDestruct(LightningFragment fragment) {
 			yield return new WaitForSeconds(FragmentDelay + FragmentParticleLifeTime);
+
+			RegisteredFragments.Remove(fragment);
+			ObjectPool.Return(FragmentPrefab, fragment.GetGameObject());
+		}
+		
+		private IEnumerator AgentSelfDestruct() {
+			yield return new WaitForSeconds(4);
 			
-			ObjectPool.Return(FragmentPrefab, fragment);
+			foreach (var fragment in RegisteredFragments) {
+				ObjectPool.Return(FragmentPrefab, fragment.GetGameObject());
+			}
+			Destroy(transform.gameObject);
 		}
 
 		private IEnumerator FragmentSpawning(LightningFragment fragment) {
@@ -229,6 +251,5 @@ namespace Units.Common.Lightning {
 			var fragmentCount = Mathf.FloorToInt(Mathf.Clamp((Time.time - fragment.GetTime()) / FragmentDelay, 1, 150));
 			AddFragment(spawnPosition, fragment.GetTargetPoint(), fragment.GetLinearDepth() + 1, fragment.GetBranchDepth(), fragmentCount, fragment.GetOffsetFromTarget());
 		}
-		
 	}
 }

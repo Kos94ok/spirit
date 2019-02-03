@@ -1,4 +1,5 @@
 using System;
+using System.Net.NetworkInformation;
 using JetBrains.Annotations;
 using Misc;
 using UnityEngine;
@@ -18,10 +19,9 @@ namespace UI.UserInput {
 			}
 			
 			RaycastHit hit;
-			const int walkableLayer = 1 << 9;
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
   
-			if (Physics.Raycast(ray, out hit, 1000.00f, walkableLayer)) {
+			if (Physics.Raycast(ray, out hit, 1000.00f, Layers.Walkable)) {
 				return Maybe<Vector3>.Some(hit.point);
 			}
 			return Maybe<Vector3>.None;
@@ -33,10 +33,9 @@ namespace UI.UserInput {
 			}
 			
 			RaycastHit hit;
-			const int enemyTargetboxLayer = 1 << 10;
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
   
-			if (Physics.Raycast(ray, out hit, 1000.00f, enemyTargetboxLayer)) {
+			if (Physics.Raycast(ray, out hit, 1000.00f, Layers.EnemyHitbox)) {
 				return Maybe<GameObject>.Some(hit.transform.parent.gameObject);
 			}
 			return Maybe<GameObject>.None;

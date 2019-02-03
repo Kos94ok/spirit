@@ -1,6 +1,8 @@
+using System.Numerics;
 using Misc;
 using Units.Common.Lightning;
 using UnityEngine;
+using Vector3 = UnityEngine.Vector3;
 
 namespace Units.Player.Combat.Abilities {
 	public class TestRightClick : PlayerAbility {
@@ -9,18 +11,14 @@ namespace Units.Player.Combat.Abilities {
 		}
 
 		private const float Damage = 10;
-		private const float AutoTargetWidth = .2f;
+		private const float AutoTargetWidth = .5f;
 
 		public override void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
 			var sourcePosition = caster.transform.position;
-			var targetPosition = targetUnit.HasValue ? targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition() : targetPoint.Value;
+			var targetPosition = AbilityUtils.GetTargetPosition(sourcePosition, targetPoint, targetUnit);
 
-			RaycastHit raycastHit;
-			var ray = new Ray(sourcePosition, targetPosition - sourcePosition);
-			if (Physics.SphereCast(ray, AutoTargetWidth, out raycastHit, GetMaximumCastRange(), Layers.EnemyHitbox)) {
-				targetUnit = Maybe<GameObject>.Some(raycastHit.transform.parent.gameObject);
-				targetPosition = targetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();
-			}
+			Vector3 startingOffset;
+			AbilityUtils.RetargetLightningAbility(sourcePosition, targetPosition, targetUnit, AutoTargetWidth, out targetPosition, out targetUnit, out startingOffset);
 			
 			var callbackPayload = new Data {
 				TargetUnit = targetUnit
@@ -33,6 +31,7 @@ namespace Units.Player.Combat.Abilities {
 				.SetBranchingFactor(0.5f)
 				.SetSmoothFactor(0.8f)
 				.SetMaximumBranchDepth(3)
+				.SetStartingOffset(startingOffset)
 				.SetTargetReachedCallback(OnTargetReached, callbackPayload);
 			builder.Create();
 			builder.Create();
