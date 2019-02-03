@@ -169,8 +169,16 @@ namespace Units {
 		public bool HasHealth(float amount, float buffer = 1.00f) {
 			return Health >= amount + buffer || Buffs.Has(Buff.Invulnerable) || Buffs.Has(Buff.GodMode);
 		}
-	
+
 		public float DealDamage(float amount, GameObject source = null) {
+			return DealDamageInternal(amount, source, true);
+		}
+
+		public float DealDamageIgnoreOnHit(float amount, GameObject source = null) {
+			return DealDamageInternal(amount, source, false);
+		}
+		
+		private float DealDamageInternal(float amount, GameObject source, bool triggerOnHit) {
 			if (IsDead() || amount <= 0.00f || Buffs.Has(Buff.Invulnerable) || Buffs.Has(Buff.GodMode))
 				return 0f;
 
@@ -187,7 +195,7 @@ namespace Units {
 				Kill();
 			} else {
 				overflow = 0f;
-				if (EnemyAIController != null) {
+				if (EnemyAIController != null && triggerOnHit) {
 					EnemyAIController.OnHit(amount, source);
 				}
 			}

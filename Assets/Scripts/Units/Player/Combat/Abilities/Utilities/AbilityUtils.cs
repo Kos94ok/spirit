@@ -17,9 +17,11 @@ namespace Units.Player.Combat.Abilities {
 		public static void RetargetLightningAbility(Vector3 sourcePosition, Vector3 targetPosition, Maybe<GameObject> targetUnit, float lightningRadius,
 				out Vector3 newTargetPosition, out Maybe<GameObject> newTargetUnit, out Vector3 startingOffset) {
 			RaycastHit raycastHit;
+			var direction = (targetPosition - sourcePosition).normalized;
+			sourcePosition -= direction * lightningRadius;
 			var ray = new Ray(sourcePosition, targetPosition - sourcePosition);
 			if (Physics.SphereCast(ray, lightningRadius, out raycastHit, Vector3.Distance(sourcePosition, targetPosition), Layers.EnemyHitbox)) {
-				var angle = Mathf.Clamp(Vector3.SignedAngle(targetPosition - sourcePosition, raycastHit.point - sourcePosition, Vector3.up) * 8f, -30f, 30f);
+				var angle = Mathf.Clamp(Vector3.SignedAngle(targetPosition - sourcePosition, raycastHit.point - sourcePosition, Vector3.up) * 8f, -25f, 25f);
 				startingOffset = new Vector3(angle, 0, angle);
 				newTargetUnit = Maybe<GameObject>.Some(raycastHit.transform.parent.gameObject);
 				newTargetPosition = newTargetUnit.Value.GetComponent<UnitStats>().GetHitTargetPosition();

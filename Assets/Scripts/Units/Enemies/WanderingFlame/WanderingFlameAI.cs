@@ -19,6 +19,8 @@ namespace Units.Enemies.WanderingFlame {
 		private const float CombatEngageRange = 10;
 		private const float CombatDisengageRange = 15;
 
+		private const float DamageModWhileCharging = 10f;
+
 		private bool IsChasing;
 		private bool ChargeWarmingUp;
 		private bool ChargeInProgress;
@@ -54,7 +56,7 @@ namespace Units.Enemies.WanderingFlame {
 
 		public override void OnHit(float damage, GameObject source = null) {
 			if (ChargeInProgress) {
-				Stats.DealDamage(damage * 9, source);
+				Stats.DealDamageIgnoreOnHit(damage * (DamageModWhileCharging - 1), source);
 			}
 		}
 

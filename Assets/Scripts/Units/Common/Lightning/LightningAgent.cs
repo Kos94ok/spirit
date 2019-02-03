@@ -3,9 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using Misc;
 using Misc.ObjectPool;
+using Settings;
+using Units.Player.Combat.Abilities.Utilities;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.Analytics;
 using Object = System.Object;
 using Random = UnityEngine.Random;
 
@@ -83,6 +86,14 @@ namespace Units.Common.Lightning {
 				return this;
 			}
 
+			public Builder SetTargetReachedCallback(Action<object> callback, Maybe<GameObject> payload) {
+				TargetReachedCallback = Maybe<Action<object>>.Some(callback);
+				TargetReachedCallbackPayload = Maybe<object>.Some(new BasicLightningCallbackData {
+					TargetUnit = payload
+				});
+				return this;
+			}
+			
 			public Builder SetTargetReachedCallback(Action<object> callback, object payload) {
 				TargetReachedCallback = Maybe<Action<object>>.Some(callback);
 				TargetReachedCallbackPayload = Maybe<object>.Some(payload);
@@ -102,6 +113,7 @@ namespace Units.Common.Lightning {
 		}
 		
 		private readonly ObjectPool ObjectPool = AutowireFactory.GetInstanceOf<ObjectPool>();
+		private readonly VisualSettings VisualSettings = AutowireFactory.GetInstanceOf<VisualSettings>();
 
 		private float StartingDistance;
 		private float FragmentDelay;
@@ -137,7 +149,7 @@ namespace Units.Common.Lightning {
 				Maybe<Action<object>> targetReachedCallback,
 				Maybe<object> targetReachedCallbackPayload) {
 			StartingDistance = Vector3.Distance(from, to);
-			FragmentDelay = delay;
+			FragmentDelay = delay * GetLightningLengthModifier();
 			AngularDeviation = deviation;
 			BranchingFactor = branchingFactor;
 			BranchingChance = branchingChance;
@@ -154,6 +166,10 @@ namespace Units.Common.Lightning {
 			var fragmentObject = ObjectPool.Obtain(FragmentPrefab);
 			TerminationDistance = fragmentObject.transform.GetChild(LightningFragment.ConnectingPointChildIndex).transform.localPosition.y;
 			ObjectPool.Return(FragmentPrefab, fragmentObject);
+
+			if (!IsLightningBranchingEnabled()) {
+				BranchingChance = 0;
+			}
 
 			AddFragment(from, to, 0, 0, 1, startingOffset);
 			StartCoroutine(AgentSelfDestruct());
@@ -190,9 +206,13 @@ namespace Units.Common.Lightning {
 				fragmentController.SetOffsetFromTarget(offsetFromTarget);
 
 				var scaleMod = Mathf.Max(0.20f, distanceToTarget / StartingDistance);
-				fragment.transform.localScale = new Vector3(scaleMod, 1f, scaleMod);
-				fragment.GetComponentInChildren<Light>().intensity = 0.5f * scaleMod;
-				
+				fragment.transform.localScale = new Vector3(scaleMod, GetLightningLengthModifier(), scaleMod);
+				if (IsLightningLightEnabled()) {
+					fragment.GetComponentInChildren<Light>().intensity = 0.5f * scaleMod;
+				} else {
+					fragment.GetComponentInChildren<Light>().enabled = false;
+				}
+
 				StartCoroutine(FragmentHideVisual(fragmentController));
 				StartCoroutine(FragmentSelfDestruct(fragmentController));
 				if (fragmentsRemaining == 1 && linearDepth < 100) {
@@ -250,6 +270,26 @@ namespace Units.Common.Lightning {
 			var spawnPosition = fragment.GetGameObject().transform.GetChild(LightningFragment.ConnectingPointChildIndex).position;
 			var fragmentCount = Mathf.FloorToInt(Mathf.Clamp((Time.time - fragment.GetTime()) / FragmentDelay, 1, 150));
 			AddFragment(spawnPosition, fragment.GetTargetPoint(), fragment.GetLinearDepth() + 1, fragment.GetBranchDepth(), fragmentCount, fragment.GetOffsetFromTarget());
+		}
+
+		private bool IsLightningBranchingEnabled() {
+			return VisualSettings.GetQuality(VisualSettings.Option.LightningQuality) >= VisualSettings.Quality.Medium;
+		}
+		
+		private bool IsLightningLightEnabled() {
+			return VisualSettings.GetQuality(VisualSettings.Option.LightningQuality) >= VisualSettings.Quality.High;
+		}
+
+		private float GetLightningLengthModifier() {
+			var selectedQuality = VisualSettings.GetQuality(VisualSettings.Option.LightningQuality);
+			switch (selectedQuality) {
+				case VisualSettings.Quality.Ultra:
+					return 0.5f;
+				case VisualSettings.Quality.High:
+					return 0.8f;
+				default:
+					return 1f;
+			}
 		}
 	}
 }

@@ -5,10 +5,7 @@ using UnityEngine;
 using Vector3 = UnityEngine.Vector3;
 
 namespace Units.Player.Combat.Abilities {
-	public class TestRightClick : PlayerAbility {
-		public class Data {
-			public Maybe<GameObject> TargetUnit;
-		}
+	public class ForkedLightning : PlayerAbility {
 
 		private const float Damage = 10;
 		private const float AutoTargetWidth = .5f;
@@ -19,10 +16,6 @@ namespace Units.Player.Combat.Abilities {
 
 			Vector3 startingOffset;
 			AbilityUtils.RetargetLightningAbility(sourcePosition, targetPosition, targetUnit, AutoTargetWidth, out targetPosition, out targetUnit, out startingOffset);
-			
-			var callbackPayload = new Data {
-				TargetUnit = targetUnit
-			};
 
 			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
 				.SetAngularDeviation(90f)
@@ -32,26 +25,15 @@ namespace Units.Player.Combat.Abilities {
 				.SetSmoothFactor(0.8f)
 				.SetMaximumBranchDepth(3)
 				.SetStartingOffset(startingOffset)
-				.SetTargetReachedCallback(OnTargetReached, callbackPayload);
+				.SetTargetReachedCallback(OnLightningTargetReached, targetUnit);
 			builder.Create();
 			builder.Create();
 			builder.Create();
 			Cooldown.Start(0.5f);
 		}
 		
-		private void OnTargetReached(object rawPayload) {
-			var payload = (Data) rawPayload;
-			if (!payload.TargetUnit.HasValue || payload.TargetUnit.Value == null) {
-				return;
-			}
-
-			var targetUnit = payload.TargetUnit.Value;
-			var stats = targetUnit.GetComponent<UnitStats>();
-			if (stats == null) {
-				return;
-			}
-
-			stats.DealDamage(Damage);
+		public override void OnTargetUnitReached(GameObject targetUnit, UnitStats targetStats) {
+			targetStats.DealDamage(Damage);
 		}
 
 		public override int GetTargetType() {
