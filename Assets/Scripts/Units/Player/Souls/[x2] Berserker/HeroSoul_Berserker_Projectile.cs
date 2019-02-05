@@ -78,7 +78,7 @@ public class HeroSoul_Berserker_Projectile : MonoBehaviour
         var EnemyBody = hit.gameObject.GetComponent<Rigidbody>();
         if (HitObjects.Contains(hit.gameObject))
             return;
-        if (EnemyHit != null && EnemyHit.Stats.Alliance == UnitAlliance.Enemy && EnemyHit.Stats.IsAlive())
+        if (EnemyHit != null && EnemyHit.Stats.Alliance == UnitAlliance.Corruption && EnemyHit.Stats.IsAlive())
         {
             EnemyHit.DealDamage(SwordDamage, gameObject);
             HitObjects.Add(hit.gameObject);

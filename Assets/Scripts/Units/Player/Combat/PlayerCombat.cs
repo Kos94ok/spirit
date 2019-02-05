@@ -25,7 +25,8 @@ namespace Units.Player.Combat {
 		private void Start() {
 			Targeting = GetComponent<PlayerTargeting>();
 			AbilityLibrary.Add(CommandBinding.Command.MoveToMouse, new PlayerBasicAttack());
-			AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new ForkedLightning());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new PlayerProjectileAttack());
+			//AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new ForkedLightning());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityQ, new ConeOfLightning());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityW, new TestUltraLightning());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityE, new TestPinkLightning());

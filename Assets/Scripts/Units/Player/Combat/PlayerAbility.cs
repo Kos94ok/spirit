@@ -19,7 +19,7 @@ namespace Units.Player.Combat {
 			return Cooldown.IsDone();
 		}
 
-		protected void OnLightningTargetReached(object rawPayload) {
+		protected virtual void OnLightningTargetReached(object rawPayload) {
 			var payload = (BasicLightningCallbackData) rawPayload;
 			if (!payload.TargetUnit.HasValue || payload.TargetUnit.Value == null) {
 				return;

@@ -8,10 +8,9 @@ using UnityEngine.AI;
 
 namespace Units {
 	public enum UnitAlliance {
-		Neutral,
-		Ally,
-		Enemy,
 		Player,
+		Forgotten,
+		Corruption,
 	}
 
 	public enum ShieldsBehaviour {
@@ -42,7 +41,7 @@ namespace Units {
 
 	public sealed class UnitStats : MonoBehaviour {
 		public string DebugName;
-		public UnitAlliance Alliance = UnitAlliance.Neutral;
+		public UnitAlliance Alliance = UnitAlliance.Forgotten;
 		public float TimeUntilOutOfCombat = 3.00f;
 
 		public float Health = 100.00f;
@@ -294,6 +293,10 @@ namespace Units {
 	
 		public bool IsInCombat() {
 			return CombatState == CombatState.In;
+		}
+
+		public bool IsInRelationship(UnitAlliance otherAlliance, int relationship) {
+			return (UnitRelationship.GetRelationship(Alliance, otherAlliance) & relationship) > 0;
 		}
 	
 		public void EngageCombat() {

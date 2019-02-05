@@ -35,7 +35,7 @@ namespace UI.UserInput {
 			RaycastHit hit;
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
   
-			if (Physics.Raycast(ray, out hit, 1000.00f, Layers.EnemyHitbox)) {
+			if (Physics.Raycast(ray, out hit, 1000.00f, Layers.Hitbox)) {
 				return Maybe<GameObject>.Some(hit.transform.parent.gameObject);
 			}
 			return Maybe<GameObject>.None;

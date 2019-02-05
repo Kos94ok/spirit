@@ -20,7 +20,7 @@ namespace Units.Player.Combat.Abilities {
 			var direction = (targetPosition - sourcePosition).normalized;
 			sourcePosition -= direction * lightningRadius;
 			var ray = new Ray(sourcePosition, targetPosition - sourcePosition);
-			if (Physics.SphereCast(ray, lightningRadius, out raycastHit, Vector3.Distance(sourcePosition, targetPosition), Layers.EnemyHitbox)) {
+			if (Physics.SphereCast(ray, lightningRadius, out raycastHit, Vector3.Distance(sourcePosition, targetPosition), Layers.Hitbox)) {
 				var angle = Mathf.Clamp(Vector3.SignedAngle(targetPosition - sourcePosition, raycastHit.point - sourcePosition, Vector3.up) * 8f, -25f, 25f);
 				startingOffset = new Vector3(angle, 0, angle);
 				newTargetUnit = Maybe<GameObject>.Some(raycastHit.transform.parent.gameObject);

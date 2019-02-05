@@ -5,23 +5,22 @@ namespace Units.Player.Targeting {
 	public class TargetedEnemyEffect : MonoBehaviour {
 		private readonly Assets Assets = AutowireFactory.GetInstanceOf<Assets>();
 		
-		private UnitStats Stats;
 		private GameObject SelectionCircle;
 		
 		private void Start() {
-			Stats = GetComponent<UnitStats>();
-			switch (Stats.Alliance) {
-				case UnitAlliance.Ally:
+			var stats = GetComponent<UnitStats>();
+			switch (UnitRelationship.GetRelationship(UnitAlliance.Player, stats.Alliance)) {
+				case UnitRelationship.Ally:
 					SelectionCircle = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorAlly));
 					break;
-				case UnitAlliance.Enemy:
+				case UnitRelationship.Enemy:
 					SelectionCircle = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorEnemy));
 					break;
 				default:
 					SelectionCircle = (GameObject) Instantiate(Assets.Get(Prefab.TargetIndicatorNeutral));
 					break;
 			}
-			SelectionCircle.transform.localScale = new Vector3(Stats.SelectionRadius * 2, 0.001f, Stats.SelectionRadius * 2);
+			SelectionCircle.transform.localScale = new Vector3(stats.SelectionRadius * 2, 0.001f, stats.SelectionRadius * 2);
 			var parentTransform = transform;
 			SelectionCircle.transform.parent = parentTransform;
 			SelectionCircle.transform.position = Utility.GetGroundPosition(parentTransform.position);

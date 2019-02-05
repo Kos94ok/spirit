@@ -13,6 +13,8 @@ namespace Misc {
 		LongLightningEffectFragment,
 		PinkLongLightningEffectFragment,
 		RunningLightningEffectFragment,
+		GenericProjectile,
+		ProjectileArrow,
 	}
 
 	public enum Texture {
@@ -35,6 +37,8 @@ namespace Misc {
 			Library.Add(Prefab.LongLightningEffectFragment, "EffectFragments/LongLightningEffectFragment");
 			Library.Add(Prefab.PinkLongLightningEffectFragment, "EffectFragments/PinkLongLightningEffectFragment");
 			Library.Add(Prefab.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
+			Library.Add(Prefab.GenericProjectile, "Projectiles/GenericProjectile");
+			Library.Add(Prefab.ProjectileArrow, "Projectiles/ProjectileArrow");
 			
 			TextureLibrary.Add(Texture.HealthBarEmpty, "HealthBarBackground");
 			TextureLibrary.Add(Texture.HealthBarFull, "HealthBarForeground");

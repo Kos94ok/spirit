@@ -17,11 +17,17 @@ namespace Units.Common.HeightIndicator {
 			var stats = GetComponent<UnitStats>();
 
 			switch (stats.Alliance) {
-				case UnitAlliance.Ally:
+				case UnitAlliance.Player:
+					Indicator.GetComponent<SkinnedMeshRenderer>().material.SetColor(Emission, new Color(0, 1, 1, 0));
+					break;
+				case UnitAlliance.Forgotten:
 					Indicator.GetComponent<SkinnedMeshRenderer>().material.SetColor(Emission, new Color(0, 1, 0, 0));
 					break;
-				case UnitAlliance.Enemy:
+				case UnitAlliance.Corruption:
 					Indicator.GetComponent<SkinnedMeshRenderer>().material.SetColor(Emission, new Color(1, 0, 1, 0));
+					break;
+				default:
+					Indicator.GetComponent<SkinnedMeshRenderer>().material.SetColor(Emission, new Color(1, 1, 1, 0));
 					break;
 			}
 		}

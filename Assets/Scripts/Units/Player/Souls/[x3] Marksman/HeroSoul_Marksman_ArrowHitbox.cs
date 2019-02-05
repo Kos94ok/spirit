@@ -23,7 +23,7 @@ public class HeroSoul_Marksman_ArrowHitbox : MonoBehaviour
         if (enemyHit == null)
             return;
 
-        if (enemyHit.Stats.Alliance == UnitAlliance.Enemy && enemyHit.Stats.IsAlive())
+        if (enemyHit.Stats.Alliance == UnitAlliance.Corruption && enemyHit.Stats.IsAlive())
         {
             enemyHit.DealDamage(collisionDamage, gameObject);
             UnitBleeding Bleeding = hit.GetComponent<UnitBleeding>();

@@ -24,7 +24,7 @@ namespace Units.Player.Movement {
 		private PlayerTargetPositionIndicator TargetPositionIndicator;
 		private bool IsSprinting;
 
-		private const float ExpectedFloatingHeight = 0.4f;
+		private const float ExpectedFloatingHeight = 0.6f;
 
 		private float LastNonDeceleratingSpeed = MaximumSpeed;
 		private Vector3 LastGroundedPosition;
