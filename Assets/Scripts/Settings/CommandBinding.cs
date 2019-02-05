@@ -39,7 +39,8 @@ namespace Settings {
 			Library.Add(Command.AbilityE, CommandMapping.Keyboard(KeyCode.E));
 			Library.Add(Command.AbilityR, CommandMapping.Keyboard(KeyCode.R));
 			Library.Add(Command.AbilityRightClick, CommandMapping.Mouse(MouseStatus.Button.Right));
-			Library.Add(Command.ToggleFpsCounter, CommandMapping.Keyboard(KeyCode.F11));
+			//Library.Add(Command.ToggleFpsCounter, CommandMapping.Keyboard(KeyCode.F11));
+			Library.Add(Command.ToggleFpsCounter, CommandMapping.Keyboard(KeyCode.O));
 			Library.Add(Command.CheatGodMode, CommandMapping.Keyboard(KeyCode.F12));
 		}
 	
