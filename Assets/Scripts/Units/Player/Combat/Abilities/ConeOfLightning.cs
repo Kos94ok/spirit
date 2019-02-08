@@ -1,6 +1,5 @@
 using Misc;
 using Units.Common.Lightning;
-using Units.Player.Combat.Abilities.Utilities;
 using UnityEngine;
 
 namespace Units.Player.Combat.Abilities {
@@ -22,29 +21,26 @@ namespace Units.Player.Combat.Abilities {
 			for (var i = 0; i < lightningCount; i++) {
 				var angleOffset = sector / lightningCount * i - sector / 2;
 				var adjustedTargetVector = Quaternion.Euler(0, angleOffset, 0) * targetVector.normalized;
-				
-				Vector3 startingOffset;
-				Vector3 newTargetPosition;
-				Maybe<GameObject> newTargetUnit;
+
 				AbilityUtils.RetargetLightningAbility(sourcePosition, sourcePosition + adjustedTargetVector * Random.Range(1.2f, 1.7f), targetUnit, AutoTargetWidth,
-					out newTargetPosition, out newTargetUnit, out startingOffset);
+					out var newTargetPosition, out var newTargetUnit, out _);
 				
-				new LightningAgent.Builder(sourcePosition, newTargetPosition)
+				new LightningAgent.Builder(sourcePosition, newTargetPosition, newTargetUnit)
 					.SetAngularDeviation(40f)
 					.SetSpeed(1000f)
 					.SetBranchingChance(0.4f)
 					.SetBranchingFactor(0.5f)
 					.SetSmoothFactor(0.7f)
 					.SetFragmentLifeTime(0.10f)
-					.SetTargetReachedCallback(OnLightningTargetReached, newTargetUnit)
+					.SetTargetUnitReachedCallback(OnTargetUnitReached)
 					.Create();
 			}
 
 			Cooldown.Start(0.10f);
 		}
 
-		public override void OnTargetUnitReached(GameObject targetUnit, UnitStats targetStats) {
-			targetStats.DealDamage(Damage);
+		private void OnTargetUnitReached(LightningAgent.TargetUnitReachedCallbackPayload payload) {
+			payload.TargetStats.DealDamage(Damage);
 		}
 		
 		public override int GetTargetType() {

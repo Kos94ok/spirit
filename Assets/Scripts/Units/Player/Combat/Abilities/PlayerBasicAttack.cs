@@ -12,22 +12,21 @@ namespace Units.Player.Combat.Abilities {
 			var sourcePosition = caster.transform.position;
 			var targetPosition = AbilityUtils.GetTargetPosition(sourcePosition, targetPoint, targetUnit);
 
-			Vector3 startingOffset;
-			AbilityUtils.RetargetLightningAbility(sourcePosition, targetPosition, targetUnit, AutoTargetWidth, out targetPosition, out targetUnit, out startingOffset);
+			AbilityUtils.RetargetLightningAbility(sourcePosition, targetPosition, targetUnit, AutoTargetWidth, out targetPosition, out targetUnit, out _);
 
-			var builder = new LightningAgent.Builder(sourcePosition, targetPosition)
+			var builder = new LightningAgent.Builder(sourcePosition, targetPosition, targetUnit)
 				.SetAngularDeviation(50f)
 				.SetSpeed(1000f)
 				.SetSmoothFactor(0.6f)
 				.SetMaximumBranchDepth(3)
 				.SetFragmentResource(Prefab.LightningEffectFragment)
-				.SetTargetReachedCallback(OnLightningTargetReached, targetUnit);
+				.SetTargetUnitReachedCallback(OnTargetUnitReached);
 			builder.Create();
 			Cooldown.Start(0.7f);
 		}
 		
-		public override void OnTargetUnitReached(GameObject targetUnit, UnitStats targetStats) {
-			targetStats.DealDamage(Damage);
+		private void OnTargetUnitReached(LightningAgent.TargetUnitReachedCallbackPayload payload) {
+			payload.TargetStats.DealDamage(Damage);
 		}
 
 		public override int GetTargetType() {

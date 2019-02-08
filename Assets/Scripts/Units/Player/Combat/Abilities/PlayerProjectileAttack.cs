@@ -24,11 +24,11 @@ namespace Units.Player.Combat.Abilities {
 			Cooldown.Start(0.7f);
 		}
 
-		public void OnEnemyHit(ProjectileAgent.EnemyHitCallbackPayload payload) {
+		private void OnEnemyHit(ProjectileAgent.EnemyHitCallbackPayload payload) {
 			payload.EnemyStats.DealDamage(Damage);
 		}
 
-		public void OnStageOneTimedOut(ProjectileAgent.TimedOutCallbackPayload payload) {
+		private void OnStageOneTimedOut(ProjectileAgent.TimedOutCallbackPayload payload) {
 			var builder = new ProjectileAgent.Builder(payload.Projectile.GetGameObject().transform.position, UnitAlliance.Player)
 				.SetSpeed(10f)
 				.SetEnemyHitCallback(OnEnemyHit);
@@ -39,10 +39,6 @@ namespace Units.Player.Combat.Abilities {
 				builder.SetInitialDelay(i * 0.02f);
 				builder.Create();
 			}
-		}
-		
-		public override void OnTargetUnitReached(GameObject targetUnit, UnitStats targetStats) {
-			targetStats.DealDamage(Damage);
 		}
 
 		public override int GetTargetType() {
