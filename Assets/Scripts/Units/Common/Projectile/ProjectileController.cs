@@ -7,7 +7,8 @@ namespace Units.Common.Projectile {
 	public class ProjectileController {
 		private GameObject ProjectileObject;
 		private Vector3 Direction;
-		private float Speed;
+		private float MaximumSpeed;
+		private float Acceleration;
 		private readonly Timer LifeTime = new Timer();
 		private float ProjectileRadius;
 		private UnitAlliance Alliance;
@@ -15,7 +16,8 @@ namespace Units.Common.Projectile {
 		private Action<ProjectileAgent.EnemyHitCallbackPayload> EnemyHitCallback;
 		private Action<ProjectileAgent.TimedOutCallbackPayload> TimedOutCallback;
 		private Action<ProjectileAgent.ObstacleHitCallbackPayload> ObstacleHitCallback;
-		
+
+		private float Speed;
 		private int HitsRemaining;
 		private readonly List<GameObject> PreviousTargets = new List<GameObject>();
 		
@@ -29,7 +31,8 @@ namespace Units.Common.Projectile {
 		public void Init(
 				GameObject projectileObject,
 				Vector3 direction,
-				float speed,
+				float maximumSpeed,
+				float acceleration,
 				float lifeTime,
 				int hitsAllowed,
 				float projectileRadius,
@@ -40,27 +43,38 @@ namespace Units.Common.Projectile {
 				Action<ProjectileAgent.ObstacleHitCallbackPayload> obstacleHitCallback) {
 			ProjectileObject = projectileObject;
 			Direction = direction;
-			Speed = speed;
-			LifeTime.Start(lifeTime);
+			MaximumSpeed = maximumSpeed;
+			Acceleration = acceleration;
 			ProjectileRadius = projectileRadius;
 			Alliance = alliance;
 			TargetRelationship = targetRelationship;
 			EnemyHitCallback = enemyHitCallback;
 			TimedOutCallback = timedOutCallback;
 			ObstacleHitCallback = obstacleHitCallback;
+			
+			LifeTime.Start(lifeTime);
+			LifeTime.SetOnDoneAction(OnProjectileTimedOut);
 
+			if (acceleration <= 0) {
+				Speed = MaximumSpeed;
+			}
 			HitsRemaining = hitsAllowed;
 			RaycastHits = new RaycastHit[HitsRemaining];
 		}
 
 		public void Update() {
+			if (LifeTime.IsDone()) {
+				return;
+			}
+			
 			var deltaTime = Time.deltaTime;
 			var position = ProjectileObject.transform.position;
-			var origin = position - ProjectileRadius * Direction;
+			//var origin = position - ProjectileRadius * Direction;
+			var origin = position;
 
 			var targetHits = new List<TargetHit>();
 			
-			var hitCount = Physics.SphereCastNonAlloc(origin, ProjectileRadius, Direction, RaycastHits, Speed * deltaTime, Layers.Walkable | Layers.LevelGeometry);
+			var hitCount = Physics.SphereCastNonAlloc(origin, ProjectileRadius, Direction, RaycastHits, MaximumSpeed * deltaTime, Layers.Walkable | Layers.LevelGeometry);
 			for (var i = 0; i < hitCount; i++) {
 				var hitObstacle = RaycastHits[i].transform.gameObject;
 				if (PreviousTargets.Contains(hitObstacle)) {
@@ -74,7 +88,7 @@ namespace Units.Common.Projectile {
 				});
 			}
 			
-			hitCount = Physics.SphereCastNonAlloc(origin, ProjectileRadius, Direction, RaycastHits, Speed * deltaTime, Layers.Hitbox);
+			hitCount = Physics.SphereCastNonAlloc(origin, ProjectileRadius, Direction, RaycastHits, MaximumSpeed * deltaTime, Layers.PlayerHitbox | Layers.NpcHitbox);
 			for (var i = 0; i < hitCount; i++) {
 				var hitUnit = RaycastHits[i].transform.parent.gameObject;
 				var unitStats = hitUnit.GetComponent<UnitStats>();
@@ -98,9 +112,9 @@ namespace Units.Common.Projectile {
 			foreach (var targetHit in targetHits) {
 				var unitStats = targetHit.Target.GetComponent<UnitStats>();
 				if (unitStats != null) {
-					OnEnemyHit(targetHit.Target, unitStats);
+					OnEnemyHit(targetHit.Target, unitStats, targetHit.Hit.point);
 				} else {
-					OnObstacleHit();
+					OnObstacleHit(targetHit.Hit.point);
 				}
 				ProjectileObject.transform.position = targetHit.Hit.point;
 
@@ -109,23 +123,23 @@ namespace Units.Common.Projectile {
 				}
 			}
 
-			LifeTime.Tick();
-			if (LifeTime.IsDone() && HitsRemaining > 0) {
-				OnProjectileTimedOut();
-				return;
-			}
-			
+			Speed += Acceleration * deltaTime;
+			Speed = Mathf.Min(Speed, MaximumSpeed);
 			ProjectileObject.transform.position = position + Speed * Direction * deltaTime;
 		}
 		
-		private void OnEnemyHit(GameObject target, UnitStats unitStats) {
+		private void OnEnemyHit(GameObject target, UnitStats unitStats, Vector3 collisionPoint) {
 			HitsRemaining -= 1;
 			var payload = new ProjectileAgent.EnemyHitCallbackPayload {
 				Enemy = target,
 				EnemyStats = unitStats,
+				CollisionPoint = collisionPoint,
 				Projectile = this
 			};
 			EnemyHitCallback(payload);
+			if (!IsAlive()) {
+				LifeTime.Stop();
+			}
 		}
 
 		private void OnProjectileTimedOut() {
@@ -136,16 +150,24 @@ namespace Units.Common.Projectile {
 			TimedOutCallback(payload);
 		}
 
-		private void OnObstacleHit() {
+		private void OnObstacleHit(Vector3 collisionPoint) {
 			HitsRemaining -= 1;
 			var payload = new ProjectileAgent.ObstacleHitCallbackPayload {
-				Projectile = this
+				Projectile = this,
+				CollisionPoint = collisionPoint
 			};
 			ObstacleHitCallback(payload);
+			if (!IsAlive()) {
+				LifeTime.Stop();
+			}
 		}
 
 		public GameObject GetGameObject() {
 			return ProjectileObject;
+		}
+
+		public Vector3 GetDirection() {
+			return Direction;
 		}
 
 		public bool IsAlive() {

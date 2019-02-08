@@ -12,11 +12,6 @@ namespace Environment {
 
         private readonly ChatLog chatLog = AutowireFactory.GetInstanceOf<ChatLog>();
         private readonly Timer cooldownTimer = new Timer();
-
-        protected override void Update() {
-            base.Update();
-            cooldownTimer.Tick();
-        }
         
         public override void OnInteract() {
             if (cooldownTimer.IsRunning()) {

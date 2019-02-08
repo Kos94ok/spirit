@@ -157,7 +157,6 @@ namespace UI.ChatLog {
 					var time = movement.GetFraction();
 					movementOffset += GetBezier(time, p0, p1, p2, p3).y - movementDistance;
 					
-					movement.Update();
 					if (movement.IsDone()) {
 						Movements.Remove(movement);
 						i -= 1;

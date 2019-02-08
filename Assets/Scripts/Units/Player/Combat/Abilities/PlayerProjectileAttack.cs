@@ -15,7 +15,7 @@ namespace Units.Player.Combat.Abilities {
 
 			var builder = new ProjectileAgent.Builder(sourcePosition, UnitAlliance.Player)
 				.SetTargetDirection(targetPosition - sourcePosition)
-				.SetSpeed(Vector3.Distance(targetPosition, sourcePosition))
+				.SetMaximumSpeed(Vector3.Distance(targetPosition, sourcePosition))
 				.SetHitsAllowed(2)
 				.SetLifeTime(1)
 				.SetTimedOutCallback(OnStageOneTimedOut);
@@ -30,15 +30,12 @@ namespace Units.Player.Combat.Abilities {
 
 		private void OnStageOneTimedOut(ProjectileAgent.TimedOutCallbackPayload payload) {
 			var builder = new ProjectileAgent.Builder(payload.Projectile.GetGameObject().transform.position, UnitAlliance.Player)
-				.SetSpeed(10f)
+				.SetMaximumSpeed(10f)
+				.SetProjectileResource(Prefab.AwakenedDwellerBasicAttackProjectile)
+				.SetTargetDirection(() => Quaternion.Euler(Random.Range(-5f, 5f), 0, Random.Range(-5f, 5f)) * Vector3.down)
+				.SetProjectileCount(10, 0.00f)
 				.SetEnemyHitCallback(OnEnemyHit);
-
-			for (var i = 0; i < 100; i++) {
-				var targetVector = Quaternion.Euler(Random.Range(-15f, 15f), 0, Random.Range(-15f, 15f)) * Vector3.down;
-				builder.SetTargetDirection(targetVector);
-				builder.SetInitialDelay(i * 0.02f);
-				builder.Create();
-			}
+			builder.Create();
 		}
 
 		public override int GetTargetType() {

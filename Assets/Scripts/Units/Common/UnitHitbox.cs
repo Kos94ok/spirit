@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using Misc;
 using Units;
 
 public class UnitHitbox : MonoBehaviour
@@ -24,7 +25,7 @@ public class UnitHitbox : MonoBehaviour
     }
     public void DealDamage(float amount, GameObject source)
     {
-        Stats.DealDamage(amount, source);
+        Stats.DealDamage(amount, Maybe<GameObject>.Some(source));
     }
     public void HealDamage(float amount)
     {

@@ -14,10 +14,6 @@ namespace UI.ChatLog {
 			return Distance;
 		}
 
-		public void Update() {
-			Timer.Tick();
-		}
-
 		public bool IsDone() {
 			return Timer.IsDone();
 		}

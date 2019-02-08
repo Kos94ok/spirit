@@ -22,7 +22,6 @@ namespace Units.Enemies.ForgottenDweller {
 		}
 		
 		private void Update() {
-			WanderTimer.Tick();
 			if (WanderTimer.IsDone()) {
 				var loopBreaker = 0;
 				Vector3 targetPosition;

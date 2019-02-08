@@ -250,7 +250,7 @@ namespace Units.Common.Lightning {
 				return;
 			}
 
-			if (TargetUnitReachedCallback.HasValue) {
+			if (TargetUnitReachedCallback.HasValue && TargetUnit.HasValue) {
 				var payload = new TargetUnitReachedCallbackPayload {
 					TargetUnit = TargetUnit.Value,
 					TargetStats = TargetUnit.Value.GetComponent<UnitStats>()

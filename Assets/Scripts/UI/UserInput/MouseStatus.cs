@@ -32,10 +32,9 @@ namespace UI.UserInput {
 				return Maybe<GameObject>.None;
 			}
 			
-			RaycastHit hit;
 			var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
   
-			if (Physics.Raycast(ray, out hit, 1000.00f, Layers.Hitbox)) {
+			if (Physics.Raycast(ray, out var hit, 1000.00f, Layers.NpcHitbox)) {
 				return Maybe<GameObject>.Some(hit.transform.parent.gameObject);
 			}
 			return Maybe<GameObject>.None;

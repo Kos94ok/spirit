@@ -3,6 +3,15 @@ using UnityEngine;
 
 namespace Units.Player.Combat.Abilities {
 	public static class AbilityUtils {
+		public static Vector3 GetCasterPosition(GameObject caster) {
+			var unitStats = caster.GetComponent<UnitStats>();
+			if (unitStats != null) {
+				return unitStats.GetHitTargetPosition();
+			} else {
+				return caster.transform.position;
+			}
+		}
+		
 		public static Vector3 GetTargetPosition(Vector3 sourcePosition, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit) {
 			Vector3 targetPosition;
 			if (targetUnit.HasValue) {
@@ -20,7 +29,7 @@ namespace Units.Player.Combat.Abilities {
 			var direction = (targetPosition - sourcePosition).normalized;
 			sourcePosition -= direction * lightningRadius;
 			var ray = new Ray(sourcePosition, targetPosition - sourcePosition);
-			if (Physics.SphereCast(ray, lightningRadius, out raycastHit, Vector3.Distance(sourcePosition, targetPosition), Layers.Hitbox)) {
+			if (Physics.SphereCast(ray, lightningRadius, out raycastHit, Vector3.Distance(sourcePosition, targetPosition), Layers.NpcHitbox)) {
 				var angle = Mathf.Clamp(Vector3.SignedAngle(targetPosition - sourcePosition, raycastHit.point - sourcePosition, Vector3.up) * 8f, -25f, 25f);
 				startingOffset = new Vector3(angle, 0, angle);
 				newTargetUnit = Maybe<GameObject>.Some(raycastHit.transform.parent.gameObject);

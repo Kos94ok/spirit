@@ -3,6 +3,7 @@ using Misc;
 using Settings;
 using UI.ChatLog;
 using UI.UserInput;
+using Units.Common;
 using Units.Player.Combat.Abilities;
 using Units.Player.Targeting;
 using UnityEngine;
@@ -44,7 +45,7 @@ namespace Units.Player.Combat {
 					continue;
 				}
 				
-				if (!IsInRange(ability) && (ability.IsTargetingPoint() && targetPoint.HasValue || ability.IsTargetingUnit() && targetUnit.HasValue)) {
+				if (!IsInRangeToCast(ability) && (ability.IsTargetingPoint() && targetPoint.HasValue || ability.IsTargetingUnit() && targetUnit.HasValue)) {
 					abilityToQueue = CreateQueuedAbility(ability, AbilityQueueReason.Range);
 					continue;
 				}
@@ -56,8 +57,10 @@ namespace Units.Player.Combat {
 
 				if (ability.IsTargetingSelf()
 						|| ability.IsTargetingUnit() && targetUnit.HasValue
-					    || ability.IsTargetingPoint() && targetPoint.HasValue) {
-					ability.OnCast(transform.gameObject, targetPoint, targetUnit);
+						|| ability.IsTargetingPoint() && targetPoint.HasValue) {
+					var adjustedTargetPoint = GetClosestTargetPointInRange(targetUnit, targetPoint, ability.GetMaximumCastRange());
+					var adjustedTargetUnit = GetTargetUnitIfInRange(targetUnit, ability.GetMaximumCastRange());
+					ability.OnCast(transform.gameObject, adjustedTargetPoint, adjustedTargetUnit);
 					ClearQueuedAbility();
 				}
 			}
@@ -66,7 +69,7 @@ namespace Units.Player.Combat {
 				ClearQueuedAbility();
 			}
 			
-			if (QueuedAbility.HasValue && QueuedAbility.Value.GetReason() == AbilityQueueReason.Range && IsInRange(QueuedAbility.Value)) {
+			if (QueuedAbility.HasValue && QueuedAbility.Value.GetReason() == AbilityQueueReason.Range && IsInRangeToCast(QueuedAbility.Value)) {
 				QueuedAbility.Value.GetAbility().OnCast(transform.gameObject, QueuedAbility.Value.GetTargetPoint(), QueuedAbility.Value.GetTargetUnit());
 				ClearQueuedAbility();
 			}
@@ -76,7 +79,11 @@ namespace Units.Player.Combat {
 			}
 		}
 
-		private bool IsInRange(PlayerAbility ability) {
+		private bool IsInRangeToCast(UnitAbility ability) {
+			if (CommandStatus.IsActive(CommandBinding.Command.ForceCast)) {
+				return true;
+			}
+			
 			var target = Targeting.GetTargetedEnemy();
 			var targetPoint = target.HasValue ? Maybe<Vector3>.Some(target.Value.transform.position) : MouseStatus.GetWalkableWorldPoint();
 
@@ -87,7 +94,11 @@ namespace Units.Player.Combat {
 			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= ability.GetMaximumCastRange();
 		}
 		
-		private bool IsInRange(QueuedPlayerAbility queuedAbility) {
+		private bool IsInRangeToCast(QueuedPlayerAbility queuedAbility) {
+			if (CommandStatus.IsActive(CommandBinding.Command.ForceCast)) {
+				return true;
+			}
+			
 			var target = queuedAbility.GetTargetUnit();
 			var targetPoint = target.HasValue ? Maybe<Vector3>.Some(target.Value.transform.position) : queuedAbility.GetTargetPoint();
 
@@ -95,6 +106,29 @@ namespace Units.Player.Combat {
 				return false;
 			}
 			return Vector3.Distance(Utility.GetGroundPosition(transform.position), targetPoint.Value) <= queuedAbility.GetAbility().GetMaximumCastRange();
+		}
+		
+		private Maybe<GameObject> GetTargetUnitIfInRange(Maybe<GameObject> targetUnit, float range) {
+			if (!targetUnit.HasValue) {
+				return targetUnit;
+			}
+
+			var position = Utility.GetGroundPosition(transform.position);
+			if (Vector3.Distance(position, targetUnit.Value.transform.position) <= range) {
+				return targetUnit;
+			}
+			return Maybe<GameObject>.None;
+		}
+
+		private Maybe<Vector3> GetClosestTargetPointInRange(Maybe<GameObject> targetUnit, Maybe<Vector3> targetPoint, float range) {
+			if (targetUnit.HasValue) {
+				targetPoint = Maybe<Vector3>.Some(targetUnit.Value.transform.position);
+			}
+			
+			if (!targetPoint.HasValue) {
+				return targetPoint;
+			}
+			return Maybe<Vector3>.Some(Vector3.MoveTowards(Utility.GetGroundPosition(transform.position), targetPoint.Value, range));
 		}
 
 		private Maybe<QueuedPlayerAbility> CreateQueuedAbility(PlayerAbility ability, AbilityQueueReason reason) {

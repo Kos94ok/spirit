@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Units.Enemies.WanderingFlame {
-	public class WanderingFlameAI : EnemyAI {
+	public class WanderingFlameAI : MonoBehaviour, IEnemyAI {
 		private const float ContactDamage = 1;
 		private const float ChargeDamage = 1;
 		private const float ContactDamageRadius = .5f;
@@ -54,15 +54,13 @@ namespace Units.Enemies.WanderingFlame {
 			MovementAngularSpeed = Agent.angularSpeed;
 		}
 
-		public override void OnHit(float damage, GameObject source = null) {
+		public void OnHit(float damage, Maybe<GameObject> source) {
 			if (ChargeInProgress) {
 				Stats.DealDamageIgnoreOnHit(damage * (DamageModWhileCharging - 1), source);
 			}
 		}
 
 		private void Update() {
-			ChargeCooldownTimer.Tick();
-			
 			var distanceToPlayer = Vector3.Distance(Player.transform.position, transform.position);
 			if (distanceToPlayer <= CombatEngageRange && !IsChasing || distanceToPlayer < CombatDisengageRange && IsChasing || ChargeInProgress) {
 				IsChasing = true;
@@ -76,7 +74,7 @@ namespace Units.Enemies.WanderingFlame {
 
 				// Contact damage
 				if (Vector3.Distance(Player.transform.position, transform.position) <= ContactDamageRadius) {
-					PlayerStats.DealDamage(ContactDamage * Time.deltaTime, gameObject);
+					PlayerStats.DealDamage(ContactDamage * Time.deltaTime, Maybe<GameObject>.Some(gameObject));
 					var playerHitPe = (GameObject) Instantiate(Resources.Load("CorruptedFirePEOnPlayerHitSmall"));
 					playerHitPe.transform.position = Player.transform.position;
 				}
@@ -97,7 +95,6 @@ namespace Units.Enemies.WanderingFlame {
 
 			
 				// Charge warm up
-				ChargeWarmUpTimer.Tick();
 				if (ChargeWarmingUp && ChargeWarmUpTimer.IsDone()) {
 					if (Utility.IsTargetObstructed(transform.position, Player.transform.position, AgentRadius)) {
 						StopCharge();
@@ -127,7 +124,7 @@ namespace Units.Enemies.WanderingFlame {
 					Agent.Move((ChargeTargetPoint - oldPos).normalized * distanceToMove);
 
 					if (!ChargeHitObjectsList.Contains(Player) && Math.GetDistance2D(transform.position, Player.transform.position) <= ChargeDamageRadius) {
-						Player.GetComponent<UnitStats>().DealDamage(ChargeDamage, gameObject);
+						Player.GetComponent<UnitStats>().DealDamage(ChargeDamage, Maybe<GameObject>.Some(gameObject));
 						ChargeHitObjectsList.Add(Player);
 						var playerBlood = (GameObject) Instantiate(Resources.Load("CorruptedFirePEOnPlayerHit"));
 						var playerPosition = Player.transform.position;

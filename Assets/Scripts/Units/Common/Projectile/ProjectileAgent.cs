@@ -1,16 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Misc;
 using Misc.ObjectPool;
-using Settings;
-using Units.Common.Lightning;
-using Units.Player.Combat;
 using Units.Player.Movement;
 using UnityEngine;
-using Random = UnityEngine.Random;
-using Timer = System.Timers.Timer;
 
 namespace Units.Common.Projectile {
 	public class ProjectileAgent : MonoBehaviour {
@@ -20,7 +14,9 @@ namespace Units.Common.Projectile {
 			private Maybe<Vector3> TargetPoint = Maybe<Vector3>.None;
 			private Maybe<GameObject> TargetUnit = Maybe<GameObject>.None;
 			private Maybe<Vector3> TargetDirection = Maybe<Vector3>.None;
-			private float Speed = 5f;
+			private Maybe<Func<Vector3>> GetTargetDirectionFunc = Maybe<Func<Vector3>>.None;
+			private float MaximumSpeed = 5f;
+			private float Acceleration = Mathf.Infinity;
 			private float LifeTime = 60f;
 			private int HitsAllowed = 1;
 			private float InitialDelay;
@@ -57,8 +53,18 @@ namespace Units.Common.Projectile {
 				return this;
 			}
 
-			public Builder SetSpeed(float speed) {
-				Speed = speed;
+			public Builder SetTargetDirection(Func<Vector3> getTargetDirection) {
+				GetTargetDirectionFunc = Maybe<Func<Vector3>>.Some(getTargetDirection);
+				return this;
+			}
+
+			public Builder SetMaximumSpeed(float maximumSpeed) {
+				MaximumSpeed = maximumSpeed;
+				return this;
+			}
+
+			public Builder SetAcceleration(float acceleration) {
+				Acceleration = acceleration;
 				return this;
 			}
 
@@ -142,9 +148,9 @@ namespace Units.Common.Projectile {
 				}
 
 				var targetDirection = TargetDirection.HasValue ? TargetDirection.Value : targetPoint - Position;
-				targetDirection = targetDirection.normalized;
+				var getTargetDirectionFunc = GetTargetDirectionFunc.HasValue ? GetTargetDirectionFunc.Value : () => targetDirection;
 				
-				projectileAgent.Init(Position, targetDirection, Speed, LifeTime, HitsAllowed, InitialDelay, ProjectileCount, ProjectileDelay,
+				projectileAgent.Init(Position, getTargetDirectionFunc, MaximumSpeed, Acceleration, LifeTime, HitsAllowed, InitialDelay, ProjectileCount, ProjectileDelay,
 					ProjectileRadius, Alliance, TargetRelationship, ProjectileResource, EnemyHitCallback, TimedOutCallback, ObstacleHitCallback);
 				return projectileAgent;
 			}
@@ -156,7 +162,7 @@ namespace Units.Common.Projectile {
 					return targetPosition;
 				}
 				var averageTargetVelocity = movementAgentExtensions.GetAverageVelocity();
-				var interceptTime = Utility.FirstOrderInterceptTime(Speed, TargetUnit.Value.transform.position - Position, averageTargetVelocity);
+				var interceptTime = Utility.FirstOrderInterceptTime(MaximumSpeed, TargetUnit.Value.transform.position - Position, averageTargetVelocity);
 				return targetPosition + averageTargetVelocity * interceptTime;
 			}
 		}
@@ -164,6 +170,7 @@ namespace Units.Common.Projectile {
 		public struct EnemyHitCallbackPayload {
 			public GameObject Enemy;
 			public UnitStats EnemyStats;
+			public Vector3 CollisionPoint;
 			public ProjectileController Projectile;
 		}
 
@@ -172,14 +179,16 @@ namespace Units.Common.Projectile {
 		}
 		
 		public struct ObstacleHitCallbackPayload {
+			public Vector3 CollisionPoint;
 			public ProjectileController Projectile;
 		}
 
 		private readonly ObjectPool ObjectPool = AutowireFactory.GetInstanceOf<ObjectPool>();
 
 		private Vector3 StartingPosition;
-		private Vector3 StartingDirection;
-		private float Speed;
+		private Func<Vector3> GetDirection;
+		private float MaximumSpeed;
+		private float Acceleration;
 		private float LifeTime;
 		private float ProjectileRadius;
 		private UnitAlliance Alliance;
@@ -195,9 +204,10 @@ namespace Units.Common.Projectile {
 		private readonly List<ProjectileController> RegisteredProjectiles = new List<ProjectileController>();
 		
 		private void Init(
-				Vector3 position,
-				Vector3 direction,
-				float speed,
+				Vector3 startingPosition,
+				Func<Vector3> getDirection,
+				float maximumSpeed,
+				float acceleration,
 				float lifeTime,
 				int hitsAllowed,
 				float initialDelay,
@@ -211,9 +221,10 @@ namespace Units.Common.Projectile {
 				Maybe<Action<TimedOutCallbackPayload>> timedOutCallback,
 				Maybe<Action<ObstacleHitCallbackPayload>> obstacleHitCallback) {
 
-			StartingPosition = position;
-			StartingDirection = direction;
-			Speed = speed;
+			StartingPosition = startingPosition;
+			GetDirection = getDirection;
+			MaximumSpeed = maximumSpeed;
+			Acceleration = acceleration;
 			LifeTime = lifeTime;
 			ProjectileRadius = projectileRadius;
 			ProjectilePrefab = projectilePrefab;
@@ -240,11 +251,13 @@ namespace Units.Common.Projectile {
 		
 		private void SpawnProjectile() {
 			var projectile = ObjectPool.Obtain(ProjectilePrefab);
+			projectile.SetActive(true);
 			var projectileController = new ProjectileController();
-			projectileController.Init(projectile, StartingDirection, Speed, LifeTime,  HitsAllowed, ProjectileRadius,
+			var direction = GetDirection().normalized;
+			projectileController.Init(projectile, direction, MaximumSpeed, Acceleration, LifeTime,  HitsAllowed, ProjectileRadius,
 				Alliance, TargetRelationship, OnProjectileEnemyHit, OnProjectileTimedOut, OnProjectileObstacleHit);
 			projectile.transform.position = StartingPosition;
-			projectile.transform.rotation = Quaternion.Euler(StartingDirection);
+			projectile.transform.rotation = Quaternion.Euler(direction);
 			RegisteredProjectiles.Add(projectileController);
 		}
 
@@ -291,18 +304,18 @@ namespace Units.Common.Projectile {
 				emission.enabled = false;
 			}
 			
-			yield return new WaitForSeconds(5);
+			yield return new WaitForSeconds(3);
 
-			RegisteredProjectiles.Remove(projectile);
 			foreach (var system in particleSystems) {
 				var emission = system.emission;
 				emission.enabled = true;
 			}
 			ObjectPool.Return(ProjectilePrefab, projectile.GetGameObject());
+			RegisteredProjectiles.Remove(projectile);
 		}
 		
 		private IEnumerator AgentSelfDestruct() {
-			yield return new WaitForSeconds(5);
+			yield return new WaitForSeconds(3);
 
 			if (RegisteredProjectiles.Count > 0) {
 				StartCoroutine(AgentSelfDestruct());

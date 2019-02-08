@@ -77,13 +77,13 @@ namespace Units {
 		private readonly Timer ShieldsRegenTimer = new Timer();
 		private readonly Timer CombatTimer = new Timer();
 
-		private EnemyAI EnemyAIController;
+		private IEnemyAI EnemyAIController;
 
 		[HideInInspector]
 		public BuffController Buffs;
 
 		private void Start() {
-			EnemyAIController = GetComponent<EnemyAI>();
+			EnemyAIController = GetComponent<IEnemyAI>();
 			Buffs = gameObject.AddComponent<BuffController>();
 		}
 		private void Update() {
@@ -91,10 +91,6 @@ namespace Units {
 				return;
 			}
 		
-			HealthRegenTimer.Tick();
-			ManaRegenTimer.Tick();
-			ShieldsRegenTimer.Tick();
-
 			// Basic health regeneration
 			if (HealthRegenMode == RegenerationType.Always
 			    || HealthRegenMode == RegenerationType.WithDelay && HealthRegenTimer.IsDone()
@@ -123,11 +119,8 @@ namespace Units {
 				}
 			}
 			// Combat mode
-			if (IsInCombat()) {
-				CombatTimer.Tick();
-				if (CombatTimer.IsDone()) {
-					OnCombatLeave();
-				}
+			if (IsInCombat() && CombatTimer.IsDone()) {
+				OnCombatLeave();
 			}
 			HealthUsedThisFrame = false;
 			ManaUsedThisFrame = false;
@@ -169,15 +162,18 @@ namespace Units {
 			return Health >= amount + buffer || Buffs.Has(Buff.Invulnerable) || Buffs.Has(Buff.GodMode);
 		}
 
-		public float DealDamage(float amount, GameObject source = null) {
+		public float DealDamage(float amount) {
+			return DealDamageInternal(amount, Maybe<GameObject>.None, true);
+		}
+		public float DealDamage(float amount, Maybe<GameObject> source) {
 			return DealDamageInternal(amount, source, true);
 		}
 
-		public float DealDamageIgnoreOnHit(float amount, GameObject source = null) {
+		public float DealDamageIgnoreOnHit(float amount, Maybe<GameObject> source) {
 			return DealDamageInternal(amount, source, false);
 		}
 		
-		private float DealDamageInternal(float amount, GameObject source, bool triggerOnHit) {
+		private float DealDamageInternal(float amount, Maybe<GameObject> source, bool triggerOnHit) {
 			if (IsDead() || amount <= 0.00f || Buffs.Has(Buff.Invulnerable) || Buffs.Has(Buff.GodMode))
 				return 0f;
 

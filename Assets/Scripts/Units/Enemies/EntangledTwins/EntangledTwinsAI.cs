@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Misc;
 using Units.Enemies;
 
 [RequireComponent(typeof(LineRenderer))]
-public class EntangledTwinsAI : EnemyAI
+public class EntangledTwinsAI : MonoBehaviour, IEnemyAI
 {
     static float connectRange = 5f;
     static float disconnectRange = 6f;
@@ -66,4 +67,6 @@ public class EntangledTwinsAI : EnemyAI
     {
         return twinId > id;
     }
+
+    public void OnHit(float damage, Maybe<GameObject> source) {}
 }

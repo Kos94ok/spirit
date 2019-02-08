@@ -15,6 +15,9 @@ namespace Misc {
 		RunningLightningEffectFragment,
 		GenericProjectile,
 		ProjectileArrow,
+		AwakenedDwellerBasicAttackProjectile,
+		AwakenedDwellerBasicAttackChargeEffect,
+		AwakenedDwellerBasicAttackProjectileHitEffect,
 	}
 
 	public enum Texture {
@@ -39,6 +42,9 @@ namespace Misc {
 			Library.Add(Prefab.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
 			Library.Add(Prefab.GenericProjectile, "Projectiles/GenericProjectile");
 			Library.Add(Prefab.ProjectileArrow, "Projectiles/ProjectileArrow");
+			Library.Add(Prefab.AwakenedDwellerBasicAttackProjectile, "Projectiles/AwakenedDwellerBasicAttackProjectile");
+			Library.Add(Prefab.AwakenedDwellerBasicAttackChargeEffect, "Effects/AwakenedDwellerBasicAttackChargeEffect");
+			Library.Add(Prefab.AwakenedDwellerBasicAttackProjectileHitEffect, "Effects/AwakenedDwellerBasicAttackProjectileHitEffect");
 			
 			TextureLibrary.Add(Texture.HealthBarEmpty, "HealthBarBackground");
 			TextureLibrary.Add(Texture.HealthBarFull, "HealthBarForeground");

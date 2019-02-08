@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using Misc;
+using UnityEngine;
 
 namespace Units.Enemies {
-    public class EnemyAI : MonoBehaviour
-    {
-        public virtual void OnHit(float damage, GameObject source = null) { }
-    }
+	public interface IEnemyAI {
+		void OnHit(float damage, Maybe<GameObject> source);
+	}
 }
