@@ -10,10 +10,15 @@ namespace Units.Common {
 		protected readonly Timer Cooldown = new Timer();
 		public abstract void OnCast(GameObject caster, Maybe<Vector3> targetPoint, Maybe<GameObject> targetUnit);
 		public virtual void OnCancel() { }
+
+		public void OnNotEnoughMana() {
+			Cooldown.Start(0.5f);
+		}
 		public abstract int GetTargetType();
 		public abstract float GetMaximumCastRange();
-		public virtual void Update() {
-			//Cooldown.Tick();
+
+		public virtual float GetManaCost() {
+			return 0;
 		}
 		public bool IsReady() {
 			return Cooldown.IsDone();

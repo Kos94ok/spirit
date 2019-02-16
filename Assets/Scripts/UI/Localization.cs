@@ -38,6 +38,7 @@ namespace UI {
             library[en].Add("soulEquipped_priestess", "Priestess's soul equipped");
             library[en].Add("soulEquipped_shieldmaiden", "Shieldmaiden's soul equipped");
             library[en].Add("error_noTarget", "No target selected");
+            library[en].Add("error_noMana", "Not enough mana");
 
             //=================================================================================================================
             // Russian library
@@ -58,6 +59,7 @@ namespace UI {
             library[ru].Add("soulEquipped_marksman", "Экипирован дух стрелка");
             library[ru].Add("soulEquipped_priestess", "Экипирован дух жрицы");
             library[ru].Add("error_noTarget", "Нет цели");
+            library[ru].Add("error_noMana", "Нет маны");
         }
 
         private static Language GetCurrentLanguage() {

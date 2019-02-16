@@ -161,9 +161,12 @@ namespace Units.Common.Projectile {
 				if (movementAgentExtensions == null) {
 					return targetPosition;
 				}
-				var averageTargetVelocity = movementAgentExtensions.GetAverageVelocity();
-				var interceptTime = Utility.FirstOrderInterceptTime(MaximumSpeed, TargetUnit.Value.transform.position - Position, averageTargetVelocity);
-				return targetPosition + averageTargetVelocity * interceptTime;
+				var targetVelocity = movementAgentExtensions.GetCurrentVelocity();
+				var interceptTime = Utility.FirstOrderInterceptTime(MaximumSpeed, TargetUnit.Value.transform.position - Position, targetVelocity);
+				if (interceptTime > 0 && Mathf.Abs(Acceleration) > 0.01f) {
+					interceptTime += MaximumSpeed / Acceleration / 2;
+				}
+				return targetPosition + targetVelocity * interceptTime;
 			}
 		}
 

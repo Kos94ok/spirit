@@ -10,7 +10,8 @@ namespace Units.Enemies.AwakenedDweller {
 		private readonly ObjectPool ObjectPool = AutowireFactory.GetInstanceOf<ObjectPool>();
 
 		private const float Damage = 4f;
-		public const float ProjectileRadius = 0.1f;  
+		private const float MaxRange = 8f;
+		private const float ProjectileRadius = 0.1f;
 		private const Prefab ProjectilePrefab = Prefab.AwakenedDwellerBasicAttackProjectile;
 		private const Prefab ChargeEffectPrefab = Prefab.AwakenedDwellerBasicAttackChargeEffect;
 		private const Prefab ProjectileHitEffectPrefab = Prefab.AwakenedDwellerBasicAttackProjectileHitEffect;
@@ -33,7 +34,8 @@ namespace Units.Enemies.AwakenedDweller {
 					.SetMaximumSpeed(5f)
 					.SetAcceleration(10f)
 					.SetLifeTime(5f)
-					.SetTargetPoint(targetPosition)
+					.SetTargetUnit(targetUnit.Value)
+					.SetLeadTarget(true)
 					.SetProjectileRadius(ProjectileRadius)
 					.SetEnemyHitCallback(OnEnemyHit)
 					.SetObstacleHitCallback(OnObstacleHit)
@@ -69,7 +71,7 @@ namespace Units.Enemies.AwakenedDweller {
 		}
 
 		public override float GetMaximumCastRange() {
-			return 5f;
+			return MaxRange;
 		}
 	}
 }

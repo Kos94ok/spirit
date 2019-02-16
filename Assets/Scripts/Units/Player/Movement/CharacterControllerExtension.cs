@@ -25,6 +25,10 @@ namespace Units.Player.Movement {
             AverageVelocity /= VelocityHistory.Count;
         }
 
+        public Vector3 GetCurrentVelocity() {
+            return Original.velocity;
+        }
+        
         public Vector3 GetAverageVelocity() {
             return AverageVelocity;
         }

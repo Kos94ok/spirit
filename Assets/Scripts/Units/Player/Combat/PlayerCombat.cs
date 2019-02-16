@@ -14,7 +14,8 @@ namespace Units.Player.Combat {
 			Cast,
 			Range,
 		}
-		
+
+		private UnitStats Stats;
 		private PlayerTargeting Targeting;
 		private readonly ChatLog ChatLog = AutowireFactory.GetInstanceOf<ChatLog>();
 		private readonly MouseStatus MouseStatus = AutowireFactory.GetInstanceOf<MouseStatus>();
@@ -24,10 +25,11 @@ namespace Units.Player.Combat {
 		private readonly Dictionary<CommandBinding.Command, PlayerAbility> AbilityLibrary = new Dictionary<CommandBinding.Command, PlayerAbility>();
 		
 		private void Start() {
+			Stats = GetComponent<UnitStats>();
 			Targeting = GetComponent<PlayerTargeting>();
 			AbilityLibrary.Add(CommandBinding.Command.MoveToMouse, new PlayerBasicAttack());
-			AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new PlayerProjectileAttack());
-			//AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new ForkedLightning());
+			//AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new PlayerProjectileAttack());
+			AbilityLibrary.Add(CommandBinding.Command.AbilityRightClick, new ForkedLightning());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityQ, new ConeOfLightning());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityW, new TestUltraLightning());
 			AbilityLibrary.Add(CommandBinding.Command.AbilityE, new TestPinkLightning());
@@ -40,7 +42,6 @@ namespace Units.Player.Combat {
 			foreach (var entry in AbilityLibrary) {
 				var command = entry.Key;
 				var ability = entry.Value;
-				ability.Update();
 				if (!CommandStatus.IsActive(command) || !ability.IsReady()) {
 					continue;
 				}
@@ -58,8 +59,15 @@ namespace Units.Player.Combat {
 				if (ability.IsTargetingSelf()
 						|| ability.IsTargetingUnit() && targetUnit.HasValue
 						|| ability.IsTargetingPoint() && targetPoint.HasValue) {
+
+					if (!Stats.HasMana(ability.GetManaCost())) {
+						ChatLog.Post("error_noMana");
+						ability.OnNotEnoughMana();
+						continue;
+					}
 					var adjustedTargetPoint = GetClosestTargetPointInRange(targetUnit, targetPoint, ability.GetMaximumCastRange());
 					var adjustedTargetUnit = GetTargetUnitIfInRange(targetUnit, ability.GetMaximumCastRange());
+					Stats.DrainMana(ability.GetManaCost());
 					ability.OnCast(transform.gameObject, adjustedTargetPoint, adjustedTargetUnit);
 					ClearQueuedAbility();
 				}

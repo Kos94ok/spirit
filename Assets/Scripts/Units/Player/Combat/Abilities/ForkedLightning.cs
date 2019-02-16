@@ -42,5 +42,9 @@ namespace Units.Player.Combat.Abilities {
 		public override float GetMaximumCastRange() {
 			return 6f;
 		}
+
+		public override float GetManaCost() {
+			return 10f;
+		}
 	}
 }

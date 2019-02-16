@@ -25,7 +25,6 @@ namespace Units.Enemies.AwakenedDweller {
 		}
 		
 		private void Update() {
-			BasicAttack.Update();
 			ChaseModule.Update(transform.position);
 			if (!ChaseModule.IsInCombat()) {
 				return;

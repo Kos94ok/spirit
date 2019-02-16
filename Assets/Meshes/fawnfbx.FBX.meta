@@ -1,0 +1,216 @@
+fileFormatVersion: 2
+guid: 99872aa271f28f24db530522d0ee3995
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Back Left Leg Bottom
+    100002: Back Left Leg Joint
+    100004: Back Left Leg Top
+    100006: Back Right Leg Bottom
+    100008: Back Right Leg Joint
+    100010: Back Right Leg Top
+    100012: Bone003
+    100014: Bone004
+    100016: Bone005
+    100018: Bone006
+    100020: Bone007
+    100022: Bone008
+    100024: Bone009
+    100026: Bone010
+    100028: Bone011
+    100030: Ear Left
+    100032: Ear Right
+    100034: Fawn Back Left Leg Bottom
+    100036: Fawn Back Left Leg Controller
+    100038: Fawn Back Left Leg Middle
+    100040: Fawn Back Right Leg Bottom
+    100042: Fawn Back Right Leg Controller
+    100044: Fawn Back Right Leg Middle
+    100046: Fawn Body
+    100048: Fawn Ear Left
+    100050: Fawn Ear Right
+    100052: Fawn Front Left Leg Bottom
+    100054: Fawn Front Left Leg Controller
+    100056: Fawn Front Left Leg Top
+    100058: Fawn Front Right Leg Bottom
+    100060: Fawn Front Right Leg Controller
+    100062: Fawn Front Right Leg Top
+    100064: Fawn Head
+    100066: //RootNode
+    100068: Front Left Leg Bottom
+    100070: Front Left Leg Joint
+    100072: Front Left Leg Top
+    100074: Front Right Leg Bottom
+    100076: Front Right Leg Joint
+    100078: Front Right Leg Top
+    100080: Head Back
+    100082: IK Chain001
+    100084: IK Chain002
+    100086: Neck
+    100088: Nose
+    100090: Spine Back
+    100092: Spine Front
+    100094: Spine Middle
+    100096: Tail
+    400000: Back Left Leg Bottom
+    400002: Back Left Leg Joint
+    400004: Back Left Leg Top
+    400006: Back Right Leg Bottom
+    400008: Back Right Leg Joint
+    400010: Back Right Leg Top
+    400012: Bone003
+    400014: Bone004
+    400016: Bone005
+    400018: Bone006
+    400020: Bone007
+    400022: Bone008
+    400024: Bone009
+    400026: Bone010
+    400028: Bone011
+    400030: Ear Left
+    400032: Ear Right
+    400034: Fawn Back Left Leg Bottom
+    400036: Fawn Back Left Leg Controller
+    400038: Fawn Back Left Leg Middle
+    400040: Fawn Back Right Leg Bottom
+    400042: Fawn Back Right Leg Controller
+    400044: Fawn Back Right Leg Middle
+    400046: Fawn Body
+    400048: Fawn Ear Left
+    400050: Fawn Ear Right
+    400052: Fawn Front Left Leg Bottom
+    400054: Fawn Front Left Leg Controller
+    400056: Fawn Front Left Leg Top
+    400058: Fawn Front Right Leg Bottom
+    400060: Fawn Front Right Leg Controller
+    400062: Fawn Front Right Leg Top
+    400064: Fawn Head
+    400066: //RootNode
+    400068: Front Left Leg Bottom
+    400070: Front Left Leg Joint
+    400072: Front Left Leg Top
+    400074: Front Right Leg Bottom
+    400076: Front Right Leg Joint
+    400078: Front Right Leg Top
+    400080: Head Back
+    400082: IK Chain001
+    400084: IK Chain002
+    400086: Neck
+    400088: Nose
+    400090: Spine Back
+    400092: Spine Front
+    400094: Spine Middle
+    400096: Tail
+    2100000: No Name
+    4300000: Fawn Body
+    4300002: Fawn Front Right Leg Top
+    4300004: Fawn Front Right Leg Bottom
+    4300006: Fawn Front Left Leg Bottom
+    4300008: Fawn Front Left Leg Top
+    4300010: Fawn Back Right Leg Middle
+    4300012: Fawn Back Right Leg Bottom
+    4300014: Fawn Back Left Leg Bottom
+    4300016: Fawn Back Left Leg Middle
+    4300018: Fawn Ear Right
+    4300020: Fawn Head
+    4300022: Fawn Ear Left
+    7400000: Take 001
+    9500000: //RootNode
+    13700000: Fawn Back Left Leg Bottom
+    13700002: Fawn Back Left Leg Middle
+    13700004: Fawn Back Right Leg Bottom
+    13700006: Fawn Back Right Leg Middle
+    13700008: Fawn Body
+    13700010: Fawn Ear Left
+    13700012: Fawn Ear Right
+    13700014: Fawn Front Left Leg Bottom
+    13700016: Fawn Front Left Leg Top
+    13700018: Fawn Front Right Leg Bottom
+    13700020: Fawn Front Right Leg Top
+    13700022: Fawn Head
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 0.0254
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
