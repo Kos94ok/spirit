@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Misc;
 using Misc.ObjectPool;
 using Settings;
+using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -20,6 +23,7 @@ namespace Units.Common.Lightning {
 			private float BranchingFactor = 1f;
 			private int MaximumBranchDepth = 3;
 			private Prefab FragmentPrefab = Prefab.LightningEffectFragment;
+			private Maybe<Prefab> FragmentParticleSystemPrefab = Maybe<Prefab>.Some(Prefab.LightningEffectParticleSystem);
 			private float FragmentLifeTime = .1f;
 			private float FragmentParticleLifeTime = .5f;
 			private float SmoothFactor = .5f;
@@ -76,6 +80,11 @@ namespace Units.Common.Lightning {
 				return this;
 			}
 
+			public Builder SetFragmentParticleSystemResource(Prefab prefab) {
+				FragmentParticleSystemPrefab = Maybe<Prefab>.Some(prefab);
+				return this;
+			}
+
 			public Builder SetFragmentLifeTime(float lifeTime) {
 				FragmentLifeTime = lifeTime;
 				return this;
@@ -111,7 +120,7 @@ namespace Units.Common.Lightning {
 				var lightningAgent = lightningContainer.AddComponent<LightningAgent>();
 				lightningContainer.name = "LightningAgent";
 				lightningAgent.Init(From, To, TargetUnit, 1 / Speed, AngularDeviation, BranchingFactor,
-					BranchingChance, MaximumBranchDepth, FragmentPrefab, FragmentLifeTime,
+					BranchingChance, MaximumBranchDepth, FragmentPrefab, FragmentParticleSystemPrefab, FragmentLifeTime,
 					FragmentParticleLifeTime, SmoothFactor, StartingOffset, TargetUnitReachedCallback, TargetPointReachedCallback);
 				return lightningAgent;
 			}
@@ -138,6 +147,7 @@ namespace Units.Common.Lightning {
 		private float BranchingChance;
 		private float BranchingChanceReduction;
 		private Prefab FragmentPrefab;
+		private Maybe<Prefab> FragmentParticleSystemPrefab;
 		private float FragmentLifeTime;
 		private float FragmentParticleLifeTime;
 		private float Sharpness;
@@ -159,6 +169,7 @@ namespace Units.Common.Lightning {
 				float branchingChance,
 				int maximumBranchDepth,
 				Prefab fragmentPrefab,
+				Maybe<Prefab> fragmentParticleSystemPrefab,
 				float fragmentLifeTime,
 				float fragmentParticleLifeTime,
 				float smoothFactor,
@@ -174,6 +185,7 @@ namespace Units.Common.Lightning {
 			BranchingChance = branchingChance;
 			BranchingChanceReduction = branchingChance / maximumBranchDepth;
 			FragmentPrefab = fragmentPrefab;
+			FragmentParticleSystemPrefab = fragmentParticleSystemPrefab;
 			FragmentLifeTime = fragmentLifeTime;
 			FragmentParticleLifeTime = fragmentParticleLifeTime;
 			Sharpness = 1 - Mathf.Clamp(smoothFactor, 0, 1);
@@ -203,8 +215,9 @@ namespace Units.Common.Lightning {
 			AddFragment(from, targetPoint, linearDepth, branchDepth, fragmentCount, previousOffset);
 		}
 		
-		private void AddFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth, int fragmentCount, Vector3 previousOffset) {
+		public void AddFragment(Vector3 from, Vector3 to, int linearDepth, int branchDepth, int fragmentCount, Vector3 previousOffset) {
 			var fragmentsRemaining = fragmentCount;
+
 			while (fragmentsRemaining > 0 && Vector3.Distance(from, to) > TerminationDistance) {
 				var fragment = ObjectPool.Obtain(FragmentPrefab);
 				var fragmentController = new LightningFragment();
@@ -230,6 +243,21 @@ namespace Units.Common.Lightning {
 					fragment.GetComponentInChildren<Light>().intensity = 0.5f * scaleMod;
 				} else {
 					fragment.GetComponentInChildren<Light>().enabled = false;
+				}
+
+				if (FragmentParticleSystemPrefab.HasValue) {
+					var particleSystemSingleton = ObjectPool.ObtainSingleton(FragmentParticleSystemPrefab.Value);
+					particleSystemSingleton.transform.parent = fragment.transform;
+					//particleSystemSingleton.transform.position = fragment.transform.position;
+					//particleSystemSingleton.transform.rotation = fragment.transform.rotation;
+					//particleSystem.transform.localScale = fragment.transform.localScale / 10;
+					var particleSystem = particleSystemSingleton.GetComponent<ParticleSystem>();
+					//var particleSystemShape = particleSystem.shape;
+					//var particleSystemShapeScale = particleSystemShape.scale;
+					//particleSystemShape.scale = Vector3.Scale(particleSystemShapeScale, fragment.transform.localScale);
+					particleSystem.Emit(20);
+					particleSystemSingleton.transform.parent = null;
+					//particleSystemShape.scale = particleSystemShapeScale;
 				}
 
 				StartCoroutine(FragmentHideVisual(fragmentController));
@@ -280,11 +308,12 @@ namespace Units.Common.Lightning {
 		
 		private IEnumerator FragmentHideVisual(LightningFragment fragment) {
 			yield return new WaitForSeconds(FragmentLifeTime);
+			
 			fragment.GetGameObject().transform.GetChild(LightningFragment.VisualDataChildIndex).gameObject.SetActive(false);
 		}
 
 		private IEnumerator FragmentSelfDestruct(LightningFragment fragment) {
-			yield return new WaitForSeconds(FragmentDelay + FragmentParticleLifeTime);
+			yield return new WaitForSeconds(FragmentLifeTime + FragmentParticleLifeTime);
 
 			RegisteredFragments.Remove(fragment);
 			ObjectPool.Return(FragmentPrefab, fragment.GetGameObject());
@@ -325,6 +354,10 @@ namespace Units.Common.Lightning {
 				default:
 					return 1f;
 			}
+		}
+
+		public int GetActiveFragmentCount() {
+			return RegisteredFragments.Count;
 		}
 	}
 }

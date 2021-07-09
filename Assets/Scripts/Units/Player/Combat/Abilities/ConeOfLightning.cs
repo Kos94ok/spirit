@@ -25,14 +25,15 @@ namespace Units.Player.Combat.Abilities {
 				AbilityUtils.RetargetLightningAbility(sourcePosition, sourcePosition + adjustedTargetVector * Random.Range(1.2f, 1.7f), targetUnit, AutoTargetWidth,
 					out var newTargetPosition, out var newTargetUnit, out _);
 				
-				new LightningAgent.Builder(sourcePosition, newTargetPosition, newTargetUnit)
-					.SetAngularDeviation(40f)
+				var lightningAgentBuilder = new LightningAgent.Builder(sourcePosition, newTargetPosition, newTargetUnit)
 					.SetSpeed(1000f)
+					.SetAngularDeviation(40f)
 					.SetBranchingChance(0.4f)
 					.SetBranchingFactor(0.5f)
 					.SetSmoothFactor(0.7f)
 					.SetFragmentLifeTime(0.10f)
 					.SetTargetUnitReachedCallback(OnTargetUnitReached)
+					.SetFragmentParticleSystemResource(Prefab.LightningEffectParticleSystem)
 					.Create();
 			}
 

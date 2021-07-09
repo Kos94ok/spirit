@@ -13,6 +13,7 @@ namespace Misc {
 		LongLightningEffectFragment,
 		PinkLongLightningEffectFragment,
 		RunningLightningEffectFragment,
+		LightningEffectParticleSystem,
 		GenericProjectile,
 		ProjectileArrow,
 		AwakenedDwellerBasicAttackProjectile,
@@ -40,6 +41,7 @@ namespace Misc {
 			Library.Add(Prefab.LongLightningEffectFragment, "EffectFragments/LongLightningEffectFragment");
 			Library.Add(Prefab.PinkLongLightningEffectFragment, "EffectFragments/PinkLongLightningEffectFragment");
 			Library.Add(Prefab.RunningLightningEffectFragment, "EffectFragments/RunningLightningEffectFragment");
+			Library.Add(Prefab.LightningEffectParticleSystem, "ParticleSystems/LightningEffectParticleSystem");
 			Library.Add(Prefab.GenericProjectile, "Projectiles/GenericProjectile");
 			Library.Add(Prefab.ProjectileArrow, "Projectiles/ProjectileArrow");
 			Library.Add(Prefab.AwakenedDwellerBasicAttackProjectile, "Projectiles/AwakenedDwellerBasicAttackProjectile");
